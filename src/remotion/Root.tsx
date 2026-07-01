@@ -1,18 +1,18 @@
-import "./index.css";
+import "./styles.css";
 import { Composition } from "remotion";
 import { AlfredoIntro } from "./Composition";
 
-export const RemotionRoot: React.FC = () => {
+export function RemotionRoot() {
 	return (
 		<>
 			<Composition
 				id="AlfredoIntro"
 				component={AlfredoIntro}
-				durationInFrames={120}
+				durationInFrames={135}
 				fps={30}
-				width={1920}
-				height={1080}
+				width={1280}
+				height={720}
 			/>
 		</>
 	);
-};
+}
