@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_id": "4792e5b1-3476-40eb-ab08-08367beb4524",
+  "cwd": "/home/alp/dev/projects/alfredo/landing-page",
+  "route": ["code-implementer"],
+  "live": ["code", "significant-build", "intent-confirmed", "multi-file", "novel-domain", "findings:research", "reuse-done", "existing", "plan-ready", "plan-challenged", "plan-approved"],
+  "available": ["request", "triage-read", "confirmed-intent", "research-findings", "reuse-map", "approved-plan", "plan-challenge"],
+  "ran": ["triage", "researcher", "reuse-scanner", "health-checker", "prototype-identifier", "requirements-clarifier", "code-planner", "plan-challenger"],
+  "premises": ["USER APPROVED v2. #plan-approved emitted. code-implementer running M1-M5 in background (milestone loop; @diff withheld until milestones-complete, End Review wave fires once at end).", "plan v2 canonical at .alp-river/artifacts/plan-unify-remotion.md", "implementer self-verifies each milestone gate (tsc, config-load via remotion compositions, still, dev/build, single-React); STOP+report on any gate failure (kickback). Contingencies documented in plan (async-import only if studio fails; @ alias fix in remotion.config if import fails).", "videos/ deleted LAST in M5 after all gates + render pass; M1 baseline git commit is rollback point"],
+  "mid_run_stage": "code-implementer",
+  "pending_gate": "",
+  "pending_gate_question": "",
+  "artifact_index": {"approved-plan": ".alp-river/artifacts/plan-unify-remotion.md", "bumper-design": ".alp-river/artifacts/plan-alfredo-intro.md"}
+}
