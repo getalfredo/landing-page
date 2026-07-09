@@ -6,7 +6,7 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "vite dev --port 3055",
     "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview",
@@ -19,7 +19,7 @@
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:studio": "drizzle-kit studio",
-    "remotion:studio": "remotion studio src/remotion/index.ts",
+    "remotion:studio": "remotion studio src/remotion/index.ts --port 3056",
     "remotion:still": "remotion still src/remotion/index.ts AlfredoIntro out/AlfredoIntro.png",
     "remotion:render": "remotion render src/remotion/index.ts AlfredoIntro out/AlfredoIntro.mp4"
   },
