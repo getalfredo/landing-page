@@ -1,0 +1,16 @@
+FROM node:24-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:24-slim
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV DATABASE_URL=/data/alfredo.db
+RUN mkdir /data
+COPY --from=build /app/.output ./.output
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]

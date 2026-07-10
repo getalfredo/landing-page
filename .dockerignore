@@ -1,0 +1,15 @@
+node_modules
+.output
+.nitro
+.tanstack
+.git
+.claude
+.agents
+.prototypes
+.vscode
+out
+docs
+dev.db
+*.db
+.env
+.env.*
