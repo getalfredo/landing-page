@@ -4,7 +4,21 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-export type VariantKey = "d" | "f" | "h" | "i" | "j" | "k" | "l" | "m" | "n";
+export type VariantKey =
+	| "d"
+	| "f"
+	| "h"
+	| "i"
+	| "j"
+	| "k"
+	| "l"
+	| "m"
+	| "n"
+	| "o"
+	| "p"
+	| "q"
+	| "r"
+	| "s";
 
 export const VARIANTS: Record<VariantKey, string> = {
 	d: "The Machine (v1 baseline)",
@@ -16,9 +30,29 @@ export const VARIANTS: Record<VariantKey, string> = {
 	l: "Ops Deck (J + modules + insights)",
 	m: "Web Console (deploy → dashboard)",
 	n: "Hero Demo (click-driven, fixed height)",
+	o: "Showcase: Panel Wall (2×2 windows)",
+	p: "Showcase: One Glass (keycap channels)",
+	q: "Showcase: Ledger (alternating rows)",
+	r: "Showcase: Guided Rail (P×Q scroll-sync)",
+	s: "Showcase: Switchboard (menu + one glass)",
 };
 
-const ORDER: VariantKey[] = ["d", "f", "h", "i", "j", "k", "l", "m", "n"];
+const ORDER: VariantKey[] = [
+	"d",
+	"f",
+	"h",
+	"i",
+	"j",
+	"k",
+	"l",
+	"m",
+	"n",
+	"o",
+	"p",
+	"q",
+	"r",
+	"s",
+];
 
 export function PrototypeSwitcher({ current }: { current: VariantKey }) {
 	const navigate = useNavigate();
