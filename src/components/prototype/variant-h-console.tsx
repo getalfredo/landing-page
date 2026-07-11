@@ -279,7 +279,7 @@ const stylesH = `
 }
 .csl-display-line {
 	opacity: 0;
-	animation: csl-on 0.05s steps(1) forwards;
+	animation: csl-on 0.05s linear forwards;
 	text-shadow: 0 0 6px rgba(88, 232, 92, 0.4);
 	white-space: pre;
 }
@@ -307,7 +307,7 @@ const stylesH = `
 	border-radius: 50%;
 	background: var(--led-off);
 	box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
-	animation: csl-led 0.2s steps(1) forwards;
+	animation: csl-led 0.2s linear forwards;
 	flex-shrink: 0;
 }
 .csl-led-on { animation-delay: 0s; }

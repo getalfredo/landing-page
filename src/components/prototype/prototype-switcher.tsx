@@ -1,17 +1,23 @@
-// PROTOTYPE — throwaway switcher for the visual-identity exploration (wayfinder #3).
+// PROTOTYPE — throwaway switcher for the visual-identity exploration
+// (wayfinder #3, extended for identity v2 in #11).
 // Delete together with the variant components once a direction wins.
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-export type VariantKey = "d" | "f" | "h";
+export type VariantKey = "d" | "f" | "h" | "i" | "j" | "k" | "l" | "m";
 
 export const VARIANTS: Record<VariantKey, string> = {
 	d: "The Machine (v1 baseline)",
 	f: "Big Readout",
-	h: "The Console",
+	h: "The Console (v2 baseline)",
+	i: "Fleet Panel",
+	j: "Dark Ops",
+	k: "The Rack",
+	l: "Ops Deck (J + modules + insights)",
+	m: "Web Console (deploy → dashboard)",
 };
 
-const ORDER: VariantKey[] = ["d", "f", "h"];
+const ORDER: VariantKey[] = ["d", "f", "h", "i", "j", "k", "l", "m"];
 
 export function PrototypeSwitcher({ current }: { current: VariantKey }) {
 	const navigate = useNavigate();
