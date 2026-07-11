@@ -68,9 +68,13 @@ export function LoadBar({ lit, segs = 10 }: { lit: number; segs?: number }) {
 
 export function ConsoleFrame({
 	mode,
+	brand = "CONSOLE",
+	refrain = "ONE BOX · ONE CONSOLE · N PROJECTS",
 	children,
 }: {
 	mode: string;
+	brand?: string;
+	refrain?: string;
 	children: ReactNode;
 }) {
 	const bezelRow: CSSProperties = {
@@ -99,7 +103,9 @@ export function ConsoleFrame({
 					}}
 				>
 					<Etch>ALFREDO OS 0.1</Etch>
-					<Etch>CONSOLE / {mode}</Etch>
+					<Etch>
+						{brand} / {mode}
+					</Etch>
 					<Etch>UNIT 000-001</Etch>
 				</div>
 				<div
@@ -123,7 +129,7 @@ export function ConsoleFrame({
 					}}
 				>
 					<Etch size={11} style={{ opacity: 0.8 }}>
-						ONE BOX · ONE CONSOLE · N PROJECTS
+						{refrain}
 					</Etch>
 				</div>
 			</div>

@@ -9,6 +9,12 @@
 // every other button (incl. Join waitlist) is the calm bone keycap.
 // Extended for wayfinder #16: the H1 product word cycles via CyclingWord
 // (mechanism under exploration — see h1-cycle.tsx, `?h1=` picker).
+// Extended for wayfinder #20: the deploy screen reads as a form being
+// filled in — typewriter project name, ghost-click circles checking the
+// integrations, then Deploy arms. Boot is much quicker; Deploy goes
+// inactive once used, until + New project resets the form. The fill
+// trigger is under exploration via `?fill=` (attract | first | step).
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
 	CyclingWord,
@@ -76,6 +82,17 @@ const NEWBORN_START: Project = {
 
 const SEGMENTS = Array.from({ length: 10 }, (_, i) => `seg-${i}`);
 
+const PROJECT_NAME = "my-saas";
+
+// The three candidate answers to "when does the form-fill play?" — the
+// ruling this round decides (ticket #20). Attract is the working default.
+export type FillMode = "attract" | "first" | "step";
+export const FILL_MODES: Record<FillMode, string> = {
+	attract: "fill plays on load; deploy stays user-driven",
+	first: "form idles until the first click on the console",
+	step: "every click on the console runs one fill action",
+};
+
 function fmt(n: number) {
 	return n.toLocaleString("en-US");
 }
@@ -83,52 +100,157 @@ function fmt(n: number) {
 export function VariantNHeroDemo({
 	h1Mode = "flip",
 	h1Run = "loop",
+	fill = "attract",
 }: {
 	h1Mode?: H1Mode;
 	h1Run?: H1Run;
+	fill?: FillMode;
 }) {
 	const [screen, setScreen] = useState<"deploy" | "dash">("deploy");
+	// #20: the form starts empty and fills itself — nothing pre-checked.
 	const [on, setOn] = useState<Record<string, boolean>>(
-		Object.fromEntries(ALL_SERVICES.map((s) => [s.id, true])),
+		Object.fromEntries(ALL_SERVICES.map((s) => [s.id, false])),
 	);
+	const [typed, setTyped] = useState(0);
+	const [ring, setRing] = useState<string | null>(null);
+	const [started, setStarted] = useState(false);
+	const [fillDone, setFillDone] = useState(false);
+	const [formSpent, setFormSpent] = useState(false);
 	const [booting, setBooting] = useState(false);
 	const [bootKey, setBootKey] = useState(0);
+	const [bootSnap, setBootSnap] = useState<string[] | null>(null);
 	const [deployed, setDeployed] = useState(false);
 	const [armed, setArmed] = useState(false);
 	const [fleet, setFleet] = useState(FLEET_START);
 	const [newborn, setNewborn] = useState(NEWBORN_START);
 	const [joined, setJoined] = useState(false);
-	const bootTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const timers = useRef<number[]>([]);
+	const t = (fn: () => void, ms: number) => {
+		timers.current.push(window.setTimeout(fn, ms));
+	};
+	useEffect(
+		() => () => {
+			for (const id of timers.current) clearTimeout(id);
+		},
+		[],
+	);
 
 	const chosen = ALL_SERVICES.filter((s) => on[s.id]);
-	const bootLines = [
-		`> alfredo up my-saas --with ${chosen.map((s) => s.id).join(",")}`,
-		...chosen.map((s) => `${s.id} ${".".repeat(16 - s.id.length)} ok`),
-		`READY  00:0${Math.min(9, chosen.length)}`,
-	];
+
+	// ---- the fill sequence: type the name, ghost-click each box ----
+	const busy = useRef(false);
+	const stepIdx = useRef(0);
+
+	const typeName = (then?: () => void) => {
+		busy.current = true;
+		for (let i = 1; i <= PROJECT_NAME.length; i++) {
+			t(() => setTyped(i), 70 * i);
+		}
+		t(
+			() => {
+				busy.current = false;
+				then?.();
+			},
+			70 * PROJECT_NAME.length + 380,
+		);
+	};
+	const checkOne = (idx: number, then?: () => void) => {
+		busy.current = true;
+		const id = ALL_SERVICES[idx].id;
+		setRing(id);
+		t(() => setOn((prev) => ({ ...prev, [id]: true })), 170);
+		t(() => setRing(null), 520);
+		t(() => {
+			busy.current = false;
+			then?.();
+		}, 460);
+	};
+	const fillFrom = (idx: number) => {
+		if (idx >= ALL_SERVICES.length) {
+			setFillDone(true);
+			return;
+		}
+		checkOne(idx, () => fillFrom(idx + 1));
+	};
+	const runAll = () => {
+		setStarted(true);
+		typeName(() => fillFrom(0));
+	};
+	const skipToFilled = () => {
+		setTyped(PROJECT_NAME.length);
+		setOn(Object.fromEntries(ALL_SERVICES.map((s) => [s.id, true])));
+		setStarted(true);
+		setFillDone(true);
+	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: mount-only — mode switches remount via key
+	useEffect(() => {
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			skipToFilled();
+			return;
+		}
+		if (fill === "attract") t(runAll, 700);
+	}, []);
+
+	// first/step modes: clicks on the glass drive the fill.
+	const onGlassClick = () => {
+		if (fillDone || busy.current) return;
+		if (fill === "first") {
+			if (!started) runAll();
+			return;
+		}
+		if (fill === "step") {
+			const i = stepIdx.current;
+			if (i === 0) {
+				setStarted(true);
+				typeName();
+			} else if (i <= ALL_SERVICES.length) {
+				checkOne(
+					i - 1,
+					i === ALL_SERVICES.length ? () => setFillDone(true) : undefined,
+				);
+			}
+			stepIdx.current = i + 1;
+		}
+	};
 
 	const deploy = () => {
-		if (chosen.length === 0 || booting) return;
+		if (!fillDone || formSpent || chosen.length === 0 || booting) return;
+		const lines = [
+			`> alfredo up ${PROJECT_NAME} --with ${chosen.map((s) => s.id).join(",")}`,
+			...chosen.map((s) => `${s.id} ${".".repeat(16 - s.id.length)} ok`),
+			`READY  00:0${Math.min(9, chosen.length)}`,
+		];
 		setBootKey((k) => k + 1);
+		setBootSnap(lines);
 		setBooting(true);
+		setFormSpent(true); // Deploy stays inactive from here on (#20)
 		setArmed(false);
-		if (bootTimer.current) clearTimeout(bootTimer.current);
-		bootTimer.current = setTimeout(
+		// #20: much quicker — the dashboard is ready right behind the boot.
+		t(
 			() => {
 				setBooting(false);
 				setDeployed(true);
 				setArmed(true);
 			},
-			900 + bootLines.length * 380,
+			250 + lines.length * 120,
 		);
 	};
 
-	useEffect(
-		() => () => {
-			if (bootTimer.current) clearTimeout(bootTimer.current);
-		},
-		[],
-	);
+	const newProject = () => {
+		setScreen("deploy");
+		setArmed(false);
+		setFormSpent(false);
+		setFillDone(false);
+		setTyped(0);
+		setOn(Object.fromEntries(ALL_SERVICES.map((s) => [s.id, false])));
+		setBootSnap(null);
+		stepIdx.current = 0;
+		setStarted(false);
+		// the click itself was the interaction — refill without another wait
+		if (fill !== "step") t(runAll, 450);
+	};
 
 	// Live tick — dashboard data breathes whether or not it's on screen.
 	useEffect(() => {
@@ -167,13 +289,17 @@ export function VariantNHeroDemo({
 	const earner = shown.reduce((a, p) => (p.eur > a.eur ? p : a));
 
 	// Exactly one hot button at a time: Deploy → Show dashboard → + New project.
+	// Deploy only arms once the form has filled itself; once used it never
+	// re-arms for this form (#20).
 	const next: "deploy" | "dash" | "new" | null = booting
 		? null
 		: screen === "dash"
 			? "new"
 			: armed
 				? "dash"
-				: "deploy";
+				: fillDone && !formSpent
+					? "deploy"
+					: null;
 	const btnClass = (key: "deploy" | "dash" | "new") =>
 		`wcn-btn ${next === key ? "wcn-btn-next" : "wcn-btn-keycap"}`;
 
@@ -209,7 +335,12 @@ export function VariantNHeroDemo({
 					</p>
 				</section>
 
-				<section className="wcn-bezel" aria-label="Alfredo console demo">
+				{/* biome-ignore lint/a11y/useKeyWithClickEvents: prototype — the glass itself is the fill trigger in first/step modes */}
+				<section
+					className="wcn-bezel"
+					aria-label="Alfredo console demo"
+					onClick={onGlassClick}
+				>
 					<div className="wcn-bezel-top">
 						<span className="wcn-etch">ALFREDO OS 0.1</span>
 						<span className="wcn-etch">
@@ -238,10 +369,7 @@ export function VariantNHeroDemo({
 								<button
 									type="button"
 									className={`wcn-action ${btnClass("new")}`}
-									onClick={() => {
-										setScreen("deploy");
-										setArmed(false);
-									}}
+									onClick={newProject}
 								>
 									+ New project
 								</button>
@@ -254,7 +382,12 @@ export function VariantNHeroDemo({
 									<div className="wcn-panel">
 										<div className="wcn-panel-head">
 											<span className="wcn-etch">PROJECT</span>
-											<span className="wcn-mono wcn-projname">my-saas</span>
+											<span className="wcn-mono wcn-projname">
+												{PROJECT_NAME.slice(0, typed)}
+												{typed < PROJECT_NAME.length && (
+													<span className="wcn-cursor" aria-hidden="true" />
+												)}
+											</span>
 										</div>
 										<div className="wcn-checks">
 											{ALL_SERVICES.map((s) => (
@@ -263,7 +396,7 @@ export function VariantNHeroDemo({
 													className="wcn-check"
 													key={s.id}
 													aria-pressed={on[s.id]}
-													disabled={booting}
+													disabled={booting || !fillDone}
 													onClick={() =>
 														setOn((prev) => ({ ...prev, [s.id]: !prev[s.id] }))
 													}
@@ -273,17 +406,25 @@ export function VariantNHeroDemo({
 													</span>
 													<span className="wcn-check-name">{s.label}</span>
 													<span className="wcn-check-spec">{s.spec}</span>
+													{ring === s.id && (
+														<span
+															className="wcn-clickring"
+															aria-hidden="true"
+														/>
+													)}
 												</button>
 											))}
 										</div>
 										<div className="wcn-panel-foot">
-											<span className="wcn-etch">
-												{chosen.length} MODULES · WIRED ONCE
-											</span>
 											<button
 												type="button"
 												className={btnClass("deploy")}
-												disabled={chosen.length === 0 || booting}
+												disabled={
+													!fillDone ||
+													formSpent ||
+													chosen.length === 0 ||
+													booting
+												}
 												onClick={deploy}
 											>
 												Deploy
@@ -292,25 +433,30 @@ export function VariantNHeroDemo({
 									</div>
 
 									<div className="wcn-term">
-										{booting || deployed ? (
+										{bootSnap ? (
 											<div key={bootKey}>
-												{bootLines.map((t, i) => (
+												{bootSnap.map((line, i) => (
 													<div
 														className="wcn-term-line"
-														key={t}
+														key={line}
 														style={
 															booting
-																? { animationDelay: `${0.3 + i * 0.38}s` }
+																? { animationDelay: `${0.15 + i * 0.12}s` }
 																: { opacity: 1 }
 														}
 													>
-														{t}
+														{line}
 													</div>
 												))}
 											</div>
 										) : (
 											<div className="wcn-term-line" style={{ opacity: 1 }}>
 												{"> "}
+												{!fillDone && fill === "first" && !started
+													? "click the console to begin "
+													: !fillDone && fill === "step"
+														? "click — next step "
+														: ""}
 												<span className="wcn-cursor" aria-hidden="true" />
 											</div>
 										)}
@@ -458,6 +604,70 @@ export function VariantNHeroDemo({
 		</div>
 	);
 }
+
+// Dev-only picker for the #20 fill-trigger ruling, mirroring H1CyclePicker.
+export function FillModePicker({ fill }: { fill: FillMode }) {
+	const navigate = useNavigate();
+
+	if (import.meta.env.PROD) return null;
+
+	const set = (f: FillMode) =>
+		navigate({
+			to: "/",
+			search: (prev) => ({
+				variant: prev.variant ?? "n",
+				h1: prev.h1 ?? "flip",
+				h1run: prev.h1run ?? "loop",
+				fill: f,
+			}),
+			replace: true,
+		});
+
+	return (
+		<div style={fillPickerStyle}>
+			<span style={{ opacity: 0.55, marginRight: 2 }}>FILL</span>
+			{(Object.keys(FILL_MODES) as FillMode[]).map((f) => (
+				<button
+					type="button"
+					key={f}
+					onClick={() => set(f)}
+					style={fillPickerBtn(f === fill)}
+					title={FILL_MODES[f]}
+				>
+					{f}
+				</button>
+			))}
+		</div>
+	);
+}
+
+const fillPickerStyle: React.CSSProperties = {
+	position: "fixed",
+	bottom: 64,
+	left: 16,
+	zIndex: 9999,
+	display: "flex",
+	alignItems: "center",
+	gap: 6,
+	background: "#111",
+	color: "#fff",
+	borderRadius: 999,
+	padding: "8px 12px",
+	boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+	fontFamily: "ui-monospace, monospace",
+	fontSize: 12,
+};
+
+const fillPickerBtn = (active: boolean): React.CSSProperties => ({
+	background: active ? "#ffd23c" : "#333",
+	color: active ? "#111" : "#fff",
+	border: "none",
+	borderRadius: 999,
+	padding: "4px 10px",
+	cursor: "pointer",
+	fontFamily: "inherit",
+	fontSize: 12,
+});
 
 const stylesN = `
 .wcn {
@@ -607,6 +817,24 @@ const stylesN = `
 	cursor: pointer;
 	font-family: inherit;
 	color: var(--paper);
+	position: relative;
+}
+/* #20: the ghost click — an amber ring rippling out from the checkbox */
+.wcn-clickring {
+	position: absolute;
+	left: 28px;
+	top: 50%;
+	width: 36px;
+	height: 36px;
+	margin: -18px 0 0 -18px;
+	border: 2px solid var(--amber);
+	border-radius: 50%;
+	pointer-events: none;
+	animation: wcn-ring 0.5s ease-out both;
+}
+@keyframes wcn-ring {
+	from { transform: scale(0.3); opacity: 0.95; }
+	to { transform: scale(1.5); opacity: 0; }
 }
 .wcn-check:hover { background: rgba(236, 231, 218, 0.03); }
 .wcn-check:disabled { cursor: default; }
@@ -633,11 +861,10 @@ const stylesN = `
 }
 .wcn-panel-foot {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	padding: 13px 18px;
 	border-top: 1px solid var(--seam);
 }
+.wcn-panel-foot .wcn-btn { width: 100%; }
 .wcn-term {
 	background: var(--display-bg);
 	border: 1px solid var(--seam);

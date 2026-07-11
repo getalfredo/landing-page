@@ -211,6 +211,7 @@ export function H1CyclePicker({ mode, run }: { mode: H1Mode; run: H1Run }) {
 				variant: prev.variant ?? "n",
 				h1: patch.h1 ?? prev.h1 ?? "flip",
 				h1run: patch.h1run ?? prev.h1run ?? "loop",
+				fill: prev.fill ?? "attract",
 			}),
 			replace: true,
 		});

@@ -334,7 +334,8 @@ const stylesS = `
 	.wss-app { grid-template-columns: 1fr; height: auto; }
 	.wss-menu { border-right: none; border-bottom: 1px solid var(--seam); }
 	.wss-key { min-height: 46px; }
-	.wss-stage { min-height: 400px; }
+	/* #20: fixed on mobile too, so rotation never shifts the page */
+	.wss-stage { height: 430px; }
 }
 .wss *:focus-visible { outline: 2px solid var(--green-text); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {

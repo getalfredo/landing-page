@@ -5,6 +5,11 @@
 // purple, GitHub); GitHub stars/PRs view added; uptime gains red incident
 // dots and a live scrolling simulation. Every panel keeps the etched
 // SIMULATED FEED microlabel — honesty in-language.
+// Round 4 (#20): all seven views share one fixed skeleton — head, stat
+// strip, body, foot at pinned heights — so rotation causes no layout shift
+// (Mail/Errors/Uptime gain the stat strip #13 spec'd anyway). Every view
+// now moves on its own: mail arrives, stars tick up, error events count,
+// with the traffic wobble as the reference intensity.
 import { useEffect, useRef, useState } from "react";
 
 export type ShowcaseKey =
@@ -207,7 +212,54 @@ const MAILS = [
 	},
 ];
 
+// #20 live movement: a new support mail slides in every few seconds.
+const INCOMING = [
+	{
+		sender: "Jonas Weber",
+		project: "shiplog",
+		subject: "Webhook retries?",
+		preview: "We miss events when our endpoint is down for a minute…",
+	},
+	{
+		sender: "Lea Fischer",
+		project: "invoicer",
+		subject: "VAT on annual plans",
+		preview: "Does the yearly invoice split VAT per month or…",
+	},
+	{
+		sender: "Tom Aldridge",
+		project: "pantry-api",
+		subject: "Bulk import stuck at 91%",
+		preview: "The job has been sitting there for ten minutes now…",
+	},
+];
+
 export function MailPanel() {
+	const [rows, setRows] = useState(MAILS);
+	const arrived = useRef(0);
+
+	useEffect(() => {
+		const id = setInterval(() => {
+			setRows((prev) => {
+				const nxt = INCOMING[arrived.current % INCOMING.length];
+				arrived.current += 1;
+				return [
+					{
+						id: `in-${arrived.current}`,
+						when: "now",
+						unread: true,
+						starred: false,
+						...nxt,
+					},
+					...prev,
+				].slice(0, 4);
+			});
+		}, 4200);
+		return () => clearInterval(id);
+	}, []);
+
+	const unread = rows.filter((m) => m.unread).length;
+
 	return (
 		<div className="scp-win">
 			<div className="scp-win-head">
@@ -217,8 +269,22 @@ export function MailPanel() {
 				</span>
 				<span className="scp-etch">1 INBOX · ALL PROJECTS</span>
 			</div>
+			<div className="scp-stats">
+				<div className="scp-stat">
+					<span className="scp-etch">UNREAD</span>
+					<span className="scp-stat-num">{unread}</span>
+				</div>
+				<div className="scp-stat">
+					<span className="scp-etch">TODAY</span>
+					<span className="scp-stat-num">{9 + arrived.current}</span>
+				</div>
+				<div className="scp-stat">
+					<span className="scp-etch">OLDEST WAITING</span>
+					<span className="scp-stat-num scp-green">26m</span>
+				</div>
+			</div>
 			<div className="scp-win-body scp-rows">
-				{MAILS.map((m) => (
+				{rows.map((m) => (
 					<div
 						className={`scp-mailrow${m.unread ? " scp-mailrow-unread" : ""}`}
 						key={m.id}
@@ -244,7 +310,7 @@ export function MailPanel() {
 				))}
 			</div>
 			<div className="scp-win-foot">
-				<span className="scp-etch">3 UNREAD · 3 PROJECTS</span>
+				<span className="scp-etch">{unread} UNREAD · 3 PROJECTS</span>
 				<span className="scp-etch scp-sim">SIMULATED FEED</span>
 			</div>
 		</div>
@@ -381,6 +447,18 @@ const ERRORS = [
 ];
 
 export function ErrorsPanel() {
+	// #20 live movement: the open issue keeps collecting events while you watch.
+	const [live, setLive] = useState({ events: 12, users: 7 });
+	useEffect(() => {
+		const id = setInterval(() => {
+			setLive((p) => ({
+				events: p.events + 1,
+				users: Math.random() < 0.3 ? p.users + 1 : p.users,
+			}));
+		}, 2600);
+		return () => clearInterval(id);
+	}, []);
+
 	return (
 		<div className="scp-win">
 			<div className="scp-win-head">
@@ -388,6 +466,20 @@ export function ErrorsPanel() {
 					ERRORS · <span className="scp-sentry-mark">SENTRY</span>
 				</span>
 				<span className="scp-tag-amber">NEW ISSUE</span>
+			</div>
+			<div className="scp-stats">
+				<div className="scp-stat">
+					<span className="scp-etch">OPEN</span>
+					<span className="scp-stat-num scp-red">2</span>
+				</div>
+				<div className="scp-stat">
+					<span className="scp-etch">EVENTS TODAY</span>
+					<span className="scp-stat-num">{live.events + 14}</span>
+				</div>
+				<div className="scp-stat">
+					<span className="scp-etch">USERS HIT</span>
+					<span className="scp-stat-num">{live.users}</span>
+				</div>
 			</div>
 			<div className="scp-win-body scp-rows">
 				{ERRORS.map((e) => (
@@ -422,7 +514,9 @@ export function ErrorsPanel() {
 							<span className="scp-etch">
 								{e.level === "resolved"
 									? "RESOLVED"
-									: `${e.events} EVENTS · ${e.users} USERS`}
+									: e.id === "e1"
+										? `${live.events} EVENTS · ${live.users} USERS`
+										: `${e.events} EVENTS · ${e.users} USERS`}
 							</span>
 						</div>
 					</div>
@@ -500,34 +594,57 @@ export function AuthPanel() {
 
 /* ---------- GitHub: stars, trends, PRs waiting ---------- */
 
-const REPOS = [
+type RepoId = "g1" | "g2" | "g3";
+const REPOS: {
+	id: RepoId;
+	name: string;
+	spark: number[];
+	note: string | null;
+}[] = [
 	{
 		id: "g1",
 		name: "invoicer",
-		stars: "1,284",
-		delta: "+42",
 		spark: [2, 3, 2, 4, 3, 9, 14, 11],
 		note: "launch day",
 	},
 	{
 		id: "g2",
 		name: "shiplog",
-		stars: "512",
-		delta: "+7",
 		spark: [3, 2, 3, 2, 3, 2, 3, 3],
 		note: null,
 	},
 	{
 		id: "g3",
 		name: "pantry-api",
-		stars: "317",
-		delta: "+12",
 		spark: [1, 2, 2, 3, 3, 4, 5, 4],
 		note: null,
 	},
 ];
 
 export function GithubPanel() {
+	// #20 live movement: launch-day stars keep arriving, weighted to invoicer.
+	const [stars, setStars] = useState<Record<RepoId, number>>({
+		g1: 1284,
+		g2: 512,
+		g3: 317,
+	});
+	const [week, setWeek] = useState<Record<RepoId, number>>({
+		g1: 42,
+		g2: 7,
+		g3: 12,
+	});
+	useEffect(() => {
+		const id = setInterval(() => {
+			const roll = Math.random();
+			const repo: RepoId = roll < 0.6 ? "g1" : roll < 0.8 ? "g2" : "g3";
+			setStars((p) => ({ ...p, [repo]: p[repo] + 1 }));
+			setWeek((p) => ({ ...p, [repo]: p[repo] + 1 }));
+		}, 2200);
+		return () => clearInterval(id);
+	}, []);
+	const total = stars.g1 + stars.g2 + stars.g3;
+	const weekTotal = week.g1 + week.g2 + week.g3;
+
 	return (
 		<div className="scp-win">
 			<div className="scp-win-head">
@@ -537,11 +654,13 @@ export function GithubPanel() {
 			<div className="scp-stats">
 				<div className="scp-stat">
 					<span className="scp-etch">STARS TOTAL</span>
-					<span className="scp-stat-num">★ 2,113</span>
+					<span className="scp-stat-num">
+						★ {total.toLocaleString("en-US")}
+					</span>
 				</div>
 				<div className="scp-stat">
 					<span className="scp-etch">THIS WEEK</span>
-					<span className="scp-stat-num scp-green">▲ +61</span>
+					<span className="scp-stat-num scp-green">▲ +{weekTotal}</span>
 				</div>
 				<div className="scp-stat">
 					<span className="scp-etch">NEW ISSUES</span>
@@ -552,7 +671,9 @@ export function GithubPanel() {
 				{REPOS.map((r) => (
 					<div className="scp-row" key={r.id}>
 						<span className="scp-uptime-name">{r.name}</span>
-						<span className="scp-mono scp-gh-stars">★ {r.stars}</span>
+						<span className="scp-mono scp-gh-stars">
+							★ {stars[r.id].toLocaleString("en-US")}
+						</span>
 						<span className="scp-spark scp-spark-row" aria-hidden="true">
 							{r.spark.map((h, i) => (
 								<span
@@ -561,7 +682,9 @@ export function GithubPanel() {
 								/>
 							))}
 						</span>
-						<span className="scp-mono scp-green scp-gh-delta">{r.delta}</span>
+						<span className="scp-mono scp-green scp-gh-delta">
+							+{week[r.id]}
+						</span>
 						{r.note ? (
 							<span className="scp-etch scp-amber-etch scp-row-side">
 								{r.note}
@@ -616,12 +739,14 @@ const UPTIME_START: UptimeRow[] = [
 
 export function UptimePanel() {
 	const [rows, setRows] = useState(UPTIME_START);
+	const [ms, setMs] = useState(184);
 	const counter = useRef(TICK_COUNT);
 
 	useEffect(() => {
 		const id = setInterval(() => {
 			counter.current += 1;
 			const n = counter.current;
+			setMs(150 + ((n * 13) % 60));
 			setRows((prev) =>
 				prev.map((row, ri) => {
 					// Deterministic pseudo-noise: mostly green, a rare amber
@@ -644,6 +769,22 @@ export function UptimePanel() {
 			<div className="scp-win-head">
 				<span className="scp-etch">UPTIME · LIVE</span>
 				<span className="scp-etch">3/3 UP</span>
+			</div>
+			<div className="scp-stats">
+				<div className="scp-stat">
+					<span className="scp-etch">UPTIME 30D</span>
+					<span className="scp-stat-num scp-green">99.95%</span>
+				</div>
+				<div className="scp-stat">
+					<span className="scp-etch">INCIDENTS 30D</span>
+					<span className="scp-stat-num">2</span>
+				</div>
+				<div className="scp-stat">
+					<span className="scp-etch">AVG RESPONSE</span>
+					<span className="scp-stat-num">
+						{ms} <small>ms</small>
+					</span>
+				</div>
 			</div>
 			<div className="scp-win-body scp-rows">
 				{rows.map((r) => (
@@ -701,13 +842,16 @@ export const showcaseStyles = `
 	overflow: hidden;
 	height: 100%;
 }
+/* #20: head, stat strip and foot are pinned so every view shares the exact
+   same skeleton — rotation can't shift a pixel. */
 .scp-win-head,
 .scp-win-foot {
 	display: flex;
 	justify-content: space-between;
-	align-items: baseline;
+	align-items: center;
 	gap: 12px;
-	padding: 11px 16px;
+	height: 40px;
+	padding: 0 16px;
 	flex-shrink: 0;
 }
 .scp-win-head { border-bottom: 1px solid var(--seam); }
@@ -759,8 +903,10 @@ export const showcaseStyles = `
 /* insight stat strip — the founder metric leads every view */
 .scp-stats {
 	display: flex;
+	align-items: center;
 	gap: 26px;
-	padding: 12px 16px;
+	height: 64px;
+	padding: 0 16px;
 	border-bottom: 1px solid var(--seam);
 	flex-shrink: 0;
 }
@@ -823,6 +969,11 @@ export const showcaseStyles = `
 	gap: 11px;
 	padding: 9px 16px;
 	border-bottom: 1px solid var(--seam);
+	animation: scp-slidein 0.35s ease both;
+}
+@keyframes scp-slidein {
+	from { opacity: 0; transform: translateY(-8px); }
+	to { opacity: 1; transform: translateY(0); }
 }
 .scp-mailrow-unread { background: rgba(236, 231, 218, 0.03); }
 .scp-star {
@@ -948,5 +1099,6 @@ export const showcaseStyles = `
 .scp-led-amber-solid { background: var(--amber); box-shadow: 0 0 7px rgba(255, 210, 60, 0.6); }
 @media (prefers-reduced-motion: reduce) {
 	.scp-bar { transition: none; }
+	.scp-mailrow { animation: none; }
 }
 `;

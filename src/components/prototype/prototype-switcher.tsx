@@ -18,7 +18,10 @@ export type VariantKey =
 	| "p"
 	| "q"
 	| "r"
-	| "s";
+	| "s"
+	| "t"
+	| "u"
+	| "v";
 
 export const VARIANTS: Record<VariantKey, string> = {
 	d: "The Machine (v1 baseline)",
@@ -35,6 +38,9 @@ export const VARIANTS: Record<VariantKey, string> = {
 	q: "Showcase: Ledger (alternating rows)",
 	r: "Showcase: Guided Rail (P×Q scroll-sync)",
 	s: "Showcase: Switchboard (menu + one glass)",
+	t: "Intents: Switchboard (4 composite views)",
+	u: "Intents: Sectioned rail (labels over 7 views)",
+	v: "Intents: Drill (4 intents → provider sub-caps)",
 };
 
 const ORDER: VariantKey[] = [
@@ -52,6 +58,9 @@ const ORDER: VariantKey[] = [
 	"q",
 	"r",
 	"s",
+	"t",
+	"u",
+	"v",
 ];
 
 export function PrototypeSwitcher({ current }: { current: VariantKey }) {
@@ -66,6 +75,7 @@ export function PrototypeSwitcher({ current }: { current: VariantKey }) {
 				variant: next,
 				h1: prev.h1 ?? "flip",
 				h1run: prev.h1run ?? "loop",
+				fill: prev.fill ?? "attract",
 			}),
 			replace: true,
 		});
