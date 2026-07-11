@@ -5,6 +5,12 @@
 // Throwaway.
 import { createFileRoute } from "@tanstack/react-router";
 import {
+	H1_MODES,
+	H1CyclePicker,
+	type H1Mode,
+	type H1Run,
+} from "#/components/prototype/h1-cycle";
+import {
 	PrototypeSwitcher,
 	VARIANTS,
 	type VariantKey,
@@ -27,17 +33,20 @@ import { VariantSShowcaseSwitchboard } from "#/components/prototype/variant-s-sh
 export const Route = createFileRoute("/")({
 	validateSearch: (
 		search: Record<string, unknown>,
-	): { variant: VariantKey } => {
+	): { variant: VariantKey; h1: H1Mode; h1run: H1Run } => {
 		const v = search.variant;
+		const m = search.h1;
 		return {
 			variant: typeof v === "string" && v in VARIANTS ? (v as VariantKey) : "n",
+			h1: typeof m === "string" && m in H1_MODES ? (m as H1Mode) : "flip",
+			h1run: search.h1run === "settle" ? "settle" : "loop",
 		};
 	},
 	component: Home,
 });
 
 function Home() {
-	const { variant } = Route.useSearch();
+	const { variant, h1, h1run } = Route.useSearch();
 
 	return (
 		<>
@@ -49,12 +58,13 @@ function Home() {
 			{variant === "k" && <VariantKRack />}
 			{variant === "l" && <VariantLOpsDeck />}
 			{variant === "m" && <VariantMWebConsole />}
-			{variant === "n" && <VariantNHeroDemo />}
+			{variant === "n" && <VariantNHeroDemo h1Mode={h1} h1Run={h1run} />}
 			{variant === "o" && <VariantOShowcaseWall />}
 			{variant === "p" && <VariantPShowcaseGlass />}
 			{variant === "q" && <VariantQShowcaseLedger />}
 			{variant === "r" && <VariantRShowcaseRail />}
 			{variant === "s" && <VariantSShowcaseSwitchboard />}
+			{variant === "n" && <H1CyclePicker mode={h1} run={h1run} />}
 			<PrototypeSwitcher current={variant} />
 		</>
 	);

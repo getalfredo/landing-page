@@ -7,7 +7,14 @@
 // guided cycle Deploy → Show dashboard → + New project. The hot button is
 // an amber keycap with an amber breathing pulse and a blinking LED dot;
 // every other button (incl. Join waitlist) is the calm bone keycap.
+// Extended for wayfinder #16: the H1 product word cycles via CyclingWord
+// (mechanism under exploration — see h1-cycle.tsx, `?h1=` picker).
 import { useEffect, useRef, useState } from "react";
+import {
+	CyclingWord,
+	type H1Mode,
+	type H1Run,
+} from "#/components/prototype/h1-cycle";
 
 const ALL_SERVICES = [
 	{ id: "auth", label: "Auth", spec: "sessions, oauth, magic links" },
@@ -73,7 +80,13 @@ function fmt(n: number) {
 	return n.toLocaleString("en-US");
 }
 
-export function VariantNHeroDemo() {
+export function VariantNHeroDemo({
+	h1Mode = "flip",
+	h1Run = "loop",
+}: {
+	h1Mode?: H1Mode;
+	h1Run?: H1Run;
+}) {
 	const [screen, setScreen] = useState<"deploy" | "dash">("deploy");
 	const [on, setOn] = useState<Record<string, boolean>>(
 		Object.fromEntries(ALL_SERVICES.map((s) => [s.id, true])),
@@ -184,7 +197,9 @@ export function VariantNHeroDemo() {
 			<main>
 				<section className="wcn-hero">
 					<h1 className="wcn-h1">
-						Ship your next SaaS in minutes.
+						Ship your next{" "}
+						<CyclingWord key={`${h1Mode}-${h1Run}`} mode={h1Mode} run={h1Run} />{" "}
+						in minutes.
 						<br />
 						Watch them all from <span className="wcn-green">one console.</span>
 					</h1>

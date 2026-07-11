@@ -1,0 +1,1 @@
+hero buttons with ping instead of pulse

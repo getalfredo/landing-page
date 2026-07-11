@@ -60,7 +60,15 @@ export function PrototypeSwitcher({ current }: { current: VariantKey }) {
 	const go = (dir: 1 | -1) => {
 		const idx = ORDER.indexOf(current);
 		const next = ORDER[(idx + dir + ORDER.length) % ORDER.length];
-		navigate({ to: "/", search: { variant: next }, replace: true });
+		navigate({
+			to: "/",
+			search: (prev) => ({
+				variant: next,
+				h1: prev.h1 ?? "flip",
+				h1run: prev.h1run ?? "loop",
+			}),
+			replace: true,
+		});
 	};
 
 	useEffect(() => {
