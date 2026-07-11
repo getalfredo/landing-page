@@ -37,6 +37,7 @@ import { VariantSShowcaseSwitchboard } from "#/components/prototype/variant-s-sh
 import { VariantTIntentSwitchboard } from "#/components/prototype/variant-t-intent-switchboard";
 import { VariantUIntentSections } from "#/components/prototype/variant-u-intent-sections";
 import { VariantVIntentDrill } from "#/components/prototype/variant-v-intent-drill";
+import { VariantWOgFrames } from "#/components/prototype/variant-w-og-frames";
 
 export const Route = createFileRoute("/")({
 	validateSearch: (
@@ -80,6 +81,7 @@ function Home() {
 			{variant === "t" && <VariantTIntentSwitchboard />}
 			{variant === "u" && <VariantUIntentSections />}
 			{variant === "v" && <VariantVIntentDrill />}
+			{variant === "w" && <VariantWOgFrames />}
 			{variant === "n" && <H1CyclePicker mode={h1} run={h1run} />}
 			{variant === "n" && <FillModePicker fill={fill} />}
 			<PrototypeSwitcher current={variant} />

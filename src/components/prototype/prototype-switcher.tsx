@@ -21,7 +21,8 @@ export type VariantKey =
 	| "s"
 	| "t"
 	| "u"
-	| "v";
+	| "v"
+	| "w";
 
 export const VARIANTS: Record<VariantKey, string> = {
 	d: "The Machine (v1 baseline)",
@@ -41,6 +42,7 @@ export const VARIANTS: Record<VariantKey, string> = {
 	t: "Intents: Switchboard (4 composite views)",
 	u: "Intents: Sectioned rail (labels over 7 views)",
 	v: "Intents: Drill (4 intents → provider sub-caps)",
+	w: "OG frames (3 share-image candidates)",
 };
 
 const ORDER: VariantKey[] = [
@@ -61,6 +63,7 @@ const ORDER: VariantKey[] = [
 	"t",
 	"u",
 	"v",
+	"w",
 ];
 
 export function PrototypeSwitcher({ current }: { current: VariantKey }) {
