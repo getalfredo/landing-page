@@ -14,6 +14,13 @@
 // integrations, then Deploy arms. Boot is much quicker; Deploy goes
 // inactive once used, until + New project resets the form. The fill
 // trigger is under exploration via `?fill=` (attract | first | step).
+// Extended for wayfinder #22: dashboard screen reworked against the
+// truth-list (#14) and the intent grouping (#19) — tile row is now
+// ACTIVITY · MAIL · MONEY · HEALTH, the bay count lives on the
+// mini-terminal line, and the deploy checklist etches the real
+// integrations (secrets dropped: invisible wiring, not an integration).
+// The cards region under the tiles is under exploration via `?dash=`
+// (cards | ledger | columns).
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -23,20 +30,23 @@ import {
 } from "#/components/prototype/h1-cycle";
 
 const ALL_SERVICES = [
-	{ id: "auth", label: "Auth", spec: "sessions, oauth, magic links" },
-	{ id: "email", label: "Email", spec: "transactional, your smtp" },
-	{ id: "db", label: "Database", spec: "sqlite, migrations included" },
-	{ id: "analytics", label: "Analytics", spec: "posthog, on your box" },
-	{ id: "secrets", label: "Secrets", spec: "encrypted, per project" },
+	{ id: "auth", label: "Auth", spec: "better-auth, sessions + oauth" },
+	{ id: "email", label: "Email", spec: "postmark, transactional" },
+	{ id: "db", label: "Database", spec: "convex, live queries" },
+	{ id: "analytics", label: "Analytics", spec: "umami, cookieless" },
+	{ id: "pay", label: "Payments", spec: "creem, checkout + billing" },
 ];
 
 type Project = {
 	name: string;
 	up: string;
-	req: number;
+	views: number;
+	sig: number;
+	stars: number;
 	mail: number;
-	pay: number;
+	bounce: number;
 	eur: number;
+	fail: number;
 	load: number;
 };
 
@@ -44,28 +54,37 @@ const FLEET_START: Project[] = [
 	{
 		name: "invoicer",
 		up: "148d",
-		req: 48210,
+		views: 48210,
+		sig: 214,
+		stars: 38,
 		mail: 291,
-		pay: 57,
+		bounce: 1,
 		eur: 2840,
+		fail: 0,
 		load: 5,
 	},
 	{
 		name: "shiplog",
 		up: "63d",
-		req: 9184,
+		views: 9184,
+		sig: 46,
+		stars: 112,
 		mail: 44,
-		pay: 12,
+		bounce: 0,
 		eur: 348,
+		fail: 0,
 		load: 3,
 	},
 	{
 		name: "pantry-api",
 		up: "212d",
-		req: 130552,
+		views: 130552,
+		sig: 0,
+		stars: 421,
 		mail: 812,
-		pay: 0,
+		bounce: 2,
 		eur: 0,
+		fail: 0,
 		load: 8,
 	},
 ];
@@ -73,10 +92,13 @@ const FLEET_START: Project[] = [
 const NEWBORN_START: Project = {
 	name: "my-saas",
 	up: "0m",
-	req: 0,
+	views: 0,
+	sig: 0,
+	stars: 0,
 	mail: 0,
-	pay: 0,
+	bounce: 0,
 	eur: 0,
+	fail: 0,
 	load: 2,
 };
 
@@ -93,6 +115,16 @@ export const FILL_MODES: Record<FillMode, string> = {
 	step: "every click on the console runs one fill action",
 };
 
+// The three candidate answers to "how do the project cards express the
+// four intents?" — ticket #22 ruled: ledger. Cards and columns stay
+// switchable as iteration history.
+export type DashMode = "cards" | "ledger" | "columns";
+export const DASH_MODES: Record<DashMode, string> = {
+	cards: "project cards, concrete stats under the intent tiles",
+	ledger: "one matrix: project rows under the four intent columns",
+	columns: "intent-major: each tile heads its own per-project column",
+};
+
 function fmt(n: number) {
 	return n.toLocaleString("en-US");
 }
@@ -101,10 +133,12 @@ export function VariantNHeroDemo({
 	h1Mode = "flip",
 	h1Run = "loop",
 	fill = "attract",
+	dash = "ledger",
 }: {
 	h1Mode?: H1Mode;
 	h1Run?: H1Run;
 	fill?: FillMode;
+	dash?: DashMode;
 }) {
 	const [screen, setScreen] = useState<"deploy" | "dash">("deploy");
 	// #20: the form starts empty and fills itself — nothing pre-checked.
@@ -258,10 +292,11 @@ export function VariantNHeroDemo({
 			setFleet((prev) =>
 				prev.map((p) => ({
 					...p,
-					req: p.req + Math.floor(Math.random() * 9),
+					views: p.views + Math.floor(Math.random() * 9),
+					sig: Math.random() < 0.03 ? p.sig + 1 : p.sig,
+					stars: Math.random() < 0.02 ? p.stars + 1 : p.stars,
 					mail: Math.random() < 0.06 ? p.mail + 1 : p.mail,
-					pay: Math.random() < 0.025 ? p.pay + 1 : p.pay,
-					eur: Math.random() < 0.025 ? p.eur + 49 : p.eur,
+					eur: p.eur > 0 && Math.random() < 0.025 ? p.eur + 49 : p.eur,
 					load: Math.max(
 						1,
 						Math.min(10, p.load + Math.floor(Math.random() * 3) - 1),
@@ -270,7 +305,8 @@ export function VariantNHeroDemo({
 			);
 			setNewborn((p) => ({
 				...p,
-				req: p.req + (Math.random() < 0.4 ? 1 : 0),
+				views: p.views + (Math.random() < 0.4 ? 1 : 0),
+				sig: Math.random() < 0.008 ? p.sig + 1 : p.sig,
 				mail: Math.random() < 0.01 ? p.mail + 1 : p.mail,
 				load: Math.max(
 					1,
@@ -282,11 +318,52 @@ export function VariantNHeroDemo({
 	}, []);
 
 	const shown = deployed ? [...fleet, newborn] : fleet;
-	const totReq = shown.reduce((a, p) => a + p.req, 0);
+	const totViews = shown.reduce((a, p) => a + p.views, 0);
 	const totMail = shown.reduce((a, p) => a + p.mail, 0);
+	const totBounce = shown.reduce((a, p) => a + p.bounce, 0);
 	const totEur = shown.reduce((a, p) => a + p.eur, 0);
-	const busiest = shown.reduce((a, p) => (p.req > a.req ? p : a));
-	const earner = shown.reduce((a, p) => (p.eur > a.eur ? p : a));
+	const busiest = shown.reduce((a, p) => (p.views > a.views ? p : a));
+
+	// The locked #19 tile row — ACTIVITY · MAIL · MONEY · HEALTH. Providers
+	// (truth-list, #14) are etched where the dash mode has room for them.
+	const TILES = [
+		{
+			key: "activity",
+			etch: "ACTIVITY",
+			prov: "UMAMI · BETTER-AUTH · GITHUB",
+			num: fmt(totViews),
+			note: `busiest: ${busiest.name}`,
+		},
+		{
+			key: "mail",
+			etch: "MAIL",
+			prov: "POSTMARK",
+			num: fmt(totMail),
+			note: `${totBounce} bounced`,
+		},
+		{
+			key: "money",
+			etch: "MONEY",
+			prov: "CREEM",
+			num: `€ ${fmt(totEur)}`,
+			note: "0 failed charges",
+		},
+		{
+			key: "health",
+			etch: "HEALTH",
+			prov: "UPTIME KUMA · SENTRY",
+			num: `${shown.length}/${shown.length} up`,
+			note: "0 open issues",
+		},
+	];
+	const colValue = (key: string, p: Project) =>
+		key === "activity"
+			? fmt(p.views)
+			: key === "mail"
+				? String(p.mail)
+				: key === "money"
+					? `€ ${fmt(p.eur)}`
+					: `up ${p.up}`;
 
 	// Exactly one hot button at a time: Deploy → Show dashboard → + New project.
 	// Deploy only arms once the form has filled itself; once used it never
@@ -466,87 +543,158 @@ export function VariantNHeroDemo({
 
 							{screen === "dash" && (
 								<div className="wcn-dash">
-									<div className="wcn-tiles">
-										<div className="wcn-tile">
-											<span className="wcn-etch">TRAFFIC</span>
-											<span className="wcn-tile-num">{fmt(totReq)}</span>
-											<span className="wcn-tile-note">
-												busiest: {busiest.name}
-											</span>
+									{/* the locked tile row; in ledger mode it doubles as the column header */}
+									{dash !== "columns" && (
+										<div
+											className={dash === "ledger" ? "wcn-lgrid" : "wcn-tiles"}
+										>
+											{dash === "ledger" && (
+												<div className="wcn-lspacer">
+													<span className="wcn-etch">PROJECT</span>
+												</div>
+											)}
+											{TILES.map((tl) => (
+												<div className="wcn-tile" key={tl.key}>
+													<span className="wcn-etch">{tl.etch}</span>
+													<span className="wcn-tile-num">{tl.num}</span>
+													<span className="wcn-tile-note">{tl.note}</span>
+												</div>
+											))}
 										</div>
-										<div className="wcn-tile">
-											<span className="wcn-etch">MAIL</span>
-											<span className="wcn-tile-num">{fmt(totMail)}</span>
-											<span className="wcn-tile-note">
-												across {shown.length} inboxes
-											</span>
-										</div>
-										<div className="wcn-tile">
-											<span className="wcn-etch">REVENUE</span>
-											<span className="wcn-tile-num">€ {fmt(totEur)}</span>
-											<span className="wcn-tile-note">top: {earner.name}</span>
-										</div>
-										<div className="wcn-tile">
-											<span className="wcn-etch">FLEET</span>
-											<span className="wcn-tile-num">
-												{shown.length}/{shown.length + (deployed ? 0 : 1)}
-											</span>
-											<span className="wcn-tile-note">
-												{deployed ? "live · 0 incidents" : "1 bay free"}
-											</span>
-										</div>
-									</div>
+									)}
 
-									<div className="wcn-cards">
-										{shown.map((p) => (
-											<article className="wcn-card" key={p.name}>
-												<div className="wcn-card-head">
-													<span className="wcn-card-name">
-														<span className="wcn-led" aria-hidden="true" />
-														{p.name}
-													</span>
-													<span className="wcn-etch">UP {p.up}</span>
-												</div>
-												<div className="wcn-loadbar" aria-hidden="true">
-													{SEGMENTS.map((segId, s) => (
-														<span
-															className={`wcn-seg${s < p.load ? " wcn-seg-lit" : ""}`}
-															key={segId}
-														/>
-													))}
-												</div>
-												<div className="wcn-card-stats">
-													<span className="wcn-stat">
-														<span className="wcn-etch">HTTP</span>
-														<span className="wcn-mono">{fmt(p.req)}</span>
-													</span>
-													<span className="wcn-stat">
-														<span className="wcn-etch">MAIL</span>
+									{dash === "cards" && (
+										<div className="wcn-cards">
+											{shown.map((p) => (
+												<article
+													className={`wcn-card${p.name === newborn.name ? " wcn-new" : ""}`}
+													key={p.name}
+												>
+													<div className="wcn-card-head">
+														<span className="wcn-card-name">
+															<span className="wcn-led" aria-hidden="true" />
+															{p.name}
+														</span>
+														<span className="wcn-etch">UP {p.up}</span>
+													</div>
+													<div className="wcn-loadbar" aria-hidden="true">
+														{SEGMENTS.map((segId, s) => (
+															<span
+																className={`wcn-seg${s < p.load ? " wcn-seg-lit" : ""}`}
+																key={segId}
+															/>
+														))}
+													</div>
+													<div className="wcn-card-stats">
+														<span className="wcn-stat">
+															<span className="wcn-etch">VIEWS</span>
+															<span className="wcn-mono">{fmt(p.views)}</span>
+														</span>
+														<span className="wcn-stat">
+															<span className="wcn-etch">MAIL</span>
+															<span className="wcn-mono">{p.mail}</span>
+														</span>
+														<span className="wcn-stat">
+															<span className="wcn-etch">EUR</span>
+															<span className="wcn-mono">{fmt(p.eur)}</span>
+														</span>
+													</div>
+												</article>
+											))}
+										</div>
+									)}
+
+									{dash === "ledger" && (
+										<div className="wcn-lrows">
+											{shown.map((p) => (
+												<div
+													className={`wcn-lrow${p.name === newborn.name ? " wcn-new" : ""}`}
+													key={p.name}
+												>
+													<div className="wcn-lcell wcn-lname">
+														<span className="wcn-card-name">
+															<span className="wcn-led" aria-hidden="true" />
+															{p.name}
+														</span>
+													</div>
+													<div className="wcn-lcell">
+														<span className="wcn-mono">{fmt(p.views)}</span>
+														<span className="wcn-cell-sub">
+															{p.sig} signups · {p.stars} stars
+														</span>
+													</div>
+													<div className="wcn-lcell">
 														<span className="wcn-mono">{p.mail}</span>
-													</span>
-													<span className="wcn-stat">
-														<span className="wcn-etch">PAY</span>
-														<span className="wcn-mono">{p.pay}</span>
-													</span>
+														<span className="wcn-cell-sub">
+															{p.bounce} bounced
+														</span>
+													</div>
+													<div className="wcn-lcell">
+														<span className="wcn-mono">€ {fmt(p.eur)}</span>
+														<span className="wcn-cell-sub">
+															{p.fail} failed
+														</span>
+													</div>
+													<div className="wcn-lcell">
+														<span className="wcn-mono">up {p.up}</span>
+														<div className="wcn-loadbar" aria-hidden="true">
+															{SEGMENTS.map((segId, s) => (
+																<span
+																	className={`wcn-seg${s < p.load ? " wcn-seg-lit" : ""}`}
+																	key={segId}
+																/>
+															))}
+														</div>
+													</div>
 												</div>
-											</article>
-										))}
-										{!deployed && (
-											<div className="wcn-bay">
-												<span
-													className="wcn-led wcn-led-off"
-													aria-hidden="true"
-												/>
-												<span className="wcn-etch">BAY 004 · EMPTY</span>
-											</div>
-										)}
-									</div>
+											))}
+										</div>
+									)}
+
+									{dash === "columns" && (
+										<div className="wcn-cols">
+											{TILES.map((tl) => (
+												<div className="wcn-col" key={tl.key}>
+													<div className="wcn-col-head">
+														<span className="wcn-etch">{tl.etch}</span>
+														<span className="wcn-tile-num">{tl.num}</span>
+														<span className="wcn-etch wcn-col-prov">
+															{tl.prov}
+														</span>
+													</div>
+													<div className="wcn-colrows">
+														{shown.map((p) => (
+															<div
+																className={`wcn-colrow${p.name === newborn.name ? " wcn-new" : ""}`}
+																key={p.name}
+															>
+																<span className="wcn-colrow-name">
+																	{tl.key === "health" && (
+																		<span
+																			className="wcn-led"
+																			aria-hidden="true"
+																		/>
+																	)}
+																	{p.name}
+																</span>
+																<span className="wcn-mono wcn-colrow-num">
+																	{colValue(tl.key, p)}
+																</span>
+															</div>
+														))}
+													</div>
+												</div>
+											))}
+										</div>
+									)}
 
 									<div className="wcn-dash-term">
 										<span className="wcn-term-mini">
 											{"> fleet — "}
 											{shown.length}
-											{" projects · 1 box · 0 extra tabs"}
+											{" projects · bay 00"}
+											{shown.length + 1}
+											{" free"}
 										</span>
 										<span className="wcn-cursor" aria-hidden="true" />
 									</div>
@@ -619,6 +767,7 @@ export function FillModePicker({ fill }: { fill: FillMode }) {
 				h1: prev.h1 ?? "flip",
 				h1run: prev.h1run ?? "loop",
 				fill: f,
+				dash: prev.dash ?? "ledger",
 			}),
 			replace: true,
 		});
@@ -635,6 +784,43 @@ export function FillModePicker({ fill }: { fill: FillMode }) {
 					title={FILL_MODES[f]}
 				>
 					{f}
+				</button>
+			))}
+		</div>
+	);
+}
+
+// Dev-only picker for the #22 dashboard-treatment ruling.
+export function DashModePicker({ dash }: { dash: DashMode }) {
+	const navigate = useNavigate();
+
+	if (import.meta.env.PROD) return null;
+
+	const set = (d: DashMode) =>
+		navigate({
+			to: "/",
+			search: (prev) => ({
+				variant: prev.variant ?? "n",
+				h1: prev.h1 ?? "flip",
+				h1run: prev.h1run ?? "loop",
+				fill: prev.fill ?? "attract",
+				dash: d,
+			}),
+			replace: true,
+		});
+
+	return (
+		<div style={{ ...fillPickerStyle, bottom: 112 }}>
+			<span style={{ opacity: 0.55, marginRight: 2 }}>DASH</span>
+			{(Object.keys(DASH_MODES) as DashMode[]).map((d) => (
+				<button
+					type="button"
+					key={d}
+					onClick={() => set(d)}
+					style={fillPickerBtn(d === dash)}
+					title={DASH_MODES[d]}
+				>
+					{d}
 				</button>
 			))}
 		</div>
@@ -928,15 +1114,86 @@ const stylesN = `
 	justify-content: space-between;
 	gap: 10px;
 }
-.wcn-bay {
-	border: 1px dashed var(--seam);
+/* #22: the newborn project pops into whichever structure is on screen */
+.wcn-new { animation: wcn-in 0.35s ease both; }
+
+/* #22 ledger mode — tiles double as column headers, projects as rows */
+.wcn-lgrid,
+.wcn-lrow {
+	display: grid;
+	grid-template-columns: 150px repeat(4, 1fr);
+	gap: 10px;
+}
+.wcn-lgrid { flex-shrink: 0; }
+.wcn-lspacer { display: flex; align-items: flex-end; padding: 0 4px 12px; }
+.wcn-lrows {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	flex: 1;
+	overflow: hidden;
+}
+.wcn-lcell {
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	padding: 10px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+}
+.wcn-lname { justify-content: center; }
+.wcn-cell-sub {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 9px;
+	letter-spacing: 0.08em;
+	color: var(--paper-soft);
+}
+
+/* #22 columns mode — each intent tile heads its own per-project column */
+.wcn-cols {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+	flex: 1;
+}
+.wcn-col {
+	background: var(--panel);
+	border: 1px solid var(--seam);
 	border-radius: 10px;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 10px;
+	overflow: hidden;
 }
+.wcn-col-head {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 14px;
+	border-bottom: 1px solid var(--seam);
+}
+.wcn-col-prov { font-size: 8px; opacity: 0.7; }
+.wcn-colrows { display: flex; flex-direction: column; padding: 6px 0; }
+.wcn-colrow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 14px;
+}
+.wcn-colrow-name {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.wcn-colrow-num { font-size: 12px; }
 .wcn-card-head {
 	display: flex;
 	justify-content: space-between;
@@ -1112,6 +1369,9 @@ const stylesN = `
 	.wcn-term { display: none; }
 	.wcn-app { height: auto; min-height: 560px; }
 	.wcn-cards { grid-template-columns: repeat(2, 1fr); }
+	.wcn-lgrid, .wcn-lrow { grid-template-columns: 90px repeat(4, 1fr); gap: 6px; }
+	.wcn-lcell { padding: 8px 8px; }
+	.wcn-cols { grid-template-columns: repeat(2, 1fr); }
 }
 .wcn *:focus-visible { outline: 2px solid var(--green-text); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {

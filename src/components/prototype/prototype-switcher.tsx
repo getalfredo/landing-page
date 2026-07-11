@@ -79,6 +79,7 @@ export function PrototypeSwitcher({ current }: { current: VariantKey }) {
 				h1: prev.h1 ?? "flip",
 				h1run: prev.h1run ?? "loop",
 				fill: prev.fill ?? "attract",
+				dash: prev.dash ?? "ledger",
 			}),
 			replace: true,
 		});

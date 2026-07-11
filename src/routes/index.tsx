@@ -24,6 +24,9 @@ import { VariantKRack } from "#/components/prototype/variant-k-rack";
 import { VariantLOpsDeck } from "#/components/prototype/variant-l-ops-deck";
 import { VariantMWebConsole } from "#/components/prototype/variant-m-web-console";
 import {
+	DASH_MODES,
+	type DashMode,
+	DashModePicker,
 	FILL_MODES,
 	type FillMode,
 	FillModePicker,
@@ -42,23 +45,32 @@ import { VariantWOgFrames } from "#/components/prototype/variant-w-og-frames";
 export const Route = createFileRoute("/")({
 	validateSearch: (
 		search: Record<string, unknown>,
-	): { variant: VariantKey; h1: H1Mode; h1run: H1Run; fill: FillMode } => {
+	): {
+		variant: VariantKey;
+		h1: H1Mode;
+		h1run: H1Run;
+		fill: FillMode;
+		dash: DashMode;
+	} => {
 		const v = search.variant;
 		const m = search.h1;
 		const f = search.fill;
+		const d = search.dash;
 		return {
 			variant: typeof v === "string" && v in VARIANTS ? (v as VariantKey) : "n",
 			h1: typeof m === "string" && m in H1_MODES ? (m as H1Mode) : "flip",
 			h1run: search.h1run === "settle" ? "settle" : "loop",
 			fill:
 				typeof f === "string" && f in FILL_MODES ? (f as FillMode) : "attract",
+			dash:
+				typeof d === "string" && d in DASH_MODES ? (d as DashMode) : "ledger",
 		};
 	},
 	component: Home,
 });
 
 function Home() {
-	const { variant, h1, h1run, fill } = Route.useSearch();
+	const { variant, h1, h1run, fill, dash } = Route.useSearch();
 
 	return (
 		<>
@@ -71,7 +83,13 @@ function Home() {
 			{variant === "l" && <VariantLOpsDeck />}
 			{variant === "m" && <VariantMWebConsole />}
 			{variant === "n" && (
-				<VariantNHeroDemo key={fill} h1Mode={h1} h1Run={h1run} fill={fill} />
+				<VariantNHeroDemo
+					key={fill}
+					h1Mode={h1}
+					h1Run={h1run}
+					fill={fill}
+					dash={dash}
+				/>
 			)}
 			{variant === "o" && <VariantOShowcaseWall />}
 			{variant === "p" && <VariantPShowcaseGlass />}
@@ -84,6 +102,7 @@ function Home() {
 			{variant === "w" && <VariantWOgFrames />}
 			{variant === "n" && <H1CyclePicker mode={h1} run={h1run} />}
 			{variant === "n" && <FillModePicker fill={fill} />}
+			{variant === "n" && <DashModePicker dash={dash} />}
 			<PrototypeSwitcher current={variant} />
 		</>
 	);
