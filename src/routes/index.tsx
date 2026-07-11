@@ -1,8 +1,7 @@
-// PROTOTYPE (wayfinder #11, identity v2): iterate "The Console" toward
-// final under the dual positioning. New round I/J/K tests how the
-// operations story surfaces (fleet board in the chassis / one big glass
-// display / physical rack units) plus the material and literalism axes.
-// D/F/H kept for comparison. Switch via `?variant=` (d/f/h/i/j/k). Throwaway.
+// PROTOTYPE (wayfinder #11 identity v2, extended for #12): iterate "The
+// Console" toward final. N is the click-driven hero demo round: fixed
+// height, user-clicked screen transitions, button-affordance picker.
+// Earlier rounds kept for comparison. Switch via `?variant=`. Throwaway.
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	PrototypeSwitcher,
@@ -17,6 +16,7 @@ import { VariantJDarkOps } from "#/components/prototype/variant-j-dark-ops";
 import { VariantKRack } from "#/components/prototype/variant-k-rack";
 import { VariantLOpsDeck } from "#/components/prototype/variant-l-ops-deck";
 import { VariantMWebConsole } from "#/components/prototype/variant-m-web-console";
+import { VariantNHeroDemo } from "#/components/prototype/variant-n-hero-demo";
 
 export const Route = createFileRoute("/")({
 	validateSearch: (
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 	): { variant: VariantKey } => {
 		const v = search.variant;
 		return {
-			variant: typeof v === "string" && v in VARIANTS ? (v as VariantKey) : "m",
+			variant: typeof v === "string" && v in VARIANTS ? (v as VariantKey) : "n",
 		};
 	},
 	component: Home,
@@ -43,6 +43,7 @@ function Home() {
 			{variant === "k" && <VariantKRack />}
 			{variant === "l" && <VariantLOpsDeck />}
 			{variant === "m" && <VariantMWebConsole />}
+			{variant === "n" && <VariantNHeroDemo />}
 			<PrototypeSwitcher current={variant} />
 		</>
 	);
