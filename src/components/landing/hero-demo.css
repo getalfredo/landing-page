@@ -1,0 +1,390 @@
+/* Hero HQ demo styles, extracted from the prototype variant N embedded CSS.
+   Palette comes exclusively from the custom properties set inline on the
+   demo root (console-vars.ts, built from src/lib/console-tokens.ts); this
+   file consumes var(--…) and defines no palette literals. Shared button
+   keycap styles live in landing.css (lp-btn / lp-btn-keycap / lp-btn-next). */
+
+.wcn-etch {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	font-weight: 400;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: var(--paper-soft);
+}
+.wcn-mono {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+}
+.wcn-bezel {
+	max-width: 980px;
+	margin: 48px auto 0;
+	padding: 0 24px;
+	text-align: left;
+}
+.wcn-bezel-top,
+.wcn-bezel-bottom {
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	display: flex;
+	justify-content: space-between;
+	padding: 10px 24px;
+}
+.wcn-bezel-top {
+	border-radius: 14px 14px 0 0;
+	border-bottom: none;
+}
+.wcn-bezel-bottom {
+	border-radius: 0 0 14px 14px;
+	border-top: none;
+	justify-content: center;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+/* Fixed-height glass: the two screens swap inside, nothing reflows. */
+.wcn-app {
+	background: var(--surface);
+	border: 1px solid var(--seam);
+	height: 560px;
+	display: flex;
+	flex-direction: column;
+	box-shadow: inset 0 4px 18px rgba(0, 0, 0, 0.6);
+}
+.wcn-appbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 22px;
+	border-bottom: 1px solid var(--seam);
+	flex-shrink: 0;
+	min-height: 58px;
+}
+.wcn-stage {
+	flex: 1;
+	padding: 20px 22px;
+	overflow: hidden;
+	position: relative;
+}
+.wcn-deployview {
+	display: grid;
+	grid-template-columns: 420px 1fr;
+	gap: 18px;
+	height: 100%;
+	animation: wcn-in 0.25s ease both;
+}
+.wcn-panel {
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+}
+.wcn-panel-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	padding: 13px 18px;
+	border-bottom: 1px solid var(--seam);
+}
+.wcn-projname {
+	color: var(--green-text);
+}
+.wcn-checks {
+	display: flex;
+	flex-direction: column;
+	padding: 6px 0;
+	flex: 1;
+}
+.wcn-check {
+	display: grid;
+	grid-template-columns: 22px 100px 1fr;
+	gap: 12px;
+	align-items: center;
+	text-align: left;
+	background: none;
+	border: none;
+	padding: 11px 18px;
+	cursor: pointer;
+	font-family: inherit;
+	color: var(--paper);
+	position: relative;
+}
+/* #20: the ghost click — an amber ring rippling out from the checkbox */
+.wcn-clickring {
+	position: absolute;
+	left: 28px;
+	top: 50%;
+	width: 36px;
+	height: 36px;
+	margin: -18px 0 0 -18px;
+	border: 2px solid var(--amber);
+	border-radius: 50%;
+	pointer-events: none;
+	animation: wcn-ring 0.5s ease-out both;
+}
+@keyframes wcn-ring {
+	from {
+		transform: scale(0.3);
+		opacity: 0.95;
+	}
+	to {
+		transform: scale(1.5);
+		opacity: 0;
+	}
+}
+.wcn-check:hover {
+	background: rgba(var(--paper-rgb), 0.03);
+}
+.wcn-check:disabled {
+	cursor: default;
+}
+.wcn-box {
+	width: 20px;
+	height: 20px;
+	border-radius: 5px;
+	border: 1px solid var(--seam);
+	background: var(--display-bg);
+	color: var(--green-text);
+	font-size: 14px;
+	line-height: 18px;
+	text-align: center;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+	text-shadow: 0 0 6px var(--green-glow);
+}
+.wcn-check[aria-pressed="false"] .wcn-check-name,
+.wcn-check[aria-pressed="false"] .wcn-check-spec {
+	opacity: 0.45;
+}
+.wcn-check-name {
+	font-weight: 700;
+	font-size: 15px;
+	letter-spacing: -0.01em;
+}
+.wcn-check-spec {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 11px;
+	color: var(--paper-soft);
+}
+.wcn-panel-foot {
+	display: flex;
+	padding: 13px 18px;
+	border-top: 1px solid var(--seam);
+}
+.wcn-panel-foot .lp-btn {
+	width: 100%;
+}
+.wcn-term {
+	background: var(--display-bg);
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	padding: 16px 20px;
+	font-family: "VT323", monospace;
+	font-size: 18px;
+	line-height: 1.55;
+	color: var(--display-text);
+	box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.8);
+	overflow: hidden;
+}
+.wcn-term-line {
+	opacity: 0;
+	animation: wcn-on 0.05s linear forwards;
+	text-shadow: 0 0 7px var(--green-glow);
+	white-space: pre;
+}
+.wcn-term-line:last-of-type {
+	color: var(--amber);
+	text-shadow: 0 0 7px var(--amber-glow);
+}
+.wcn-term-line:first-of-type {
+	color: var(--display-text);
+}
+.wcn-dash {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	height: 100%;
+	animation: wcn-in 0.25s ease both;
+}
+.wcn-tile {
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	padding: 12px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.wcn-tile-num {
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+}
+.wcn-tile-note {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	color: var(--paper-soft);
+}
+/* #22: the newborn project pops into the ledger */
+.wcn-new {
+	animation: wcn-in 0.35s ease both;
+}
+
+/* #22 ledger — tiles double as column headers, projects as rows */
+.wcn-lgrid,
+.wcn-lrow {
+	display: grid;
+	grid-template-columns: 150px repeat(4, 1fr);
+	gap: 10px;
+}
+.wcn-lgrid {
+	flex-shrink: 0;
+}
+.wcn-lspacer {
+	display: flex;
+	align-items: flex-end;
+	padding: 0 4px 12px;
+}
+.wcn-lrows {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	flex: 1;
+	overflow: hidden;
+}
+.wcn-lcell {
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	padding: 10px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+}
+.wcn-lname {
+	justify-content: center;
+}
+.wcn-cell-sub {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 9px;
+	letter-spacing: 0.08em;
+	color: var(--paper-soft);
+}
+.wcn-card-name {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 700;
+	font-size: 15px;
+	letter-spacing: -0.01em;
+}
+.wcn-led {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 7px var(--led-glow);
+	flex-shrink: 0;
+}
+.wcn-loadbar {
+	display: flex;
+	gap: 3px;
+}
+.wcn-seg {
+	flex: 1;
+	height: 5px;
+	border-radius: 2px;
+	background: var(--led-off);
+	transition: background 0.3s ease;
+}
+.wcn-seg-lit {
+	background: var(--led);
+	box-shadow: 0 0 4px var(--led-glow);
+}
+.wcn-dash-term {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: var(--display-bg);
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	padding: 10px 16px;
+	box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.7);
+	flex-shrink: 0;
+}
+.wcn-term-mini {
+	font-family: "VT323", monospace;
+	font-size: 16px;
+	color: var(--display-text);
+	text-shadow: 0 0 6px var(--green-glow);
+	white-space: pre;
+}
+.wcn-cursor {
+	display: inline-block;
+	width: 0.5em;
+	height: 1em;
+	background: var(--display-text);
+	animation: wcn-blink 1s steps(1) infinite;
+	vertical-align: text-bottom;
+}
+.wcn-action {
+	padding: 8px 20px;
+}
+.wcn-microprint {
+	font-size: 9px;
+	opacity: 0.8;
+}
+
+@keyframes wcn-on {
+	to {
+		opacity: 1;
+	}
+}
+@keyframes wcn-in {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+@keyframes wcn-blink {
+	0%,
+	49% {
+		opacity: 1;
+	}
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+@media (max-width: 860px) {
+	.wcn-deployview {
+		grid-template-columns: 1fr;
+	}
+	.wcn-term {
+		display: none;
+	}
+	.wcn-app {
+		height: auto;
+		min-height: 560px;
+	}
+	.wcn-lgrid,
+	.wcn-lrow {
+		grid-template-columns: 90px repeat(4, 1fr);
+		gap: 6px;
+	}
+	.wcn-lcell {
+		padding: 8px 8px;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.wcn-bezel * {
+		animation-duration: 0.01ms !important;
+		animation-delay: 0s !important;
+		transition: none !important;
+	}
+}

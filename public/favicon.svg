@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Alfredo tab mark (wayfinder #21): bold A in paper on anodize-charcoal
+       rounded square, LED-green dot in front of the letter at the right. -->
+  <rect width="64" height="64" rx="14" fill="#14150e"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#ece7da" stroke-opacity="0.1"/>
+  <text x="30" y="48" text-anchor="middle" font-family="'Space Grotesk', 'Arial Black', Arial, sans-serif" font-weight="700" font-size="46" fill="#ece7da">A</text>
+  <circle cx="46" cy="32" r="8" fill="#3bd23b"/>
+</svg>
