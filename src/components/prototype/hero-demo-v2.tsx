@@ -1,41 +1,30 @@
-// PROTOTYPE — throwaway (wayfinder #26, round 2). Hero demo v2 after the
-// operator's react pass: one story loop from empty state to teardown —
-//   empty → deploy my-saas (plain) → linkloom (goes viral) → papertrail
-//   (payment notifs) → relay-api (uptime wobble) → remove one by one → empty
-// The terminal is gone: deployment renders on the dashboard itself (the new
-// project card provisions its integrations, then flips LIVE). The left side
-// is a real form (input + clickable integration cards) that dims and hands
-// off to the card when Deploy fires. Stories are exaggerated with pings and
-// ripples. Axes (floating bar, dev only, behind ?hv2=1):
-//   layout = beats | overlay    (split eases on story beats vs form-as-overlay)
-//   pace   = calm | punchy      (dwell times + ripple intensity)
-//   view   = desktop | mobile   (mobile vertical / bottom-sheet)
+// PROTOTYPE — throwaway (wayfinder #26, round 3). Overlay layout won, calm
+// pace locked. The loop is now a pure function of time — worldAt(t) — driven
+// by one rAF clock, which makes the new draggable progress bar (with chapter
+// markers, YouTube-style) exact: scrubbing and marker-jumps replay any moment.
+// Story (operator's script):
+//   1 landing-page     analytics+email            → mild traffic
+//   2 geo-monitor      analytics+db+auth          → signups; landing-page spikes
+//   3 growth-automator analytics+email+db+auth    → spikes on all three; health
+//                                                   issue, then resolved
+//   4 content-factory  everything                 → landing-page retired; slow
+//                                                   start, viral link, payments
+//   teardown: projects leave one by one → empty state → loop
+// Analytics is always on by default; the projects row carries an "+ new"
+// control the ghost click hits; the form overlay lives on the RIGHT and
+// hides quickly after a deploy. Dashboard essentials: WAITLIST · TRAFFIC
+// (trend) · MRR. Axes left: view = desktop | mobile (?hv2=1, dev only).
 import { useEffect, useRef, useState } from "react";
 import { consoleCssVars } from "#/components/landing/console-vars";
 import "#/components/prototype/hero-demo-v2.css";
 
 /* ---------------------------------------------------------------- axes -- */
 
-export type Hv2Axes = {
-	layout: "beats" | "overlay";
-	pace: "calm" | "punchy";
-	view: "desktop" | "mobile";
-};
+export type Hv2Axes = { view: "desktop" | "mobile" };
 
-const AXIS_OPTIONS = {
-	layout: ["beats", "overlay"],
-	pace: ["calm", "punchy"],
-	view: ["desktop", "mobile"],
-} as const;
+const AXIS_OPTIONS = { view: ["desktop", "mobile"] } as const;
+const DEFAULT_AXES: Hv2Axes = { view: "desktop" };
 
-const DEFAULT_AXES: Hv2Axes = {
-	layout: "beats",
-	pace: "calm",
-	view: "desktop",
-};
-
-// Enabled only in dev builds with ?hv2 present. Reads the URL after mount
-// (SSR-safe); axis params are optional and default above.
 export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 	const [axes, setAxes] = useState<Hv2Axes | null>(null);
 
@@ -43,23 +32,18 @@ export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 		if (import.meta.env.PROD) return;
 		const q = new URLSearchParams(window.location.search);
 		if (!q.has("hv2")) return;
-		const pick = <K extends keyof Hv2Axes>(key: K): Hv2Axes[K] => {
-			const v = q.get(key);
-			const opts = AXIS_OPTIONS[key] as readonly string[];
-			return (v && opts.includes(v) ? v : DEFAULT_AXES[key]) as Hv2Axes[K];
-		};
-		setAxes({ layout: pick("layout"), pace: pick("pace"), view: pick("view") });
+		const v = q.get("view");
+		setAxes({ view: v === "mobile" ? "mobile" : DEFAULT_AXES.view });
 	}, []);
 
 	const update = (a: Hv2Axes | null) => {
 		setAxes(a);
 		const q = new URLSearchParams(window.location.search);
 		if (a === null) {
-			for (const k of ["hv2", "layout", "pace", "view"]) q.delete(k);
+			for (const k of ["hv2", "view"]) q.delete(k);
 		} else {
 			q.set("hv2", "1");
-			for (const k of Object.keys(AXIS_OPTIONS) as (keyof Hv2Axes)[])
-				q.set(k, a[k]);
+			q.set("view", a.view);
 		}
 		const qs = q.toString();
 		window.history.replaceState(
@@ -72,355 +56,369 @@ export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 	return [axes, update];
 }
 
-/* ---------------------------------------------------------------- cast -- */
+/* ----------------------------------------------------------- the story -- */
 
+// Order per operator: analytics first and always preselected.
 const INTEGRATIONS = [
-	{ id: "auth", label: "Auth", spec: "sessions, oauth", chip: "AU" },
+	{ id: "analytics", label: "Analytics", spec: "on your server", chip: "AN" },
 	{ id: "email", label: "Email", spec: "transactional", chip: "EM" },
 	{ id: "db", label: "Database", spec: "live data", chip: "DB" },
-	{ id: "analytics", label: "Analytics", spec: "on your server", chip: "AN" },
+	{ id: "auth", label: "Auth", spec: "sessions, oauth", chip: "AU" },
 	{ id: "payments", label: "Payments", spec: "checkout + billing", chip: "PA" },
 ];
 
-type StoryKind = "plain" | "viral" | "money" | "uptime";
-
-// Four deploys, four stories; picks index into INTEGRATIONS, gaps make the
-// selection feel human (quick, uneven).
-const CAST: {
-	name: string;
-	picks: number[];
-	gaps: number[];
-	story: StoryKind;
-}[] = [
-	{
-		name: "my-saas",
-		picks: [0, 1, 2, 3, 4],
-		gaps: [150, 80, 220, 100, 170],
-		story: "plain",
-	},
-	{ name: "linkloom", picks: [0, 2, 3], gaps: [130, 190, 90], story: "viral" },
-	{
-		name: "papertrail",
-		picks: [0, 1, 4],
-		gaps: [100, 230, 120],
-		story: "money",
-	},
-	{ name: "relay-api", picks: [0, 2], gaps: [160, 90], story: "uptime" },
+const CAST = [
+	{ name: "landing-page", picks: [0, 1], dwell: 2.4 },
+	{ name: "geo-monitor", picks: [0, 2, 3], dwell: 5.4 },
+	{ name: "growth-automator", picks: [0, 1, 2, 3], dwell: 6.8 },
+	{ name: "content-factory", picks: [0, 1, 2, 3, 4], dwell: 8.6 },
 ];
 
-type ProjState = "prov" | "live" | "down" | "out";
-
-type Proj = {
+type Chapter = {
 	name: string;
 	picks: number[];
-	state: ProjState;
-	lit: number; // integrations provisioned so far
-	views: number;
-	eur: number;
-	pulse: "green" | "red" | null;
-	pulseKey: number;
+	plusAt: number; // ghost click on the "+ new" card
+	formAt: number; // sheet slides in
+	typeAt: number;
+	rings: { pick: number; at: number }[]; // non-analytics selections
+	readyAt: number;
+	pressAt: number; // Deploy fires, form dims
+	wireAt: number; // card appears, chips start lighting
+	liveAt: number;
+	hideAt: number; // sheet gone (quick)
+	outAt: number; // teardown removal
 };
 
-type Toast = { id: number; amt: number; label: string };
+const RING_GAPS = [0.34, 0.5, 0.28, 0.44];
 
-const TOASTS: Omit<Toast, "id">[] = [
-	{ amt: 49, label: "checkout completed" },
-	{ amt: 19, label: "subscription renewed" },
-	{ amt: 120, label: "annual upgrade" },
+function build() {
+	const chapters: Chapter[] = [];
+	let cursor = 1.3;
+	for (const c of CAST) {
+		const plusAt = cursor;
+		const formAt = plusAt + 0.3;
+		const typeAt = formAt + 0.45;
+		let sel = typeAt + c.name.length * 0.045 + 0.3;
+		const rings = c.picks.slice(1).map((pick, i) => {
+			const at = sel;
+			sel += RING_GAPS[i % RING_GAPS.length];
+			return { pick, at };
+		});
+		const readyAt = sel + 0.2;
+		const pressAt = readyAt + 0.4;
+		const wireAt = pressAt + 0.18;
+		const liveAt = wireAt + 0.35 + c.picks.length * 0.22;
+		const hideAt = liveAt + 0.15;
+		chapters.push({
+			name: c.name,
+			picks: c.picks,
+			plusAt,
+			formAt,
+			typeAt,
+			rings,
+			readyAt,
+			pressAt,
+			wireAt,
+			liveAt,
+			hideAt,
+			outAt: 0,
+		});
+		cursor = hideAt + c.dwell;
+	}
+	const quietAt = cursor;
+	chapters.forEach((ch, i) => {
+		ch.outAt = quietAt + 0.5 + i * 0.55;
+	});
+	const emptyAt = chapters[chapters.length - 1].outAt + 0.55;
+	return { chapters, quietAt, emptyAt, total: emptyAt + 1.7 };
+}
+
+const {
+	chapters: CH,
+	quietAt: QUIET_AT,
+	emptyAt: EMPTY_AT,
+	total: TOTAL,
+} = build();
+
+/* story event times, all derived from the chapter clock */
+const SIGNUPS_AT = CH[1].liveAt + 0.3;
+const LP_SPIKE: [number, number] = [CH[1].liveAt + 1.5, CH[1].liveAt + 4.2];
+const MULTI: [number, number] = [CH[2].liveAt + 0.5, CH[2].liveAt + 3.8];
+const DOWN: [number, number] = [CH[2].liveAt + 2.1, CH[2].liveAt + 4.1];
+const RETIRE_AT = CH[3].liveAt + 0.9;
+const VIRAL_AT = CH[3].liveAt + 2.7;
+const VIRAL_END = VIRAL_AT + 3.6;
+const PAYMENTS = [
+	{ at: VIRAL_AT + 1.3, amt: 49, label: "checkout completed" },
+	{ at: VIRAL_AT + 2.1, amt: 19, label: "subscription started" },
+	{ at: VIRAL_AT + 2.9, amt: 120, label: "annual upgrade" },
 ];
 
-type FormPhase = "hidden" | "idle" | "filling" | "ready" | "sent";
+/* deterministic metrics — piecewise rates integrated over t */
+type Seg = [number, number, number]; // from, to, per-second
 
-type Form = {
-	phase: FormPhase;
-	name: string;
-	typed: number;
-	picks: number[];
-	picked: number; // how many of picks are selected so far
-	ring: number; // integration index currently ring-pulsing, -1 none
+const VIEW_RATES: Record<string, Seg[]> = {
+	"landing-page": [
+		[CH[0].liveAt, LP_SPIKE[0], 2.5],
+		[LP_SPIKE[0], LP_SPIKE[1], 30],
+		[LP_SPIKE[1], MULTI[0], 4],
+		[MULTI[0], MULTI[1], 24],
+		[MULTI[1], CH[3].liveAt, 4],
+		[CH[3].liveAt, RETIRE_AT, 2],
+	],
+	"geo-monitor": [
+		[CH[1].liveAt, MULTI[0], 1.8],
+		[MULTI[0], DOWN[0], 18],
+		[DOWN[1], QUIET_AT, 3],
+	],
+	"growth-automator": [
+		[CH[2].liveAt, MULTI[1], 26],
+		[MULTI[1], QUIET_AT, 3.2],
+	],
+	"content-factory": [
+		[CH[3].liveAt, VIRAL_AT, 0.9],
+		[VIRAL_AT, VIRAL_END, 55],
+		[VIRAL_END, QUIET_AT, 16],
+	],
 };
 
-const FORM_START: Form = {
-	phase: "idle",
-	name: CAST[0].name,
-	typed: 0,
-	picks: CAST[0].picks,
-	picked: 0,
-	ring: -1,
-};
+const WAITLIST_RATE: Seg[] = [
+	[SIGNUPS_AT, MULTI[0], 1.2],
+	[MULTI[0], MULTI[1], 3.5],
+	[MULTI[1], VIRAL_AT, 1.4],
+	[VIRAL_AT, VIRAL_END, 3.2],
+	[VIRAL_END, QUIET_AT, 1.5],
+];
 
-const SPARK = [
-	4, 3, 5, 4, 6, 5, 7, 6, 8, 11, 16, 26, 40, 58, 74, 88, 96, 92, 100,
-].map((h, i) => ({ id: `sp-${i}`, h }));
+function integ(segs: Seg[], t: number) {
+	let sum = 0;
+	for (const [a, b, r] of segs) sum += Math.max(0, Math.min(t, b) - a) * r;
+	return Math.floor(sum);
+}
+function rateAt(segs: Seg[], t: number) {
+	for (const [a, b, r] of segs) if (t >= a && t < b) return r;
+	return 0;
+}
+function totalRate(t: number) {
+	return Object.values(VIEW_RATES).reduce((s, segs) => s + rateAt(segs, t), 0);
+}
 
 function fmt(n: number) {
 	return n.toLocaleString("en-US");
 }
 
+/* --------------------------------------------------------- worldAt(t) -- */
+
+type ProjStatus = "prov" | "live" | "down" | "off" | "out";
+
+type Spot =
+	| { kind: "empty" | "quiet" }
+	| {
+			kind: "wiring" | "live" | "trickle" | "signups" | "retired";
+			proj: string;
+	  }
+	| { kind: "spike" | "viral"; proj: string }
+	| { kind: "multispike" }
+	| { kind: "down" | "recovered"; proj: string }
+	| { kind: "payments"; proj: string };
+
+const SPOTS: [number, Spot][] = [
+	[0, { kind: "empty" }],
+	...CH.flatMap<[number, Spot]>((ch) => [
+		[ch.wireAt, { kind: "wiring", proj: ch.name }],
+		[ch.liveAt, { kind: "live", proj: ch.name }],
+	]),
+	[CH[0].liveAt + 1.2, { kind: "trickle", proj: CH[0].name }],
+	[SIGNUPS_AT, { kind: "signups", proj: CH[1].name }],
+	[LP_SPIKE[0], { kind: "spike", proj: CH[0].name }],
+	[MULTI[0], { kind: "multispike" }],
+	[DOWN[0], { kind: "down", proj: CH[1].name }],
+	[DOWN[1], { kind: "recovered", proj: CH[1].name }],
+	[RETIRE_AT, { kind: "retired", proj: CH[0].name }],
+	[VIRAL_AT, { kind: "viral", proj: CH[3].name }],
+	[PAYMENTS[0].at, { kind: "payments", proj: CH[3].name }],
+	[QUIET_AT, { kind: "quiet" }],
+	[EMPTY_AT, { kind: "empty" }],
+].sort((a, b) => a[0] - b[0]) as [number, Spot][];
+
+function spotAt(t: number): Spot {
+	let cur: Spot = { kind: "empty" };
+	for (const [at, s] of SPOTS) {
+		if (at <= t) cur = s;
+		else break;
+	}
+	return cur;
+}
+
+type World = {
+	t: number;
+	projects: {
+		name: string;
+		picks: number[];
+		status: ProjStatus;
+		lit: number;
+		ripple: { key: string; color: "green" | "red" } | null;
+	}[];
+	form: {
+		visible: boolean;
+		phase: "open" | "filling" | "ready" | "sent";
+		name: string;
+		typed: number;
+		picks: number[];
+		checked: Set<number>;
+		ring: number; // integration index, -1 none
+	} | null;
+	spot: Spot;
+	toasts: { id: number; amt: number; label: string }[];
+	waitlist: number;
+	mrr: number;
+	rate: number;
+	trend: number[];
+	plusRing: boolean;
+	plusActive: boolean;
+	chapter: number; // -1 outside chapters
+};
+
+function inWin(t: number, from: number, len = 0.9) {
+	return t >= from && t < from + len;
+}
+
+function worldAt(t: number): World {
+	/* projects */
+	const projects: World["projects"] = [];
+	CH.forEach((ch, i) => {
+		if (t < ch.wireAt || t >= ch.outAt + 0.5) return;
+		let status: ProjStatus =
+			t >= ch.outAt ? "out" : t < ch.liveAt ? "prov" : "live";
+		if (status === "live" && i === 1 && t >= DOWN[0] && t < DOWN[1])
+			status = "down";
+		if (status === "live" && i === 0 && t >= RETIRE_AT) status = "off";
+		const lit =
+			t < ch.liveAt
+				? Math.max(0, Math.floor((t - ch.wireAt - 0.35) / 0.22))
+				: ch.picks.length;
+		// ripple windows: birth, down, recovery
+		let ripple: World["projects"][number]["ripple"] = null;
+		if (inWin(t, ch.liveAt)) ripple = { key: "live", color: "green" };
+		if (i === 1 && inWin(t, DOWN[0])) ripple = { key: "down", color: "red" };
+		if (i === 1 && inWin(t, DOWN[1])) ripple = { key: "up", color: "green" };
+		projects.push({
+			name: ch.name,
+			picks: ch.picks,
+			status,
+			lit: Math.min(lit, ch.picks.length),
+			ripple,
+		});
+	});
+
+	/* chapter: last one started, until the outro — youtube-style persistence */
+	let chapter = -1;
+	if (t < QUIET_AT)
+		for (const [i, ch] of CH.entries()) if (t >= ch.plusAt) chapter = i;
+
+	/* form */
+	let form: World["form"] = null;
+	for (const ch of CH) {
+		if (t >= ch.plusAt && t < ch.hideAt) {
+			if (t >= ch.formAt) {
+				const typed = Math.max(
+					0,
+					Math.min(ch.name.length, Math.floor((t - ch.typeAt) / 0.045)),
+				);
+				const checked = new Set<number>([0]); // analytics: always on
+				for (const r of ch.rings) if (t >= r.at + 0.2) checked.add(r.pick);
+				const ring = ch.rings.find((r) => t >= r.at && t < r.at + 0.45);
+				form = {
+					visible: true,
+					phase:
+						t >= ch.pressAt
+							? "sent"
+							: t >= ch.readyAt
+								? "ready"
+								: t >= ch.typeAt
+									? "filling"
+									: "open",
+					name: ch.name,
+					typed,
+					picks: ch.picks,
+					checked,
+					ring: ring ? ring.pick : -1,
+				};
+			}
+			break;
+		}
+	}
+
+	const trend = Array.from({ length: 16 }, (_, i) =>
+		totalRate(t - (15 - i) * 0.45),
+	);
+
+	return {
+		t,
+		projects,
+		form,
+		spot: spotAt(t),
+		toasts: PAYMENTS.filter((p) => p.at <= t).map((p, i) => ({
+			id: i,
+			amt: p.amt,
+			label: p.label,
+		})),
+		waitlist: integ(WAITLIST_RATE, t),
+		mrr: PAYMENTS.filter((p) => p.at <= t).reduce((s, p) => s + p.amt, 0),
+		rate: totalRate(t),
+		trend,
+		plusRing: CH.some((ch) => t >= ch.plusAt && t < ch.plusAt + 0.5),
+		plusActive: form !== null,
+		chapter,
+	};
+}
+
+/* progress bar chapter segments */
+const BAR_SEGS = [
+	{ from: 0, to: CH[0].plusAt, label: "" },
+	...CH.map((ch, i) => ({
+		from: ch.plusAt,
+		to: i < CH.length - 1 ? CH[i + 1].plusAt : QUIET_AT,
+		label: ch.name,
+	})),
+	{ from: QUIET_AT, to: TOTAL, label: "" },
+];
+
 /* ---------------------------------------------------- the demo engine -- */
 
-// Story spotlight: what the dashboard is talking about right now.
-type Spot =
-	| { kind: "empty" }
-	| { kind: "quiet" }
-	| { kind: StoryKind; proj: string; recovered?: boolean };
-
 function Hv2Engine({ axes }: { axes: Hv2Axes }) {
-	const [projects, setProjects] = useState<Proj[]>([]);
-	const [form, setForm] = useState<Form>(FORM_START);
-	const [spot, setSpot] = useState<Spot>({ kind: "empty" });
-	const [toasts, setToasts] = useState<Toast[]>([]);
-	const [tilePing, setTilePing] = useState({
-		activity: 0,
-		money: 0,
-		health: 0,
-	});
-	const [formFocus, setFormFocus] = useState(true); // beats: which side leads
-
-	const viral = useRef<string | null>(null);
-	const timers = useRef<number[]>([]);
+	const [now, setNow] = useState(0);
+	const origin = useRef(0);
 	const vertical = axes.view === "mobile";
 
-	const t = (fn: () => void, ms: number) => {
-		timers.current.push(window.setTimeout(fn, ms));
-	};
-
-	/* live tick — live projects breathe; the viral one surges */
 	useEffect(() => {
-		const id = setInterval(() => {
-			setProjects((prev) =>
-				prev.map((p) =>
-					p.state === "live" || p.state === "down"
-						? {
-								...p,
-								views:
-									p.views +
-									(viral.current === p.name
-										? 55 + Math.floor(Math.random() * 70)
-										: Math.floor(Math.random() * 4)),
-							}
-						: p,
-				),
-			);
-		}, 450);
-		return () => clearInterval(id);
-	}, []);
-
-	/* the director — one scripted loop, restarted per pace/view/layout */
-	// biome-ignore lint/correctness/useExhaustiveDependencies: scripted loop, restarted wholesale
-	useEffect(() => {
-		const prefersReduced = window.matchMedia(
-			"(prefers-reduced-motion: reduce)",
-		).matches;
-		if (prefersReduced) {
-			// Static composed frame: two projects live, viral spotlight, form filled.
-			setProjects([
-				mkProj(CAST[0], "live", 1284),
-				mkProj(CAST[1], "live", 18432),
-			]);
-			setForm({ ...FORM_START, typed: CAST[0].name.length, picked: 5 });
-			setSpot({ kind: "viral", proj: CAST[1].name });
-			setFormFocus(false);
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			// static composed frame: mid-story, three projects, surge visible;
+			// the scrubber still works — each click is a discrete jump
+			setNow(MULTI[0] + 0.8);
 			return;
 		}
-
-		const m = axes.pace === "punchy" ? 0.72 : 1;
-
-		const pulse = (name: string, color: "green" | "red") =>
-			setProjects((prev) =>
-				prev.map((p) =>
-					p.name === name
-						? { ...p, pulse: color, pulseKey: p.pulseKey + 1 }
-						: p,
-				),
-			);
-		const ping = (tile: keyof typeof tilePing) =>
-			setTilePing((prev) => ({ ...prev, [tile]: prev[tile] + 1 }));
-
-		const script = () => {
-			let at = 0;
-			const step = (ms: number, fn?: () => void) => {
-				if (fn) t(fn, at);
-				at += ms * m;
-			};
-
-			/* reset — empty HQ, form waiting */
-			step(0, () => {
-				setProjects([]);
-				setToasts([]);
-				setSpot({ kind: "empty" });
-				setForm({ ...FORM_START, phase: "idle" });
-				setFormFocus(true);
-				viral.current = null;
-			});
-			step(1400);
-
-			CAST.forEach((c, ci) => {
-				/* fill the form — quick, uneven, human */
-				step(0, () => {
-					setFormFocus(true);
-					setForm({
-						phase: "filling",
-						name: c.name,
-						typed: 0,
-						picks: c.picks,
-						picked: 0,
-						ring: -1,
-					});
-				});
-				step(350);
-				for (let i = 1; i <= c.name.length; i++)
-					step(42, () => setForm((f) => ({ ...f, typed: i })));
-				step(240);
-				c.picks.forEach((pk, i) => {
-					step(0, () => setForm((f) => ({ ...f, ring: pk })));
-					step(c.gaps[i], () =>
-						setForm((f) => ({ ...f, picked: i + 1, ring: -1 })),
-					);
-				});
-				step(300, () => setForm((f) => ({ ...f, phase: "ready" })));
-
-				/* Deploy — the form dims and hands off to the dashboard card */
-				step(340, () => {
-					setForm((f) => ({ ...f, phase: "sent" }));
-					setProjects((prev) => [...prev, mkProj(c, "prov", 0)]);
-					setFormFocus(false);
-				});
-				// integrations light up on the card, one by one, uneven
-				c.picks.forEach((_, i) => {
-					step(170 + (i % 2) * 70, () =>
-						setProjects((prev) =>
-							prev.map((p) => (p.name === c.name ? { ...p, lit: i + 1 } : p)),
-						),
-					);
-				});
-				step(280, () => {
-					setProjects((prev) =>
-						prev.map((p) => (p.name === c.name ? { ...p, state: "live" } : p)),
-					);
-					pulse(c.name, "green");
-					setSpot({ kind: c.story, proj: c.name });
-					if (ci < CAST.length - 1)
-						setForm({
-							phase: axes.layout === "overlay" ? "hidden" : "idle",
-							name: CAST[ci + 1].name,
-							typed: 0,
-							picks: CAST[ci + 1].picks,
-							picked: 0,
-							ring: -1,
-						});
-					else setForm((f) => ({ ...f, phase: "hidden" }));
-				});
-
-				/* the story */
-				if (c.story === "plain") {
-					step(2100);
-				}
-				if (c.story === "viral") {
-					// starts slowly… then the front page hits
-					step(1000, () => {
-						viral.current = c.name;
-						pulse(c.name, "green");
-						ping("activity");
-					});
-					step(1600, () => {
-						pulse(c.name, "green");
-						ping("activity");
-					});
-					step(1800, () => {
-						viral.current = null;
-					});
-				}
-				if (c.story === "money") {
-					TOASTS.forEach((toast, ti) => {
-						step([700, 1150, 620][ti], () => {
-							setToasts((prev) => [...prev, { ...toast, id: ti }]);
-							setProjects((prev) =>
-								prev.map((p) =>
-									p.name === c.name ? { ...p, eur: p.eur + toast.amt } : p,
-								),
-							);
-							pulse(c.name, "green");
-							ping("money");
-						});
-					});
-					step(1500);
-				}
-				if (c.story === "uptime") {
-					step(900, () => {
-						setProjects((prev) =>
-							prev.map((p) =>
-								p.name === c.name ? { ...p, state: "down" } : p,
-							),
-						);
-						pulse(c.name, "red");
-						ping("health");
-					});
-					step(1900, () => {
-						setProjects((prev) =>
-							prev.map((p) =>
-								p.name === c.name ? { ...p, state: "live" } : p,
-							),
-						);
-						pulse(c.name, "green");
-						ping("health");
-						setSpot({ kind: "uptime", proj: c.name, recovered: true });
-					});
-					step(1700);
-				}
-			});
-
-			/* teardown — projects leave one by one, back to the empty state */
-			step(600, () => setSpot({ kind: "quiet" }));
-			for (let i = CAST.length - 1; i >= 0; i--) {
-				const name = CAST[i].name;
-				step(0, () =>
-					setProjects((prev) =>
-						prev.map((p) => (p.name === name ? { ...p, state: "out" } : p)),
-					),
-				);
-				step(560, () =>
-					setProjects((prev) => prev.filter((p) => p.name !== name)),
-				);
-			}
-			step(200, () => setSpot({ kind: "empty" }));
-			step(900);
-			return at;
+		origin.current = performance.now() / 1000;
+		let raf = 0;
+		const tick = () => {
+			setNow((performance.now() / 1000 - origin.current) % TOTAL);
+			raf = requestAnimationFrame(tick);
 		};
+		raf = requestAnimationFrame(tick);
+		return () => cancelAnimationFrame(raf);
+	}, []);
 
-		const loop = () => {
-			const len = script();
-			t(loop, len);
-		};
-		loop();
+	const seek = (t: number) => {
+		const clamped = Math.max(0, Math.min(TOTAL - 0.01, t));
+		origin.current = performance.now() / 1000 - clamped;
+		setNow(clamped);
+	};
 
-		return () => {
-			for (const id of timers.current) clearTimeout(id);
-			timers.current = [];
-		};
-	}, [axes.pace, axes.view, axes.layout]);
-
-	/* derived — "out" projects stay rendered so the pop-out animation plays */
-	const shown = projects;
-	const live = projects.filter((p) => p.state === "live" || p.state === "down");
-	const totViews = live.reduce((a, p) => a + p.views, 0);
-	const totEur = live.reduce((a, p) => a + p.eur, 0);
-	const downCount = projects.filter((p) => p.state === "down").length;
-
-	const beats = axes.layout === "beats";
-	const splitPct = beats
-		? formFocus
-			? vertical
-				? 54
-				: 44
-			: vertical
-				? 30
-				: 26
-		: 0;
+	const w = worldAt(now);
 
 	return (
 		<section
-			className={`hv2-bezel hv2-pace-${axes.pace}${vertical ? " hv2-mobile" : ""}`}
+			className={`hv2-bezel${vertical ? " hv2-mobile" : ""}`}
 			aria-label="Alfredo HQ demo (prototype v2)"
 			style={consoleCssVars}
 		>
@@ -431,85 +429,105 @@ function Hv2Engine({ axes }: { axes: Hv2Axes }) {
 			</div>
 
 			<div className={`hv2-glass${vertical ? " hv2-vert" : ""}`}>
-				{beats ? (
-					<>
-						<div
-							className="hv2-pane-form"
-							style={
-								vertical
-									? { height: `${splitPct}%` }
-									: { width: `${splitPct}%` }
-							}
-						>
-							<DeployForm form={form} />
-						</div>
-						<div className="hv2-seam" aria-hidden="true" />
-						<div className="hv2-pane-dash">
-							<Dash
-								projects={shown}
-								spot={spot}
-								toasts={toasts}
-								totViews={totViews}
-								totEur={totEur}
-								downCount={downCount}
-								tilePing={tilePing}
-							/>
-						</div>
-					</>
-				) : (
-					<div className="hv2-full">
-						<Dash
-							projects={shown}
-							spot={spot}
-							toasts={toasts}
-							totViews={totViews}
-							totEur={totEur}
-							downCount={downCount}
-							tilePing={tilePing}
-						/>
-						<div
-							className={`hv2-sheet${form.phase !== "hidden" ? " hv2-sheet-in" : ""}`}
-						>
-							<DeployForm form={form} />
-						</div>
+				<div className="hv2-full">
+					<Dash w={w} />
+					<div
+						className={`hv2-sheet${w.form ? " hv2-sheet-in" : ""}`}
+						aria-hidden={!w.form}
+					>
+						{w.form && <DeployForm form={w.form} />}
 					</div>
-				)}
+				</div>
 			</div>
 
-			<div className="hv2-bbot">
-				<span className="hv2-etch hv2-microprint">
-					YOUR SERVERS · ONE HQ · N PROJECTS
-				</span>
-			</div>
+			{/* the bottom cap: full-width scrubber, chapter titles underneath */}
+			<ProgressBar now={now} onSeek={seek} chapter={w.chapter} />
 		</section>
 	);
 }
 
-function mkProj(
-	c: (typeof CAST)[number],
-	state: ProjState,
-	views: number,
-): Proj {
-	return {
-		name: c.name,
-		picks: c.picks,
-		state,
-		lit: state === "prov" ? 0 : c.picks.length,
-		views,
-		eur: 0,
-		pulse: null,
-		pulseKey: 0,
+/* -------------------------------------------------------- progress bar -- */
+
+function ProgressBar({
+	now,
+	onSeek,
+	chapter,
+}: {
+	now: number;
+	onSeek: (t: number) => void;
+	chapter: number;
+}) {
+	const trackRef = useRef<HTMLDivElement>(null);
+
+	const seekFromPointer = (clientX: number) => {
+		const rect = trackRef.current?.getBoundingClientRect();
+		if (!rect) return;
+		onSeek(((clientX - rect.left) / rect.width) * TOTAL);
 	};
+
+	const onPointerDown = (e: React.PointerEvent) => {
+		seekFromPointer(e.clientX);
+		const move = (ev: PointerEvent) => seekFromPointer(ev.clientX);
+		const up = () => {
+			window.removeEventListener("pointermove", move);
+			window.removeEventListener("pointerup", up);
+		};
+		window.addEventListener("pointermove", move);
+		window.addEventListener("pointerup", up);
+		e.preventDefault();
+	};
+
+	const active = chapter >= 0 ? CH[chapter].name : null;
+
+	return (
+		<div className="hv2-progress">
+			{/* mouse-only scrubber this round */}
+			<div className="hv2-track" ref={trackRef} onPointerDown={onPointerDown}>
+				{BAR_SEGS.map((seg) => {
+					const segLen = seg.to - seg.from;
+					const fill =
+						now <= seg.from
+							? 0
+							: now >= seg.to
+								? 100
+								: ((now - seg.from) / segLen) * 100;
+					return (
+						<div
+							className="hv2-seg-wrap"
+							key={`${seg.from}`}
+							style={{ flexGrow: segLen }}
+						>
+							<div className="hv2-seg-track">
+								<div className="hv2-seg-fill" style={{ width: `${fill}%` }} />
+							</div>
+							<span
+								className={`hv2-seg-title hv2-etch${
+									seg.label && seg.label === active ? " hv2-seg-title-on" : ""
+								}`}
+							>
+								{seg.label}
+							</span>
+						</div>
+					);
+				})}
+			</div>
+		</div>
+	);
 }
 
 /* --------------------------------------------------------- the form ---- */
 
-function DeployForm({ form }: { form: Form }) {
+function DeployForm({ form }: { form: NonNullable<World["form"]> }) {
 	return (
 		<div className={`hv2-form hv2-form-${form.phase}`}>
-			<span className="hv2-etch">NEW PROJECT</span>
+			<div className="hv2-form-head">
+				<span className="hv2-etch">NEW PROJECT</span>
+				<span
+					className={`hv2-led${form.phase === "sent" ? " hv2-led-amber" : ""}`}
+					aria-hidden="true"
+				/>
+			</div>
 
-			{/* fake input — the demo types into it, nobody else does */}
 			<div className="hv2-field">
 				<span className="hv2-field-label">Project name</span>
 				<span className="hv2-input">
@@ -523,7 +541,7 @@ function DeployForm({ form }: { form: Form }) {
 			<span className="hv2-field-label">Integrations</span>
 			<div className="hv2-intcards">
 				{INTEGRATIONS.map((it, i) => {
-					const on = form.picks.slice(0, form.picked).includes(i);
+					const on = form.checked.has(i);
 					return (
 						<div
 							className={`hv2-intcard${on ? " hv2-intcard-on" : ""}`}
@@ -533,7 +551,9 @@ function DeployForm({ form }: { form: Form }) {
 								{on ? "✓" : ""}
 							</span>
 							<span className="hv2-intname">{it.label}</span>
-							<span className="hv2-intspec">{it.spec}</span>
+							<span className="hv2-intspec">
+								{i === 0 ? "always on" : it.spec}
+							</span>
 							{form.ring === i && (
 								<span className="hv2-ring" aria-hidden="true" />
 							)}
@@ -555,54 +575,31 @@ function DeployForm({ form }: { form: Form }) {
 
 /* ---------------------------------------------------------- dashboard -- */
 
-function Dash({
-	projects,
-	spot,
-	toasts,
-	totViews,
-	totEur,
-	downCount,
-	tilePing,
-}: {
-	projects: Proj[];
-	spot: Spot;
-	toasts: Toast[];
-	totViews: number;
-	totEur: number;
-	downCount: number;
-	tilePing: { activity: number; money: number; health: number };
-}) {
-	if (projects.length === 0) {
-		return (
-			<div className="hv2-dash hv2-dash-empty">
-				<span className="hv2-etch">FLEET — 0 PROJECTS</span>
-				<div className="hv2-empty">
-					<span className="hv2-empty-led" aria-hidden="true" />
-					<span className="hv2-empty-title">No projects yet</span>
-					<span className="hv2-empty-sub">
-						Create your first project — everything gets wired for you.
-					</span>
-				</div>
-			</div>
-		);
-	}
-
+function Dash({ w }: { w: World }) {
 	return (
 		<div className="hv2-dash">
-			{/* thin fixed top row: every project, live status + integration chips */}
+			{/* thin fixed top row: every project + the add-new control */}
 			<div className="hv2-toprow">
-				{projects.map((p) => (
-					<div className={`hv2-proj hv2-proj-${p.state}`} key={p.name}>
-						{p.pulse && (
+				{w.projects.map((p) => (
+					<div className={`hv2-proj hv2-proj-${p.status}`} key={p.name}>
+						{p.ripple && (
 							<span
-								className={`hv2-ripple hv2-ripple-${p.pulse}`}
-								key={p.pulseKey}
+								className={`hv2-ripple hv2-ripple-${p.ripple.color}`}
+								key={p.ripple.key}
 								aria-hidden="true"
 							/>
 						)}
 						<span className="hv2-proj-head">
 							<span
-								className={`hv2-led${p.state === "down" ? " hv2-led-red" : ""}${p.state === "prov" ? " hv2-led-amber" : ""}`}
+								className={`hv2-led${
+									p.status === "down"
+										? " hv2-led-red"
+										: p.status === "prov"
+											? " hv2-led-amber"
+											: p.status === "off"
+												? " hv2-led-off"
+												: ""
+								}`}
 								aria-hidden="true"
 							/>
 							<span className="hv2-proj-name">{p.name}</span>
@@ -618,32 +615,62 @@ function Dash({
 							))}
 						</span>
 						<span className="hv2-proj-state hv2-etch">
-							{p.state === "prov"
+							{p.status === "prov"
 								? "WIRING…"
-								: p.state === "down"
+								: p.status === "down"
 									? "DOWN"
-									: "LIVE"}
+									: p.status === "off"
+										? "RETIRED"
+										: "LIVE"}
 						</span>
 					</div>
 				))}
+				<div
+					className={`hv2-proj hv2-plus${w.plusActive ? " hv2-plus-active" : ""}`}
+				>
+					{w.plusRing && (
+						<span className="hv2-ripple hv2-ripple-green" aria-hidden="true" />
+					)}
+					<span className="hv2-plus-sign" aria-hidden="true">
+						+
+					</span>
+					<span className="hv2-plus-label">new project</span>
+				</div>
 			</div>
 
-			{/* the story spotlight */}
-			<Spotlight spot={spot} projects={projects} toasts={toasts} />
+			<Spotlight w={w} />
 
-			{/* essentials only */}
+			{/* essentials: waitlist, traffic trend, MRR */}
 			<div className="hv2-tiles">
-				<Tile etch="ACTIVITY" num={fmt(totViews)} pingKey={tilePing.activity} />
-				<Tile etch="MONEY" num={`€ ${fmt(totEur)}`} pingKey={tilePing.money} />
 				<Tile
-					etch="HEALTH"
-					num={
-						downCount > 0
-							? `${downCount} down`
-							: `${projects.filter((p) => p.state !== "out").length}/${projects.filter((p) => p.state !== "out").length} up`
-					}
-					warn={downCount > 0}
-					pingKey={tilePing.health}
+					etch="WAITLIST"
+					num={fmt(w.waitlist)}
+					ripple={w.spot.kind === "signups"}
+				/>
+				<div className="hv2-tile">
+					<span className="hv2-etch">TRAFFIC</span>
+					<div className="hv2-tile-row">
+						<span className="hv2-tile-num">
+							{fmt(Math.round(w.rate * 60))}/min
+						</span>
+						<span className="hv2-trend" aria-hidden="true">
+							{w.trend.map((r, i) => (
+								<span
+									className="hv2-trend-bar"
+									// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length sample strip
+									key={i}
+									style={{
+										height: `${Math.max(8, (r / Math.max(...w.trend, 1)) * 100)}%`,
+									}}
+								/>
+							))}
+						</span>
+					</div>
+				</div>
+				<Tile
+					etch="MRR"
+					num={`€ ${fmt(w.mrr)}`}
+					ripple={w.spot.kind === "payments" && w.toasts.length > 0}
 				/>
 			</div>
 		</div>
@@ -653,22 +680,18 @@ function Dash({
 function Tile({
 	etch,
 	num,
+	ripple,
 	warn,
-	pingKey,
 }: {
 	etch: string;
 	num: string;
+	ripple?: boolean;
 	warn?: boolean;
-	pingKey: number;
 }) {
 	return (
 		<div className={`hv2-tile${warn ? " hv2-tile-warn" : ""}`}>
-			{pingKey > 0 && (
-				<span
-					className={`hv2-ripple ${warn ? "hv2-ripple-red" : "hv2-ripple-green"}`}
-					key={pingKey}
-					aria-hidden="true"
-				/>
+			{ripple && (
+				<span className="hv2-ripple hv2-ripple-green" aria-hidden="true" />
 			)}
 			<span className="hv2-etch">{etch}</span>
 			<span className="hv2-tile-num">{num}</span>
@@ -676,130 +699,195 @@ function Tile({
 	);
 }
 
-function Spotlight({
-	spot,
-	projects,
-	toasts,
-}: {
-	spot: Spot;
-	projects: Proj[];
-	toasts: Toast[];
-}) {
-	if (spot.kind === "empty") return null;
+function Spark({ trend }: { trend: number[] }) {
+	const max = Math.max(...trend, 1);
+	return (
+		<div className="hv2-spark" aria-hidden="true">
+			{trend.map((r, i) => (
+				<span
+					className="hv2-spark-bar"
+					// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length sample strip
+					key={i}
+					style={{ height: `${Math.max(4, (r / max) * 100)}%` }}
+				/>
+			))}
+		</div>
+	);
+}
 
-	if (spot.kind === "quiet") {
+function Spotlight({ w }: { w: World }) {
+	const s = w.spot;
+
+	if (s.kind === "empty") {
 		return (
-			<div className="hv2-spot">
+			<div className="hv2-spot hv2-spot-idle">
+				<span className="hv2-empty-led" aria-hidden="true" />
+				<span className="hv2-spot-big">No projects yet</span>
+				<span className="hv2-spot-sub">
+					Create your first project — everything gets wired for you.
+				</span>
+			</div>
+		);
+	}
+	if (s.kind === "quiet") {
+		return (
+			<div className="hv2-spot hv2-spot-idle">
 				<span className="hv2-etch">ALL QUIET</span>
 				<span className="hv2-spot-sub">nothing needs you</span>
 			</div>
 		);
 	}
-
-	if (spot.kind === "plain") {
-		const p = projects.find((x) => x.name === spot.proj);
+	if (s.kind === "wiring") {
 		return (
-			<div className="hv2-spot" key={spot.proj}>
+			<div className="hv2-spot" key={`w-${s.proj}`}>
+				<div className="hv2-spot-head">
+					<span className="hv2-etch">DEPLOYING</span>
+					<span className="hv2-tag-amber">WIRING</span>
+				</div>
+				<span className="hv2-spot-big">{s.proj}</span>
+				<span className="hv2-spot-sub">integrations coming online…</span>
+			</div>
+		);
+	}
+	if (s.kind === "live") {
+		return (
+			<div className="hv2-spot" key={`l-${s.proj}`}>
 				<div className="hv2-spot-head">
 					<span className="hv2-etch">DEPLOYED</span>
 					<span className="hv2-tag-green">LIVE</span>
 				</div>
-				<span className="hv2-spot-big">{spot.proj}</span>
-				<span className="hv2-spot-sub">
-					{p?.picks.length ?? 5} integrations wired · nothing else to do
-				</span>
+				<span className="hv2-spot-big">{s.proj}</span>
+				<span className="hv2-spot-sub">wired and watched from here on</span>
 			</div>
 		);
 	}
-
-	if (spot.kind === "viral") {
-		const p = projects.find((x) => x.name === spot.proj);
+	if (s.kind === "trickle") {
 		return (
-			<div className="hv2-spot hv2-spot-viral" key={spot.proj}>
+			<div className="hv2-spot" key="trickle">
 				<div className="hv2-spot-head">
-					<span className="hv2-etch">TRAFFIC · SPIKE</span>
+					<span className="hv2-etch">TRAFFIC</span>
+					<span className="hv2-tag-green">FIRST VISITORS</span>
+				</div>
+				<span className="hv2-spot-big hv2-num">
+					{fmt(integ(VIEW_RATES["landing-page"], w.t))}
+				</span>
+				<Spark trend={w.trend} />
+				<span className="hv2-spot-sub">{s.proj} — a steady trickle</span>
+			</div>
+		);
+	}
+	if (s.kind === "signups") {
+		return (
+			<div className="hv2-spot" key="signups">
+				<div className="hv2-spot-head">
+					<span className="hv2-etch">WAITLIST</span>
+					<span className="hv2-tag-green">GROWING</span>
+				</div>
+				<span className="hv2-spot-big hv2-num">{fmt(w.waitlist)}</span>
+				<span className="hv2-spot-sub">{s.proj} — signups rolling in</span>
+			</div>
+		);
+	}
+	if (s.kind === "spike" || s.kind === "viral") {
+		return (
+			<div className="hv2-spot hv2-spot-viral" key={`${s.kind}-${s.proj}`}>
+				<div className="hv2-spot-head">
+					<span className="hv2-etch">
+						{s.kind === "viral" ? "TRAFFIC · VIRAL" : "TRAFFIC · SPIKE"}
+					</span>
 					<span className="hv2-tag-amber">SURGING</span>
 				</div>
-				<span className="hv2-spot-big hv2-num">{fmt(p?.views ?? 0)}</span>
-				<div className="hv2-spark" aria-hidden="true">
-					{SPARK.map((b, i) => (
-						<span
-							className="hv2-spark-bar"
-							key={b.id}
-							style={{ height: `${b.h}%`, animationDelay: `${i * 0.05}s` }}
-						/>
-					))}
-				</div>
+				<span className="hv2-spot-big hv2-num">
+					{fmt(Math.round(w.rate * 60))}/min
+				</span>
+				<Spark trend={w.trend} />
 				<span className="hv2-spot-sub">
-					{spot.proj} — started slow, going viral
+					{s.kind === "viral"
+						? `${s.proj} — the link is everywhere`
+						: `${s.proj} — traffic spike`}
 				</span>
 			</div>
 		);
 	}
-
-	if (spot.kind === "money") {
+	if (s.kind === "multispike") {
 		return (
-			<div className="hv2-spot" key={spot.proj}>
+			<div className="hv2-spot hv2-spot-viral" key="multi">
 				<div className="hv2-spot-head">
-					<span className="hv2-etch">PAYMENTS</span>
-					<span className="hv2-tag-green">
-						+€ {fmt(toasts.reduce((a, x) => a + x.amt, 0))}
-					</span>
+					<span className="hv2-etch">TRAFFIC · ALL PROJECTS</span>
+					<span className="hv2-tag-amber">CLIMBING</span>
 				</div>
-				<div className="hv2-toasts">
-					{toasts.map((toast) => (
-						<div className="hv2-toast" key={toast.id}>
-							<span className="hv2-toast-amt">€ {toast.amt}</span>
-							<span className="hv2-toast-proj">{spot.proj}</span>
-							<span className="hv2-toast-label">{toast.label}</span>
-						</div>
-					))}
-					{toasts.length === 0 && (
-						<div className="hv2-toast hv2-toast-wait">
-							<span className="hv2-toast-amt">…</span>
-							<span className="hv2-toast-label">listening</span>
-						</div>
-					)}
-				</div>
+				<span className="hv2-spot-big hv2-num">
+					{fmt(Math.round(w.rate * 60))}/min
+				</span>
+				<Spark trend={w.trend} />
+				<span className="hv2-spot-sub">three projects, one surge</span>
 			</div>
 		);
 	}
-
-	// uptime
-	return (
-		<div
-			className={`hv2-spot ${spot.recovered ? "" : "hv2-spot-down"}`}
-			key={`${spot.proj}-${spot.recovered ? "up" : "down"}`}
-		>
-			<div className="hv2-spot-head">
-				<span className="hv2-etch">HEALTH</span>
-				{spot.recovered ? (
-					<span className="hv2-tag-green">RECOVERED</span>
-				) : (
+	if (s.kind === "down") {
+		return (
+			<div className="hv2-spot hv2-spot-down" key="down">
+				<div className="hv2-spot-head">
+					<span className="hv2-etch">HEALTH</span>
 					<span className="hv2-tag-red">DOWN</span>
-				)}
+				</div>
+				<span className="hv2-spot-big">{s.proj} not responding</span>
+				<span className="hv2-spot-sub">
+					caught in 3s — before the first user noticed
+				</span>
 			</div>
-			<span className="hv2-spot-big">
-				{spot.recovered
-					? `${spot.proj} is back`
-					: `${spot.proj} not responding`}
-			</span>
-			<span className="hv2-spot-sub">
-				{spot.recovered
-					? "downtime 14s · you'd have been pinged"
-					: "caught in 3s — before the first user noticed"}
-			</span>
+		);
+	}
+	if (s.kind === "recovered") {
+		return (
+			<div className="hv2-spot" key="recovered">
+				<div className="hv2-spot-head">
+					<span className="hv2-etch">HEALTH</span>
+					<span className="hv2-tag-green">RECOVERED</span>
+				</div>
+				<span className="hv2-spot-big">{s.proj} is back</span>
+				<span className="hv2-spot-sub">
+					downtime 2s · you'd have been pinged
+				</span>
+			</div>
+		);
+	}
+	if (s.kind === "retired") {
+		return (
+			<div className="hv2-spot hv2-spot-idle" key="retired">
+				<div className="hv2-spot-head">
+					<span className="hv2-etch">FLEET</span>
+					<span className="hv2-tag-dim">RETIRED</span>
+				</div>
+				<span className="hv2-spot-big">{s.proj} archived</span>
+				<span className="hv2-spot-sub">
+					its job is done — the integrations keep running for the rest
+				</span>
+			</div>
+		);
+	}
+	// payments
+	return (
+		<div className="hv2-spot" key="payments">
+			<div className="hv2-spot-head">
+				<span className="hv2-etch">PAYMENTS</span>
+				<span className="hv2-tag-green">+€ {fmt(w.mrr)}</span>
+			</div>
+			<div className="hv2-toasts">
+				{w.toasts.map((toast) => (
+					<div className="hv2-toast" key={toast.id}>
+						<span className="hv2-toast-amt">€ {toast.amt}</span>
+						<span className="hv2-toast-proj">{s.proj}</span>
+						<span className="hv2-toast-label">{toast.label}</span>
+					</div>
+				))}
+			</div>
+			<span className="hv2-spot-sub">first revenue — MRR starts here</span>
 		</div>
 	);
 }
 
 /* ----------------------------------------------------- switcher bar ---- */
-
-const AXIS_LABELS: Record<keyof Hv2Axes, string> = {
-	layout: "LAYOUT",
-	pace: "PACE",
-	view: "VIEW",
-};
 
 function Hv2Bar({
 	axes,
@@ -810,21 +898,19 @@ function Hv2Bar({
 }) {
 	return (
 		<div className="hv2-bar" style={consoleCssVars}>
-			{(Object.keys(AXIS_OPTIONS) as (keyof Hv2Axes)[]).map((axis) => (
-				<div className="hv2-bar-group" key={axis}>
-					<span className="hv2-bar-label">{AXIS_LABELS[axis]}</span>
-					{AXIS_OPTIONS[axis].map((opt) => (
-						<button
-							type="button"
-							key={opt}
-							className={`hv2-bar-btn${axes[axis] === opt ? " hv2-bar-on" : ""}`}
-							onClick={() => onAxes({ ...axes, [axis]: opt })}
-						>
-							{opt}
-						</button>
-					))}
-				</div>
-			))}
+			<div className="hv2-bar-group">
+				<span className="hv2-bar-label">VIEW</span>
+				{AXIS_OPTIONS.view.map((opt) => (
+					<button
+						type="button"
+						key={opt}
+						className={`hv2-bar-btn${axes.view === opt ? " hv2-bar-on" : ""}`}
+						onClick={() => onAxes({ view: opt })}
+					>
+						{opt}
+					</button>
+				))}
+			</div>
 			<button
 				type="button"
 				className="hv2-bar-btn hv2-bar-exit"
@@ -845,8 +931,7 @@ export function HeroDemoV2({
 }) {
 	return (
 		<>
-			{/* any axis change restarts the loop cleanly */}
-			<Hv2Engine key={`${axes.layout}-${axes.pace}-${axes.view}`} axes={axes} />
+			<Hv2Engine key={axes.view} axes={axes} />
 			<Hv2Bar axes={axes} onAxes={onAxes} />
 		</>
 	);
