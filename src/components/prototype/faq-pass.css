@@ -167,8 +167,10 @@
 }
 
 /* ======================= C — Key and display ======================= */
-/* A rail of six bone question keycaps; the selected key sits depressed in
-   amber with a lit LED, and its answer shows in one display window. */
+/* A rail of six flat paper question chips — deliberately NOT the CTA
+   keycap grammar (no gradient, no amber, no 3D travel). The selected chip
+   inverts into a dark display strip with green text and a lit LED; its
+   answer shows in one display window beside the rail. */
 
 .fqp-deck {
 	margin: 48px auto 0;
@@ -189,13 +191,9 @@
 	align-items: center;
 	gap: 12px;
 	padding: 13px 16px;
-	border: none;
+	border: 1px solid transparent;
 	border-radius: 10px;
-	background: linear-gradient(
-		180deg,
-		var(--keycap-bone-top) 0%,
-		var(--keycap-bone-bottom) 100%
-	);
+	background: rgba(var(--paper-rgb), 0.92);
 	color: var(--keycap-ink);
 	font-family: inherit;
 	font-size: 14.5px;
@@ -203,30 +201,22 @@
 	letter-spacing: -0.01em;
 	text-align: left;
 	cursor: pointer;
-	box-shadow:
-		0 3px 0 var(--keycap-bone-shadow),
-		inset 0 1px 0 rgba(255, 255, 255, 0.85);
 	transition:
-		transform 0.06s ease,
-		box-shadow 0.06s ease;
+		background 0.15s ease,
+		color 0.15s ease,
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
 }
 .fqp-key:hover:not(.fqp-key-on) {
-	background: linear-gradient(
-		180deg,
-		var(--keycap-bone-hover-top) 0%,
-		var(--keycap-bone-hover-bottom) 100%
-	);
+	background: var(--paper);
 }
 .fqp-key-on {
-	background: linear-gradient(
-		180deg,
-		var(--keycap-amber-top) 0%,
-		var(--keycap-amber-bottom) 100%
-	);
-	transform: translateY(2px);
+	background: var(--display-bg);
+	color: var(--green-text);
+	border-color: var(--seam);
 	box-shadow:
-		0 1px 0 var(--keycap-amber-shadow),
-		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+		inset 0 2px 8px rgba(0, 0, 0, 0.5),
+		0 0 18px rgba(var(--green-rgb), 0.12);
 }
 .fqp-key-led {
 	flex: none;
@@ -236,8 +226,8 @@
 	background: rgba(var(--keycap-ink-rgb), 0.25);
 }
 .fqp-key-on .fqp-key-led {
-	background: var(--keycap-led-on);
-	box-shadow: 0 0 8px rgba(var(--keycap-led-on-glow-rgb), 0.95);
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
 }
 .fqp-display {
 	background: var(--panel);

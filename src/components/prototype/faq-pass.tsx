@@ -3,14 +3,18 @@
 // only, floating switcher stacked above the #30 CTA switcher):
 //   a "Accordion panel" — one console glass panel with seam-divided rows;
 //                         each row is a button with an etched index and an
-//                         LED that lights while open; several rows may be
-//                         open at once, the first starts open.
+//                         LED that lights while open. Exclusive (operator
+//                         round 2): exactly one row is open at all times —
+//                         clicking another row moves the open slot there.
 //   b "Open ledger"     — no interaction: a wider two-column ledger, etched
 //                         index and question left, answer right, hairline
 //                         rows; everything readable at a glance.
-//   c "Key and display" — six keycap question keys on a rail; the selected
-//                         key sits depressed with a lit LED and its answer
-//                         shows in one display window beside the rail.
+//   c "Key and display" — six flat paper question chips on a rail (operator
+//                         round 2: no keycap/CTA grammar — no gradient, no
+//                         amber, no travel); the selected chip inverts into
+//                         a dark display strip with green text and a lit
+//                         LED, and its answer shows in one display window
+//                         beside the rail.
 // Copy is the locked #14 six-question set verbatim (duplicated from
 // faq.tsx on purpose — the prototype dies whole). New etch strings are
 // directional placeholders and go through copy discipline (#14) before any
@@ -128,21 +132,16 @@ export function FaqPass({ variant }: { variant: FaqVariant }) {
 /* ------------------- A — Accordion panel ------------------- */
 
 function FaqAccordion() {
-	const [open, setOpen] = useState<ReadonlySet<number>>(new Set([0]));
-	const toggle = (i: number) =>
-		setOpen((prev) => {
-			const next = new Set(prev);
-			if (next.has(i)) next.delete(i);
-			else next.add(i);
-			return next;
-		});
+	// Exclusive: exactly one row is open at all times. Clicking a closed row
+	// moves the open slot there; clicking the open row does nothing.
+	const [open, setOpen] = useState(0);
 
 	return (
 		<section className="lp-section">
 			<h2 className="lp-h2">Questions.</h2>
 			<div className="fqp-panel">
 				{QA.map((item, i) => {
-					const isOpen = open.has(i);
+					const isOpen = open === i;
 					return (
 						<div
 							key={item.q}
@@ -152,7 +151,7 @@ function FaqAccordion() {
 								type="button"
 								className="fqp-row-btn"
 								aria-expanded={isOpen}
-								onClick={() => toggle(i)}
+								onClick={() => setOpen(i)}
 							>
 								<span className="lp-etch fqp-index">{index(i)}</span>
 								<span className="fqp-q">{item.q}</span>
