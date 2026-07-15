@@ -28,6 +28,13 @@ import {
 	FaqSwitcher,
 	useFaqPass,
 } from "#/components/prototype/faq-pass";
+// PROTOTYPE (wayfinder #32): ?footer=a|b|c swaps the footer treatment, dev
+// builds only. Remove with src/components/prototype/footer-pass.tsx.
+import {
+	FooterPass,
+	FooterSwitcher,
+	useFooterPass,
+} from "#/components/prototype/footer-pass";
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -40,6 +47,8 @@ function LandingPage() {
 	const armed = useCtaArmed(cta);
 	// PROTOTYPE (wayfinder #31): FAQ treatment variant state.
 	const [faq, setFaq] = useFaqPass();
+	// PROTOTYPE (wayfinder #32): footer treatment variant state.
+	const [footer, setFooter] = useFooterPass();
 	return (
 		<div
 			className="lp"
@@ -59,10 +68,11 @@ function LandingPage() {
 					<FinalCta />
 					{faq === null ? <Faq /> : <FaqPass variant={faq} />}
 				</main>
-				<Footer />
+				{footer === null ? <Footer /> : <FooterPass variant={footer} />}
 			</CtaPassProvider>
 			<CtaSwitcher current={cta} onChange={setCta} />
 			<FaqSwitcher current={faq} onChange={setFaq} />
+			<FooterSwitcher current={footer} onChange={setFooter} />
 		</div>
 	);
 }
