@@ -35,6 +35,14 @@ import {
 	FooterSwitcher,
 	useFooterPass,
 } from "#/components/prototype/footer-pass";
+// PROTOTYPE (wayfinder #35): ?gallery=a|b|c swaps the gallery treatment, dev
+// builds only. Remove with src/components/prototype/gallery-pass.tsx.
+import {
+	GalleryArchive,
+	GalleryPass,
+	GallerySwitcher,
+	useGalleryPass,
+} from "#/components/prototype/gallery-pass";
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -49,6 +57,8 @@ function LandingPage() {
 	const [faq, setFaq] = useFaqPass();
 	// PROTOTYPE (wayfinder #32): footer treatment variant state.
 	const [footer, setFooter] = useFooterPass();
+	// PROTOTYPE (wayfinder #35): gallery treatment variant state.
+	const [gallery, setGallery] = useGalleryPass();
 	return (
 		<div
 			className="lp"
@@ -64,15 +74,20 @@ function LandingPage() {
 					<ActTwo />
 					<Showcase />
 					<FounderNote />
+					{gallery === "b" && <GalleryArchive />}
 					<Crescendo />
 					<FinalCta />
 					{faq === null ? <Faq /> : <FaqPass variant={faq} />}
 				</main>
 				{footer === null ? <Footer /> : <FooterPass variant={footer} />}
 			</CtaPassProvider>
+			{(gallery === "a" || gallery === "c") && (
+				<GalleryPass variant={gallery} />
+			)}
 			<CtaSwitcher current={cta} onChange={setCta} />
 			<FaqSwitcher current={faq} onChange={setFaq} />
 			<FooterSwitcher current={footer} onChange={setFooter} />
+			<GallerySwitcher current={gallery} onChange={setGallery} />
 		</div>
 	);
 }
