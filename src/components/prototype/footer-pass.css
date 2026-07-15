@@ -1,6 +1,7 @@
-/* PROTOTYPE — throwaway (wayfinder #32, footer punch). Styles for the
-   three ?footer= variants in footer-pass.tsx. Consumes the console token
-   custom properties only; no palette literals. Remove with footer-pass.tsx. */
+/* PROTOTYPE — throwaway (wayfinder #32, footer punch). Round 2 styles for
+   the four ?footer= nameplate variations in footer-pass.tsx. Consumes the
+   console token custom properties only; no palette literals. Remove with
+   footer-pass.tsx. */
 
 .ftp-switcher {
 	position: fixed;
@@ -36,8 +37,7 @@
 	text-align: center;
 }
 
-/* Etched mono link shared by all three variants: paper-soft at rest,
-   green when touched, like a label that lights. */
+/* Etched mono link: paper-soft at rest, green when touched. */
 .ftp-etch-link {
 	text-decoration: none;
 	transition:
@@ -49,10 +49,9 @@
 	text-shadow: 0 0 12px var(--green-glow);
 }
 
-/* ========================= A — Nameplate =========================== */
+/* ===================== shared nameplate base ======================= */
 /* One oversized wordmark closes the page like the name milled into the
-   chassis. A single hairline row beneath carries the microprint and the
-   link row. */
+   chassis; variations restyle or reposition it. */
 
 .ftp-nameplate {
 	margin-top: 136px;
@@ -106,165 +105,65 @@
 	flex-wrap: wrap;
 }
 
-/* ======================== B — Rear panel =========================== */
-/* The back of the device: one glass plate, cells split by seams. The
-   socials are ports that light their LED on hover. */
+/* ========================= B — Engraved ============================ */
+/* The name is milled into the chassis: stroke-only letters, no fill.
+   The LED is the only thing still lit. */
 
-.ftp-rear {
-	margin-top: 136px;
-	padding: 0 24px 40px;
-	max-width: 1020px;
-	margin-left: auto;
-	margin-right: auto;
+.ftp-engraved .ftp-nameplate-mark {
+	color: transparent;
+	-webkit-text-stroke: 1.5px rgba(var(--paper-rgb), 0.32);
 }
-.ftp-rear-plate {
-	background: var(--panel);
-	border: 1px solid var(--seam);
-	border-radius: 16px;
-	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-	display: grid;
-	grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 3fr);
+.ftp-engraved .ftp-nameplate-led {
+	/* keep the dot solid — it reads as the one live element */
+	-webkit-text-stroke: 0;
+}
+
+/* ======================= C — Baseline crop ========================= */
+/* The link row moves above the name; the wordmark sinks below the page
+   edge and gets cut mid-letter. The page ends inside the name. */
+
+.ftp-crop {
+	padding-bottom: 0;
+}
+.ftp-crop-row {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+.ftp-crop-window {
+	margin-top: 48px;
 	overflow: hidden;
 }
-.ftp-rear-cell {
-	padding: 32px 32px 34px;
+.ftp-crop-window .ftp-nameplate-mark {
+	transform: translateY(0.28em);
+}
+.ftp-crop-window .ftp-nameplate-led {
+	/* lift the dot back above the cut so it stays whole */
+	transform: translateY(-0.34em);
+}
+
+/* ========================= D — Monument ============================ */
+/* Centered stack: etch on top, name in the middle, links beneath. */
+
+.ftp-monument {
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
-	gap: 14px;
-	text-align: left;
-}
-.ftp-rear-cell + .ftp-rear-cell {
-	border-left: 1px solid var(--seam);
-}
-.ftp-rear-label {
-	opacity: 0.7;
-}
-.ftp-rear-ports {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	align-self: stretch;
-}
-.ftp-port {
-	display: flex;
 	align-items: center;
-	gap: 12px;
-	padding: 11px 14px;
-	border: 1px solid var(--seam);
-	border-radius: 8px;
-	background: var(--surface);
-	box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-	text-decoration: none;
-	transition: box-shadow 0.15s ease;
+	gap: 36px;
+	text-align: center;
 }
-.ftp-port:hover {
-	box-shadow:
-		inset 0 2px 8px rgba(0, 0, 0, 0.5),
-		0 0 16px rgba(var(--green-rgb), 0.15);
+.ftp-monument .ftp-nameplate-mark {
+	justify-content: center;
 }
-.ftp-port-led {
-	flex: none;
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: var(--led-off);
-	transition:
-		background 0.15s ease,
-		box-shadow 0.15s ease;
-}
-.ftp-port:hover .ftp-port-led {
-	background: var(--led);
-	box-shadow: 0 0 8px var(--led-glow);
-}
-.ftp-port-text {
-	color: var(--paper);
-}
-@media (max-width: 760px) {
-	.ftp-rear-plate {
-		grid-template-columns: 1fr;
-	}
-	.ftp-rear-cell + .ftp-rear-cell {
-		border-left: none;
-		border-top: 1px solid var(--seam);
-	}
-}
-
-/* ========================= C — Sign-off ============================ */
-/* A dark display strip types the sign-off transmission when scrolled
-   into view; the page ends the way the demo boots. */
-
-.ftp-signoff {
-	margin-top: 136px;
-	padding: 64px 24px 40px;
-	border-top: 1px solid var(--seam);
-	max-width: 720px;
-	margin-left: auto;
-	margin-right: auto;
-}
-.ftp-signoff-display {
-	background: var(--display-bg);
-	border: 1px solid var(--seam);
-	border-radius: 12px;
-	padding: 26px 30px;
-	box-shadow:
-		inset 0 4px 18px rgba(0, 0, 0, 0.6),
-		0 0 34px rgba(var(--green-rgb), 0.07);
-	text-align: left;
-}
-.ftp-signoff-line {
-	margin: 0;
-	font-family: "IBM Plex Mono", monospace;
-	font-size: 14.5px;
-	line-height: 2;
-	letter-spacing: 0.04em;
-	color: var(--display-text);
-	text-shadow: 0 0 10px var(--green-glow);
-}
-.ftp-hidden {
-	visibility: hidden;
-}
-.ftp-cursor {
-	display: inline-block;
-	width: 8px;
-	height: 15px;
-	margin-left: 8px;
-	vertical-align: -2px;
-	background: var(--green-text);
-	box-shadow: 0 0 8px var(--green-glow);
-	animation: ftp-cursorblink 1.1s step-end infinite;
-}
-@keyframes ftp-cursorblink {
-	0%,
-	100% {
-		opacity: 1;
-	}
-	50% {
-		opacity: 0;
-	}
-}
-.ftp-signoff-row {
-	margin-top: 36px;
-	display: flex;
-	justify-content: space-between;
-	align-items: baseline;
-	gap: 16px 32px;
-	flex-wrap: wrap;
-}
-.ftp-signoff-links {
-	display: inline-flex;
-	gap: 28px;
-	flex-wrap: wrap;
+.ftp-monument .ftp-nameplate-links {
+	justify-content: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.ftp-nameplate-led,
-	.ftp-cursor {
+	.ftp-nameplate-led {
 		animation: none;
 	}
-	.ftp-etch-link,
-	.ftp-port,
-	.ftp-port-led {
+	.ftp-etch-link {
 		transition: none;
 	}
 }
