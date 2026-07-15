@@ -21,6 +21,13 @@ import {
 	useCtaArmed,
 	useCtaPass,
 } from "#/components/prototype/cta-pass";
+// PROTOTYPE (wayfinder #31): ?faq=a|b|c swaps the FAQ treatment, dev builds
+// only. Remove with src/components/prototype/faq-pass.tsx.
+import {
+	FaqPass,
+	FaqSwitcher,
+	useFaqPass,
+} from "#/components/prototype/faq-pass";
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -31,6 +38,8 @@ function LandingPage() {
 	// PROTOTYPE (wayfinder #30): variant state + armed-header observer.
 	const [cta, setCta] = useCtaPass();
 	const armed = useCtaArmed(cta);
+	// PROTOTYPE (wayfinder #31): FAQ treatment variant state.
+	const [faq, setFaq] = useFaqPass();
 	return (
 		<div
 			className="lp"
@@ -48,11 +57,12 @@ function LandingPage() {
 					<FounderNote />
 					<Crescendo />
 					<FinalCta />
-					<Faq />
+					{faq === null ? <Faq /> : <FaqPass variant={faq} />}
 				</main>
 				<Footer />
 			</CtaPassProvider>
 			<CtaSwitcher current={cta} onChange={setCta} />
+			<FaqSwitcher current={faq} onChange={setFaq} />
 		</div>
 	);
 }

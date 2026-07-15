@@ -1,0 +1,283 @@
+/* PROTOTYPE — throwaway (wayfinder #31, FAQ treatment). Styles for the
+   three ?faq= variants in faq-pass.tsx. Consumes the console token custom
+   properties only; no palette literals. Remove with faq-pass.tsx. */
+
+.fqp-switcher {
+	position: fixed;
+	bottom: 62px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 12px;
+	border-radius: 999px;
+	background: #fff;
+	color: #111;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 12px;
+	letter-spacing: 0.06em;
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+}
+.fqp-switcher button {
+	border: none;
+	background: #111;
+	color: #fff;
+	border-radius: 999px;
+	width: 26px;
+	height: 26px;
+	cursor: pointer;
+	font-size: 13px;
+	line-height: 1;
+}
+.fqp-switcher span {
+	min-width: 200px;
+	text-align: center;
+}
+
+.fqp-index {
+	color: var(--paper-soft);
+	opacity: 0.75;
+}
+
+/* ======================= A — Accordion panel ======================= */
+/* One console glass panel; rows split by hairline seams. The row button
+   carries an etched index, the question, and an LED that lights green
+   while the row is open. The answer folds out beneath. */
+
+.fqp-panel {
+	margin: 48px auto 0;
+	max-width: 680px;
+	text-align: left;
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 16px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+	overflow: hidden;
+}
+.fqp-row + .fqp-row {
+	border-top: 1px solid var(--seam);
+}
+.fqp-row-btn {
+	display: flex;
+	align-items: baseline;
+	gap: 16px;
+	width: 100%;
+	padding: 22px 24px;
+	border: none;
+	background: transparent;
+	color: var(--paper);
+	font-family: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+.fqp-row-btn:hover {
+	background: rgba(var(--paper-rgb), 0.03);
+}
+.fqp-row-btn .fqp-q {
+	flex: 1;
+	font-size: 19px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.3;
+}
+.fqp-led {
+	align-self: center;
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--led-off);
+	transition:
+		background 0.2s ease,
+		box-shadow 0.2s ease;
+}
+.fqp-row-open .fqp-led {
+	background: var(--led);
+	box-shadow: 0 0 9px var(--led-glow);
+}
+.fqp-fold {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.28s ease;
+}
+.fqp-row-open .fqp-fold {
+	grid-template-rows: 1fr;
+}
+.fqp-fold-inner {
+	overflow: hidden;
+	min-height: 0;
+}
+.fqp-fold .fqp-a {
+	margin: 0;
+	padding: 0 52px 24px 64px;
+	font-size: 16.5px;
+	line-height: 1.75;
+	color: var(--paper-soft);
+}
+@media (max-width: 560px) {
+	.fqp-fold .fqp-a {
+		padding: 0 24px 22px;
+	}
+}
+
+/* ========================= B — Open ledger ========================= */
+/* Everything visible, nothing to operate: a wider two-column ledger on
+   hairline rows — index and question left, answer right. Collapses to a
+   single column on small screens. */
+
+.fqp-ledger {
+	margin: 48px auto 0;
+	max-width: 880px;
+	text-align: left;
+}
+.fqp-ledger-row {
+	display: grid;
+	grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+	gap: 12px 48px;
+	padding: 30px 0;
+	border-top: 1px solid var(--seam);
+}
+.fqp-ledger-row:last-child {
+	border-bottom: 1px solid var(--seam);
+}
+.fqp-ledger-q {
+	margin: 0;
+	font-size: 19px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.3;
+}
+.fqp-ledger-q .fqp-index {
+	display: block;
+	margin-bottom: 10px;
+}
+.fqp-ledger-a {
+	margin: 0;
+	font-size: 16.5px;
+	line-height: 1.75;
+	color: var(--paper-soft);
+	align-self: center;
+}
+@media (max-width: 700px) {
+	.fqp-ledger-row {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ======================= C — Key and display ======================= */
+/* A rail of six bone question keycaps; the selected key sits depressed in
+   amber with a lit LED, and its answer shows in one display window. */
+
+.fqp-deck {
+	margin: 48px auto 0;
+	max-width: 940px;
+	display: grid;
+	grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+	gap: 18px;
+	align-items: start;
+	text-align: left;
+}
+.fqp-keys {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.fqp-key {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 13px 16px;
+	border: none;
+	border-radius: 10px;
+	background: linear-gradient(
+		180deg,
+		var(--keycap-bone-top) 0%,
+		var(--keycap-bone-bottom) 100%
+	);
+	color: var(--keycap-ink);
+	font-family: inherit;
+	font-size: 14.5px;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	text-align: left;
+	cursor: pointer;
+	box-shadow:
+		0 3px 0 var(--keycap-bone-shadow),
+		inset 0 1px 0 rgba(255, 255, 255, 0.85);
+	transition:
+		transform 0.06s ease,
+		box-shadow 0.06s ease;
+}
+.fqp-key:hover:not(.fqp-key-on) {
+	background: linear-gradient(
+		180deg,
+		var(--keycap-bone-hover-top) 0%,
+		var(--keycap-bone-hover-bottom) 100%
+	);
+}
+.fqp-key-on {
+	background: linear-gradient(
+		180deg,
+		var(--keycap-amber-top) 0%,
+		var(--keycap-amber-bottom) 100%
+	);
+	transform: translateY(2px);
+	box-shadow:
+		0 1px 0 var(--keycap-amber-shadow),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.fqp-key-led {
+	flex: none;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: rgba(var(--keycap-ink-rgb), 0.25);
+}
+.fqp-key-on .fqp-key-led {
+	background: var(--keycap-led-on);
+	box-shadow: 0 0 8px rgba(var(--keycap-led-on-glow-rgb), 0.95);
+}
+.fqp-display {
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 16px;
+	padding: 28px 32px 32px;
+	box-shadow:
+		0 24px 60px rgba(0, 0, 0, 0.55),
+		inset 0 4px 18px rgba(0, 0, 0, 0.35);
+	min-height: 300px;
+}
+.fqp-display-etch {
+	margin: 0;
+}
+.fqp-display-q {
+	margin: 18px 0 0;
+	font-size: 21px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.25;
+}
+.fqp-display-a {
+	margin: 16px 0 0;
+	font-size: 17px;
+	line-height: 1.75;
+	color: var(--paper-soft);
+}
+@media (max-width: 760px) {
+	.fqp-deck {
+		grid-template-columns: 1fr;
+	}
+	.fqp-display {
+		min-height: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fqp-fold,
+	.fqp-led,
+	.fqp-key {
+		transition: none;
+	}
+}
