@@ -1,0 +1,609 @@
+/* PROTOTYPE — throwaway (wayfinder #49, glossary treatment). Consumes the
+   shared console tokens (var(--…) set on the .lp root from console-vars.ts);
+   defines no palette literals of its own. Remove with glossary-pass.tsx. */
+
+/* ---------- shared: quiet lead etch (variant A) ---------- */
+.glp-lead {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0 auto 40px;
+	letter-spacing: 0.3em;
+}
+.glp-lead-led {
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.glp-def-lede {
+	color: var(--paper);
+}
+
+/* ============ A — Colophon plate ============ */
+/* A quiet printed legend below the last waypoint. Narrow, seam-divided,
+   static — a chassis colophon, not a station. */
+.glp-colophon {
+	max-width: 680px;
+	/* pulls close to the nameplate footer: a tail note, not a full section */
+	padding-top: 104px;
+}
+.glp-plate {
+	margin: 0;
+	border: 1px solid var(--seam);
+	border-radius: 14px;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+	text-align: left;
+	overflow: hidden;
+}
+.glp-plate-row {
+	display: grid;
+	grid-template-columns: 132px 1fr;
+	gap: 24px;
+	padding: 26px 30px;
+	align-items: baseline;
+}
+.glp-plate-row + .glp-plate-row {
+	border-top: 1px solid var(--seam);
+}
+.glp-plate-term {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 19px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	color: var(--green-text);
+	text-shadow: 0 0 14px var(--green-glow);
+}
+.glp-term-led {
+	flex: none;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.glp-plate-def {
+	margin: 0;
+	font-size: 15.5px;
+	line-height: 1.65;
+	color: var(--paper-soft);
+	text-wrap: pretty;
+}
+
+/* ============ B — Keycap index ============ */
+/* Press a key, learn a word. The lore is behind the key. */
+.glp-keycaps-h2 {
+	margin-bottom: 44px;
+}
+.glp-key-rail {
+	display: flex;
+	justify-content: center;
+	gap: 18px;
+	flex-wrap: wrap;
+}
+.glp-key {
+	position: relative;
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	min-width: 128px;
+	padding: 20px 26px 18px;
+	border: none;
+	border-radius: 12px;
+	cursor: pointer;
+	background: linear-gradient(
+		180deg,
+		var(--keycap-bone-top) 0%,
+		var(--keycap-bone-bottom) 100%
+	);
+	color: var(--keycap-ink);
+	box-shadow:
+		0 3px 0 var(--keycap-bone-shadow),
+		0 6px 14px rgba(0, 0, 0, 0.4);
+	transition:
+		transform 0.12s ease,
+		box-shadow 0.12s ease,
+		background 0.12s ease;
+}
+.glp-key:hover:not(.glp-key-on) {
+	background: linear-gradient(
+		180deg,
+		var(--keycap-bone-hover-top) 0%,
+		var(--keycap-bone-hover-bottom) 100%
+	);
+}
+.glp-key-on {
+	/* depressed + armed amber, LED lit */
+	background: linear-gradient(
+		180deg,
+		var(--keycap-amber-top) 0%,
+		var(--keycap-amber-bottom) 100%
+	);
+	transform: translateY(2px);
+	box-shadow:
+		0 1px 0 var(--keycap-amber-shadow),
+		0 3px 10px rgba(var(--amber-rgb), 0.35);
+	cursor: default;
+}
+.glp-key-face {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 16px;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+}
+.glp-key-led {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--led-off);
+	transition:
+		background 0.12s ease,
+		box-shadow 0.12s ease;
+}
+.glp-key-led-on {
+	background: var(--keycap-led-on);
+	box-shadow:
+		0 0 8px rgba(var(--keycap-led-on-glow-rgb), 0.95),
+		0 0 2px #fff;
+}
+.glp-readout {
+	max-width: 620px;
+	margin: 34px auto 0;
+	padding: 26px 30px;
+	border: 1px solid var(--seam);
+	border-radius: 12px;
+	background: var(--display-bg);
+	text-align: left;
+	min-height: 132px;
+}
+.glp-readout-etch {
+	color: rgba(var(--green-rgb), 0.75);
+}
+.glp-readout-def {
+	margin: 16px 0 0;
+	font-size: 17px;
+	line-height: 1.6;
+	color: var(--display-text);
+	text-shadow: 0 0 12px var(--green-glow);
+	text-wrap: pretty;
+}
+.glp-readout-lede {
+	color: #fff;
+}
+
+/* ============ C — Schematic legend ============ */
+/* A labeled picture: trays feed the porter, the porter reports to the HQ. */
+.glp-diagram {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0;
+	margin: 44px auto 8px;
+	max-width: 560px;
+}
+.glp-node {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 22px;
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	background: var(--panel-2, var(--panel));
+	font-family: "IBM Plex Mono", monospace;
+	letter-spacing: 0.16em;
+}
+.glp-node-face {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--paper);
+}
+.glp-node-hq .glp-node-face {
+	color: var(--green-text);
+	text-shadow: 0 0 14px var(--green-glow);
+}
+.glp-node-sub {
+	margin-left: 4px;
+}
+.glp-node-led {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.glp-wire {
+	background: var(--seam);
+}
+.glp-wire-up {
+	width: 1px;
+	height: 34px;
+}
+.glp-tray-rail {
+	display: flex;
+	justify-content: space-between;
+	width: 340px;
+	height: 26px;
+	margin-top: 0;
+}
+.glp-wire-tray {
+	width: 1px;
+	height: 100%;
+}
+.glp-trays {
+	display: flex;
+	gap: 18px;
+}
+.glp-tray {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 14px 16px;
+	min-width: 96px;
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+	background: linear-gradient(180deg, var(--surface) 0%, var(--panel) 100%);
+}
+.glp-tray-label {
+	color: var(--paper-soft);
+}
+.glp-tray-caption {
+	margin-top: 16px;
+	letter-spacing: 0.3em;
+}
+.glp-legend {
+	display: grid;
+	gap: 0;
+	max-width: 640px;
+	margin: 44px auto 0;
+	text-align: left;
+	border-top: 1px solid var(--seam);
+}
+.glp-legend-row {
+	display: grid;
+	grid-template-columns: 128px 1fr;
+	gap: 24px;
+	padding: 22px 4px;
+	align-items: baseline;
+	border-bottom: 1px solid var(--seam);
+}
+.glp-legend-term {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 12px;
+	margin: 0;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 18px;
+	font-weight: 500;
+	color: var(--paper);
+}
+.glp-legend-index {
+	font-size: 11px;
+	letter-spacing: 0.2em;
+	color: var(--green-text);
+}
+.glp-legend-def {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--paper-soft);
+}
+
+@media (max-width: 640px) {
+	.glp-plate-row,
+	.glp-legend-row {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+	.glp-tray-rail {
+		width: 240px;
+	}
+	.glp-trays {
+		gap: 10px;
+	}
+	.glp-tray {
+		min-width: 72px;
+		padding: 12px 8px;
+	}
+}
+
+/* ============ D — The vocabulary tree (chosen) ============ */
+/* Collapsed by default; the topology itself is the control surface. */
+
+/* --- collapsed affordance --- */
+.glp-collapsed {
+	display: inline-flex;
+	align-items: center;
+	gap: 14px;
+	margin: 8px auto 0;
+	padding: 16px 26px;
+	border: 1px solid var(--seam);
+	border-radius: 999px;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+	cursor: pointer;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+.glp-collapsed:hover {
+	border-color: rgba(var(--led-rgb), 0.4);
+	box-shadow: 0 0 24px rgba(var(--led-rgb), 0.12);
+}
+.glp-collapsed-led {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.glp-collapsed-label {
+	color: var(--paper);
+}
+.glp-collapsed-cue {
+	color: var(--green-text);
+}
+
+/* --- expanded: hint + close --- */
+.glp-tree-hint {
+	margin: 14px auto 0;
+	letter-spacing: 0.3em;
+	opacity: 0.7;
+}
+.glp-collapse-close {
+	margin: 30px auto 0;
+	padding: 8px 16px;
+	background: transparent;
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+	color: var(--paper-soft);
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+.glp-collapse-close:hover {
+	color: var(--green-text);
+}
+
+/* --- the tree --- */
+.glp-tree {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 40px auto 0;
+}
+/* trunk from HQ down to the porter bus */
+.glp-trunk {
+	width: 1px;
+	height: 30px;
+	background: var(--seam);
+}
+.glp-porter-row {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+}
+/* each porter column draws its own connector up to the shared bus */
+.glp-porter-col {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 30px 22px 0;
+}
+.glp-porter-col::before {
+	/* vertical stub from the bus down to the porter node */
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 1px;
+	height: 30px;
+	background: var(--seam);
+}
+.glp-porter-col::after {
+	/* half of the horizontal bus, joined at the row centre */
+	content: "";
+	position: absolute;
+	top: 0;
+	width: 50%;
+	height: 1px;
+	background: var(--seam);
+}
+.glp-porter-col:first-child::after {
+	right: 0;
+}
+.glp-porter-col:last-child::after {
+	left: 0;
+}
+/* tray fan under each porter */
+.glp-tray-row {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	margin-top: 0;
+}
+.glp-tray-col {
+	position: relative;
+	padding: 26px 10px 0;
+}
+.glp-tray-col::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 1px;
+	height: 26px;
+	background: var(--seam);
+}
+.glp-tray-col::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	width: 50%;
+	height: 1px;
+	background: var(--seam);
+}
+.glp-tray-col:first-child::after {
+	right: 0;
+}
+.glp-tray-col:last-child::after {
+	left: 0;
+}
+/* a single tray under a porter needs no horizontal bus */
+.glp-tray-col:only-child::after {
+	display: none;
+}
+
+/* --- nodes (buttons) --- */
+.glp-tnode {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+	cursor: pointer;
+	font-family: "IBM Plex Mono", monospace;
+	transition:
+		border-color 0.18s ease,
+		box-shadow 0.18s ease,
+		transform 0.12s ease;
+}
+.glp-tnode:hover {
+	border-color: rgba(var(--led-rgb), 0.45);
+}
+.glp-tnode-led {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.glp-tnode-face {
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	color: var(--paper);
+}
+.glp-tnode-hq {
+	flex-direction: row;
+	gap: 10px;
+	padding: 14px 26px;
+}
+.glp-tnode-hq .glp-tnode-face {
+	color: var(--green-text);
+	text-shadow: 0 0 14px var(--green-glow);
+}
+.glp-tnode-porter {
+	padding: 12px 22px;
+}
+.glp-tnode-porter {
+	flex-direction: row;
+	gap: 10px;
+	align-items: baseline;
+}
+.glp-tnode-sub {
+	color: var(--paper-soft);
+}
+/* trays mirror the porter node: the coined type word TRAY reads big, the
+   integration name rides alongside as the small qualifier (like SERVER 01
+   on a porter) — so every node in the tree names its coined term. */
+.glp-tnode-tray {
+	flex-direction: row;
+	gap: 8px;
+	align-items: baseline;
+	padding: 11px 14px;
+}
+.glp-tnode-tray .glp-tnode-face {
+	font-size: 13px;
+}
+/* active node: amber ring + lift */
+.glp-tnode-active {
+	border-color: rgba(var(--amber-rgb), 0.6);
+	box-shadow:
+		0 0 0 1px rgba(var(--amber-rgb), 0.35),
+		0 0 20px rgba(var(--amber-rgb), 0.18);
+	transform: translateY(-1px);
+}
+.glp-tnode-active .glp-tnode-tray-label,
+.glp-tnode-active .glp-tnode-sub {
+	color: var(--paper);
+}
+
+@media (max-width: 640px) {
+	/* the two porters can't sit side by side at phone width — stack them
+	   into a vertical spine (HQ -> porter 01 + its trays -> porter 02 + its
+	   trays) so nothing overflows the viewport. */
+	.glp-porter-row {
+		flex-direction: column;
+		align-items: center;
+		gap: 0;
+	}
+	.glp-porter-col {
+		padding: 28px 0 0;
+	}
+	.glp-porter-col::after {
+		display: none; /* no horizontal bus when stacked */
+	}
+	.glp-tray-col {
+		padding: 24px 3px 0;
+	}
+	/* stack TRAY over its integration name so three fit one phone row */
+	.glp-tnode-tray {
+		flex-direction: column;
+		gap: 3px;
+		align-items: center;
+		padding: 9px 8px;
+		min-width: 0;
+	}
+	.glp-tnode-tray .glp-tnode-face {
+		font-size: 11px;
+	}
+	.glp-tnode-tray .glp-tnode-sub {
+		font-size: 8.5px;
+		letter-spacing: 0.06em;
+	}
+	.glp-tnode-porter {
+		padding: 11px 16px;
+	}
+}
+
+/* ---------- Switcher (dev only; matches sibling prototype bars) ---------- */
+.glp-switcher {
+	position: fixed;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 100;
+	display: inline-flex;
+	align-items: center;
+	gap: 14px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: #111;
+	border: 1px solid #333;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 12px;
+	letter-spacing: 0.1em;
+	color: #eee;
+}
+.glp-switcher button {
+	background: #222;
+	color: #eee;
+	border: 1px solid #444;
+	border-radius: 6px;
+	width: 26px;
+	height: 26px;
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1;
+}
+.glp-switcher button:hover {
+	background: #333;
+}

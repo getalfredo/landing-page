@@ -25,6 +25,14 @@ import {
 	GallerySwitcher,
 	useGalleryPass,
 } from "#/components/prototype/gallery-pass";
+// PROTOTYPE (wayfinder #49): ?glossary=a|b|c mounts a glossary treatment at
+// the page tail (before the footer), dev builds only. Remove with
+// src/components/prototype/glossary-pass.tsx.
+import {
+	GlossaryPass,
+	GlossarySwitcher,
+	useGlossaryPass,
+} from "#/components/prototype/glossary-pass";
 // PROTOTYPE (wayfinder #42): ?sim=spectacle|pain swaps Every day after's
 // anchor for the sim attract loop + fullscreen playable sim, dev builds
 // only. Remove with src/components/prototype/sim-pass.tsx.
@@ -44,6 +52,8 @@ function LandingPage() {
 	const [gallery, setGallery] = useGalleryPass();
 	// PROTOTYPE (wayfinder #42): gamified sim variant state.
 	const [sim, setSim] = useSimPass();
+	// PROTOTYPE (wayfinder #49): glossary treatment variant state.
+	const [glossary, setGlossary] = useGlossaryPass();
 	return (
 		<div className="lp" style={consoleCssVars}>
 			<Header />
@@ -57,6 +67,9 @@ function LandingPage() {
 				{gallery === "b" && <GalleryArchive />}
 				<Crescendo />
 				<Faq />
+				{/* #49 round 2: glossary sits BEFORE "Get in" (the final CTA),
+				    not at the page tail. */}
+				{glossary !== null && <GlossaryPass variant={glossary} />}
 				<FinalCta />
 			</main>
 			<Footer />
@@ -70,6 +83,9 @@ function LandingPage() {
 				<GallerySwitcher current={gallery} onChange={setGallery} />
 			)}
 			{sim !== null && <SimSwitcher current={sim} onChange={setSim} />}
+			{/* Glossary (#49) is the live prototype: its bar shows by default so
+			    the treatments are discoverable; [ ] flips between them. */}
+			<GlossarySwitcher current={glossary} onChange={setGlossary} />
 		</div>
 	);
 }
