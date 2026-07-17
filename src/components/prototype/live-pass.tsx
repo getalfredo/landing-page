@@ -14,11 +14,11 @@
 //        the payoff couplet, green LED inside the amber band: the refrain
 //        claims "runs on your servers", the next line proves this page
 //        does exactly that. Uptime + aboard count.
-//   c "Live meter"     — a thin standalone console-glass instrument strip
-//        between the final CTA and the footer: LIVE cap plus display-green
-//        ticking readouts (uptime clock, aboard count, served-from). Full
-//        instrument presence — tests whether the signal deserves a panel
-//        or just an etch.
+//   c "Live meter"     — WINNER (operator pick, placement amended): the
+//        thin console-glass instrument strip moves inside the nameplate
+//        footer, below the wordmark and above the hairline row: LIVE cap
+//        plus display-green ticking readouts (uptime clock, aboard count,
+//        served-from).
 //
 // Copy note: the etched strings here are placeholders pending #14 copy
 // discipline at fold-in; interpunct staccato is legal in etches (#27).
@@ -201,13 +201,18 @@ export function LiveCrescendo() {
 	);
 }
 
-/* ------------- variant c: live meter strip ------------------- */
-// A standalone thin instrument between the final CTA and the footer.
+/* ------------- variant c: live meter in the footer ----------- */
+// The winning placement: the meter strip sits inside the #32 nameplate
+// footer, below the wordmark and above the hairline row. LiveMeterFooter
+// replaces <Footer /> while active.
 
-export function LiveMeterStrip() {
+function LiveMeter({ inFooter }: { inFooter?: boolean }) {
 	const t = useLiveTelemetry();
 	return (
-		<aside className="lvp-meter" aria-label="Live page telemetry">
+		<aside
+			className={`lvp-meter${inFooter ? " lvp-meter-infooter" : ""}`}
+			aria-label="Live page telemetry"
+		>
 			<span className="lvp-meter-cap">
 				<LiveLed />
 				<span className="lp-etch lvp-etch-live">LIVE</span>
@@ -227,6 +232,37 @@ export function LiveMeterStrip() {
 				<span className="lvp-meter-value lvp-meter-word">ONE VPS</span>
 			</span>
 		</aside>
+	);
+}
+
+export function LiveMeterFooter() {
+	return (
+		<footer className="lp-nameplate">
+			<p className="lp-nameplate-mark">
+				Alfredo
+				<span className="lp-nameplate-led" aria-hidden="true" />
+			</p>
+			<LiveMeter inFooter />
+			<div className="lp-nameplate-row">
+				<span className="lp-etch lp-microprint">
+					THE HOME FOR YOUR PROJECTS · SELF-HOSTED, YOURS FOREVER
+				</span>
+				<nav className="lp-nameplate-links" aria-label="Footer">
+					<a className="lp-etch lp-etch-link" href="https://x.com/alperortac">
+						X · @ALPERORTAC
+					</a>
+					<a
+						className="lp-etch lp-etch-link"
+						href="https://github.com/getalfredo"
+					>
+						GITHUB
+					</a>
+					<a className="lp-etch lp-etch-link" href="/privacy">
+						PRIVACY
+					</a>
+				</nav>
+			</div>
+		</footer>
 	);
 }
 

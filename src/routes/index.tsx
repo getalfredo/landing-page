@@ -40,7 +40,7 @@ import {
 import {
 	LiveCrescendo,
 	LiveFooter,
-	LiveMeterStrip,
+	LiveMeterFooter,
 	LiveSwitcher,
 	useLivePass,
 } from "#/components/prototype/live-pass";
@@ -86,10 +86,15 @@ function LandingPage() {
 				{glossary !== null && <GlossaryPass variant={glossary} />}
 				<FinalCta />
 			</main>
-			{/* #50: variant c mounts the live meter strip above the footer;
-			    variant a swaps the footer for the colophon-line copy. */}
-			{live === "c" && <LiveMeterStrip />}
-			{live === "a" ? <LiveFooter /> : <Footer />}
+			{/* #50: variant c (winner) swaps the footer for the meter-below-the-
+			    wordmark copy; variant a swaps in the colophon-line copy. */}
+			{live === "c" ? (
+				<LiveMeterFooter />
+			) : live === "a" ? (
+				<LiveFooter />
+			) : (
+				<Footer />
+			)}
 			{(gallery === "a" || gallery === "c") && (
 				<GalleryPass variant={gallery} />
 			)}

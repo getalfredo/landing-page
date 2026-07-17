@@ -56,6 +56,7 @@
 .lvp-meter {
 	margin: 96px auto -56px;
 	max-width: 1020px;
+	box-sizing: border-box;
 	padding: 22px 28px;
 	border: 1px solid var(--seam);
 	border-radius: 14px;
@@ -96,11 +97,20 @@
 	color: var(--paper);
 	text-shadow: none;
 }
+/* winner placement: inside the nameplate footer, wordmark above,
+   hairline row below (the row's own top border stays the seam) */
+.lvp-meter-infooter {
+	margin: 56px 0 8px;
+	max-width: none;
+}
 @media (max-width: 640px) {
 	.lvp-meter {
 		margin: 72px 20px -40px;
 		padding: 18px 20px;
 		gap: 18px 28px;
+	}
+	.lvp-meter-infooter {
+		margin: 44px 0 4px;
 	}
 	.lvp-meter-cap {
 		padding-right: 18px;
