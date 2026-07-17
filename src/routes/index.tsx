@@ -52,16 +52,6 @@ import {
 	SimSwitcher,
 	useSimPass,
 } from "#/components/prototype/sim-pass";
-// PROTOTYPE (wayfinder #51): ?topo=a|b|c places the etched mono topology
-// diagram (Day one coda / FAQ answer / standalone interlude), dev builds
-// only. Remove with src/components/prototype/topo-pass.tsx.
-import {
-	TopoDayOne,
-	TopoFaq,
-	TopoInterlude,
-	TopoSwitcher,
-	useTopoPass,
-} from "#/components/prototype/topo-pass";
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -77,26 +67,20 @@ function LandingPage() {
 	const [glossary, setGlossary] = useGlossaryPass();
 	// PROTOTYPE (wayfinder #50): LIVE etch variant state.
 	const [live, setLive] = useLivePass();
-	// PROTOTYPE (wayfinder #51): topology diagram variant state.
-	const [topo, setTopo] = useTopoPass();
 	return (
 		<div className="lp" style={consoleCssVars}>
 			<Header />
 			<Minimap />
 			<main>
 				<Hero />
-				{/* #51: variant a closes Day one with the diagram; variant c mounts
-				    the interlude band between Day one and the showcase. */}
-				{topo === "a" ? <TopoDayOne /> : <DayOne />}
-				{topo === "c" && <TopoInterlude />}
+				<DayOne />
 				<Showcase />
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
 				<FounderNote />
 				{gallery === "b" && <GalleryArchive />}
 				{/* #50: variant b swaps the crescendo for the refrain-proof copy. */}
 				{live === "b" ? <LiveCrescendo /> : <Crescendo />}
-				{/* #51: variant b puts the diagram inside "Where does it run?". */}
-				{topo === "b" ? <TopoFaq /> : <Faq />}
+				<Faq />
 				{/* #49 round 2: glossary sits BEFORE "Get in" (the final CTA),
 				    not at the page tail. */}
 				{glossary !== null && <GlossaryPass variant={glossary} />}
@@ -125,9 +109,6 @@ function LandingPage() {
 				<GlossarySwitcher current={glossary} onChange={setGlossary} />
 			)}
 			{live !== null && <LiveSwitcher current={live} onChange={setLive} />}
-			{/* Topology (#51) is the live prototype: its bar shows by default so
-			    the variants are discoverable; [ ] flips between them. */}
-			<TopoSwitcher current={topo} onChange={setTopo} />
 		</div>
 	);
 }
