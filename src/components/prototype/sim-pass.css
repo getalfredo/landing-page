@@ -1,0 +1,941 @@
+/* PROTOTYPE — throwaway (wayfinder #42, gamified sim). Attract loop in the
+   Every-day-after glass + fullscreen playable sim. Consumes the console
+   custom properties (console-vars). Remove with sim-pass.tsx/sim-world.ts. */
+
+/* ------------------------------------------------------- shared stage -- */
+
+.sim-stage {
+	position: relative;
+	overflow: hidden;
+	background: var(--surface);
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+	box-shadow: inset 0 4px 18px rgba(0, 0, 0, 0.6);
+}
+
+.sim-layer {
+	position: absolute;
+	inset: 0;
+	padding: 14px;
+	overflow: hidden;
+	transition:
+		opacity 0.45s ease,
+		transform 0.55s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+[data-view="with"] .sim-layer-sprawl {
+	opacity: 0;
+	transform: scale(0.6);
+	pointer-events: none;
+}
+[data-view="without"] .sim-layer-hq {
+	opacity: 0;
+	transform: scale(1.12);
+	pointer-events: none;
+}
+
+/* panes collapse toward their own centres on top of the layer zoom */
+.sim-pane {
+	transition:
+		opacity 0.4s ease,
+		transform 0.45s cubic-bezier(0.3, 0.8, 0.3, 1),
+		background 0.2s ease;
+}
+[data-view="with"] .sim-pane {
+	opacity: 0;
+	transform: scale(0.25);
+}
+
+/* --------------------------------------------------------- attract ----- */
+
+.sim-anchor {
+	max-width: 860px;
+}
+
+.sim-attract {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	text-align: left;
+}
+
+.sim-attract-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 2px 4px 0;
+}
+
+.sim-attract-count {
+	color: var(--paper);
+	transition: color 0.3s ease;
+}
+.sim-attract[data-view="without"] .sim-attract-count {
+	color: var(--amber);
+}
+
+.sim-attract .sim-stage {
+	aspect-ratio: 16 / 10;
+	min-height: 300px;
+}
+.sim-attract .sim-layer {
+	pointer-events: none;
+}
+
+.sim-attract-foot {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+	padding: 0 4px 2px;
+}
+
+.sim-attract-line {
+	font-size: 14px;
+	color: var(--paper-soft);
+}
+
+/* reduced-motion still */
+.sim-still-split {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+.sim-still-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 14px;
+	background: var(--surface);
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+}
+.sim-still-sprawl {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 6px;
+}
+.sim-still-pane {
+	height: 26px;
+	border: 1px solid var(--seam);
+	border-radius: 4px;
+	background: var(--panel);
+}
+.sim-still-hq {
+	flex: 1;
+	min-height: 90px;
+	display: grid;
+	place-items: center;
+	border: 1px solid var(--seam);
+	border-radius: 6px;
+	background: var(--display-bg);
+}
+.sim-still-led {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 14px var(--led-glow);
+}
+
+/* -------------------------------------------------------- fullscreen --- */
+
+.sim-full {
+	position: fixed;
+	inset: 0;
+	z-index: 90;
+	background: var(--bg);
+	color: var(--paper);
+	font-family: "Space Grotesk", sans-serif;
+	display: flex;
+}
+
+.sim-full-frame {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+	max-width: 1080px;
+	margin: 0 auto;
+	height: 100dvh;
+	padding: 14px 18px;
+}
+
+.sim-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+.sim-head-etch {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.sim-close {
+	border: 1px solid var(--seam);
+	background: var(--panel);
+	color: var(--paper-soft);
+	border-radius: 8px;
+	width: 34px;
+	height: 34px;
+	font-size: 14px;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+.sim-close:hover {
+	color: var(--paper);
+}
+
+/* the with/without segmented control */
+.sim-toggle {
+	margin: 0;
+	min-inline-size: auto;
+	display: flex;
+	border: 1px solid var(--seam);
+	border-radius: 999px;
+	background: var(--panel);
+	padding: 3px;
+	gap: 3px;
+	position: relative;
+}
+.sim-toggle button {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	border: 0;
+	background: transparent;
+	color: var(--paper-soft);
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	letter-spacing: 0.18em;
+	padding: 7px 14px;
+	border-radius: 999px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+.sim-toggle .sim-toggle-on {
+	background: var(--display-bg);
+	color: var(--display-text);
+}
+.sim-toggle .sim-toggle-on.sim-toggle-without {
+	color: var(--amber);
+}
+.sim-toggle-led {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 7px var(--led-glow);
+	flex-shrink: 0;
+}
+
+/* the one hot surface: amber breathing ring */
+.sim-hot {
+	animation: sim-hot-pulse 1.6s ease-in-out infinite;
+	border-color: rgba(var(--amber-rgb), 0.7);
+}
+@keyframes sim-hot-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 rgba(var(--amber-rgb), 0.45);
+	}
+	50% {
+		box-shadow: 0 0 0 6px rgba(var(--amber-rgb), 0);
+	}
+}
+
+.sim-stage-full {
+	flex: 1;
+	min-height: 0;
+	background: var(--panel);
+	padding: 0;
+}
+.sim-stage-full .sim-layer {
+	overflow-y: auto;
+}
+
+/* ----------------------------------------------------------- beat card -- */
+
+.sim-beat {
+	display: flex;
+	align-items: baseline;
+	gap: 14px;
+	padding: 12px 16px;
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-left: 3px solid var(--amber);
+	border-radius: 10px;
+}
+.sim-beat-free {
+	border-left-color: var(--led);
+}
+.sim-beat .lp-etch {
+	flex-shrink: 0;
+}
+.sim-beat-text {
+	font-size: 15px;
+	line-height: 1.45;
+	color: var(--paper);
+	text-wrap: pretty;
+}
+
+.sim-foot {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------- HQ ----- */
+
+.sim-hq {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	height: 100%;
+}
+
+.sim-tiles {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+	flex-shrink: 0;
+}
+.sim-tile {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px 12px;
+	background: var(--display-bg);
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+	min-width: 0;
+}
+.sim-tile-num {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 17px;
+	color: var(--display-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.sim-tile-alert .sim-tile-num {
+	color: #ff5d49;
+}
+.sim-tile-alert {
+	animation: sim-alert-tile 1.1s ease-in-out infinite;
+}
+@keyframes sim-alert-tile {
+	0%,
+	100% {
+		border-color: var(--seam);
+	}
+	50% {
+		border-color: rgba(255, 93, 73, 0.7);
+	}
+}
+
+.sim-spark {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 18px;
+}
+.sim-spark-bar {
+	flex: 1;
+	min-height: 2px;
+	background: rgba(var(--green-rgb), 0.55);
+	border-radius: 1px;
+}
+
+/* lead slot */
+.sim-lead {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px 14px;
+	background: var(--panel-2);
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	flex-shrink: 0;
+}
+.sim-lead-alert {
+	border-color: rgba(255, 93, 73, 0.55);
+}
+.sim-lead-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.sim-lead-big {
+	font-size: 17px;
+	font-weight: 600;
+}
+.sim-catch {
+	align-self: flex-start;
+	padding: 9px 22px;
+	font-size: 14px;
+}
+
+.sim-tag-red,
+.sim-tag-green {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 9px;
+	letter-spacing: 0.2em;
+	padding: 3px 8px;
+	border-radius: 4px;
+}
+.sim-tag-red {
+	color: #ff5d49;
+	border: 1px solid rgba(255, 93, 73, 0.5);
+	animation: sim-alert-tile 1.1s ease-in-out infinite;
+}
+.sim-tag-green {
+	color: var(--green-text);
+	border: 1px solid rgba(var(--green-rgb), 0.4);
+}
+
+.sim-feed {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+.sim-feed-item {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 11px;
+	letter-spacing: 0.03em;
+	color: var(--paper-soft);
+}
+.sim-feed-item::before {
+	content: "▸ ";
+	opacity: 0.5;
+}
+.sim-feed-green {
+	color: var(--green-text);
+}
+.sim-feed-amber {
+	color: var(--amber);
+}
+.sim-feed-red {
+	color: #ff5d49;
+}
+
+/* project rows */
+.sim-projects {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.sim-proj {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 9px 12px;
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+	min-width: 0;
+}
+.sim-proj-name {
+	font-size: 14px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.sim-proj-chips {
+	display: flex;
+	gap: 4px;
+	flex-wrap: wrap;
+	flex: 1;
+}
+.sim-chip {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 9px;
+	letter-spacing: 0.08em;
+	padding: 2px 5px;
+	border-radius: 3px;
+	border: 1px solid var(--seam);
+	color: var(--paper-soft);
+	opacity: 0.45;
+}
+.sim-chip-lit {
+	opacity: 1;
+	color: var(--green-text);
+	border-color: rgba(var(--green-rgb), 0.4);
+}
+.sim-chip-lit.sim-chip-reused {
+	color: var(--amber);
+	border-color: rgba(var(--amber-rgb), 0.45);
+}
+.sim-proj-state {
+	flex-shrink: 0;
+}
+.sim-led {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 7px var(--led-glow);
+	flex-shrink: 0;
+}
+.sim-led-amber {
+	background: var(--amber);
+	box-shadow: 0 0 7px rgba(var(--amber-rgb), 0.7);
+}
+.sim-led-red {
+	background: #ff5d49;
+	box-shadow: 0 0 8px rgba(255, 93, 73, 0.8);
+	animation: sim-alert-tile 1.1s ease-in-out infinite;
+}
+
+.sim-plus {
+	justify-content: center;
+	border-style: dashed;
+	color: var(--paper-soft);
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 13px;
+	gap: 8px;
+}
+.sim-plus:hover {
+	color: var(--paper);
+	border-color: rgba(var(--paper-rgb), 0.35);
+}
+.sim-plus-sign {
+	font-size: 16px;
+}
+
+/* compact HQ inside the attract glass */
+.sim-hq-compact {
+	gap: 8px;
+	transform-origin: top left;
+}
+.sim-hq-compact .sim-tile-num {
+	font-size: 13px;
+}
+.sim-hq-compact .sim-lead-big {
+	font-size: 13px;
+}
+.sim-hq-compact .sim-proj {
+	padding: 6px 10px;
+}
+.sim-hq-compact .sim-proj-name {
+	font-size: 12px;
+}
+
+/* ------------------------------------------------------------ sprawl --- */
+
+.sim-sprawl {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	height: 100%;
+}
+
+.sim-sprawl-score {
+	display: flex;
+	align-items: baseline;
+	gap: 16px;
+	flex-wrap: wrap;
+	flex-shrink: 0;
+}
+.sim-sprawl-count {
+	font-size: 19px;
+	font-weight: 700;
+	color: var(--amber);
+	letter-spacing: -0.02em;
+}
+.sim-sprawl-clicks {
+	margin-left: auto;
+	color: var(--amber);
+}
+
+.sim-panes {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+	gap: 12px;
+	flex: 1;
+	align-content: safe center;
+	overflow-y: auto;
+}
+
+.sim-pane {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 5px;
+	padding: 9px 10px;
+	background: var(--panel);
+	border: 1px solid rgba(var(--paper-rgb), 0.14);
+	border-radius: 6px;
+	text-align: left;
+	color: inherit;
+	font-family: inherit;
+	min-height: 92px;
+}
+button.sim-pane {
+	cursor: pointer;
+}
+button.sim-pane:hover {
+	border-color: rgba(var(--paper-rgb), 0.35);
+}
+.sim-pane-dots {
+	display: flex;
+	gap: 3px;
+}
+.sim-pane-dots span {
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: rgba(var(--paper-rgb), 0.25);
+}
+.sim-pane-title {
+	font-size: 12px;
+	font-weight: 600;
+}
+.sim-pane-sub {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 9px;
+	letter-spacing: 0.06em;
+	color: var(--paper-soft);
+}
+.sim-pane-noise {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	width: 100%;
+	margin-top: 2px;
+}
+.sim-pane-noise span {
+	height: 4px;
+	border-radius: 2px;
+	background: rgba(var(--paper-rgb), 0.14);
+}
+.sim-pane-ok {
+	font-size: 11px;
+	color: var(--paper-soft);
+	font-style: italic;
+}
+.sim-pane-alarm {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 10px;
+	letter-spacing: 0.08em;
+	color: #ff5d49;
+	text-transform: uppercase;
+}
+.sim-pane-fix {
+	padding: 6px 12px;
+	font-size: 12px;
+	margin-top: 2px;
+}
+
+/* spectacle: the guilty pane pulses among the grid */
+.sim-pane-guilty {
+	animation: sim-guilty 1s ease-in-out infinite;
+	border-color: rgba(255, 93, 73, 0.75);
+}
+@keyframes sim-guilty {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 93, 73, 0.4);
+	}
+	50% {
+		box-shadow: 0 0 0 7px rgba(255, 93, 73, 0);
+	}
+}
+
+/* pain: opened panes read as visited tabs */
+.sim-pane-open {
+	background: var(--panel-2);
+	border-color: rgba(var(--paper-rgb), 0.3);
+}
+.sim-pane-guilty-open {
+	border-color: rgba(255, 93, 73, 0.85);
+	background: rgba(255, 93, 73, 0.08);
+}
+
+.sim-sprawl-compact .sim-panes {
+	grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+	gap: 7px;
+}
+.sim-sprawl-compact .sim-pane {
+	min-height: 58px;
+	padding: 7px 8px;
+}
+.sim-sprawl-compact .sim-sprawl-count {
+	font-size: 15px;
+}
+
+/* ------------------------------------------------------ deploy sheet --- */
+
+.sim-sheet {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	bottom: 14px;
+	width: min(320px, calc(100% - 28px));
+	z-index: 5;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 16px;
+	background: var(--panel-2);
+	border: 1px solid var(--seam);
+	border-radius: 12px;
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+	overflow-y: auto;
+}
+.sim-sheet-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.sim-sheet-shuffle {
+	background: none;
+	border: 1px solid var(--seam);
+	border-radius: 5px;
+	padding: 4px 8px;
+	cursor: pointer;
+}
+.sim-sheet-shuffle:hover {
+	color: var(--paper);
+}
+.sim-sheet-name {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 16px;
+	color: var(--display-text);
+	background: var(--display-bg);
+	border: 1px solid var(--seam);
+	border-radius: 6px;
+	padding: 9px 12px;
+}
+.sim-sheet-trays {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+}
+.sim-tray {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 10px;
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 7px;
+	color: var(--paper-soft);
+	font-family: inherit;
+	font-size: 13px;
+	cursor: pointer;
+	text-align: left;
+}
+.sim-tray:disabled {
+	cursor: default;
+}
+.sim-tray-on {
+	color: var(--paper);
+	border-color: rgba(var(--green-rgb), 0.35);
+}
+.sim-tray-box {
+	width: 16px;
+	height: 16px;
+	border: 1px solid var(--seam);
+	border-radius: 4px;
+	display: grid;
+	place-items: center;
+	font-size: 10px;
+	color: var(--green-text);
+	flex-shrink: 0;
+}
+.sim-tray-name {
+	flex: 1;
+}
+.sim-tray-tag {
+	font-size: 8px;
+}
+.sim-tray-on .sim-tray-tag {
+	color: var(--amber);
+}
+.sim-tray-implicit {
+	opacity: 0.75;
+	border-style: dashed;
+}
+
+/* ---------------------------------------------------------- CTA card --- */
+
+.sim-cta {
+	position: absolute;
+	inset: 0;
+	z-index: 6;
+	display: grid;
+	place-items: center;
+	padding: 20px;
+	background: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(3px);
+}
+.sim-cta-card {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	max-width: 430px;
+	padding: 26px 28px;
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 14px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+	text-align: left;
+}
+.sim-cta-big {
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.15;
+}
+.sim-cta-sub {
+	font-size: 14.5px;
+	line-height: 1.55;
+	color: var(--paper-soft);
+}
+.sim-cta-btns {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
+/* ----------------------------------------------------------- switcher -- */
+
+.sim-switcher {
+	position: fixed;
+	bottom: 194px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 12px;
+	border-radius: 999px;
+	background: #fff;
+	color: #111;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 12px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.sim-switcher button {
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
+	padding: 0 4px;
+}
+/* while the fullscreen sim is open, the other passes' dev pills get out of
+   the way — only the sim's own switcher stays for live variant flips */
+:root.sim-open .ctap-switcher,
+:root.sim-open .fqp-switcher,
+:root.sim-open .ftp-switcher,
+:root.sim-open .gxp-switcher {
+	display: none;
+}
+:root.sim-open .sim-switcher {
+	bottom: 18px;
+}
+
+/* small screens: tuck into the corner so the pill stack doesn't cover CTAs */
+@media (max-width: 700px) {
+	.sim-switcher {
+		left: 8px;
+		bottom: 238px;
+		transform: none;
+		font-size: 10px;
+	}
+}
+
+/* ------------------------------------------------------------- mobile -- */
+
+@media (max-width: 700px) {
+	.sim-full-frame {
+		padding: 10px;
+		gap: 8px;
+	}
+	.sim-head {
+		flex-wrap: wrap;
+	}
+	.sim-head-etch {
+		order: 1;
+		flex: 1;
+	}
+	.sim-close {
+		order: 2;
+	}
+	.sim-toggle {
+		order: 3;
+		width: 100%;
+	}
+	.sim-toggle button {
+		flex: 1;
+		justify-content: center;
+	}
+	.sim-tiles {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 7px;
+	}
+	.sim-panes {
+		grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+		gap: 7px;
+	}
+	.sim-sheet {
+		top: auto;
+		left: 10px;
+		right: 10px;
+		bottom: 10px;
+		width: auto;
+		max-height: 70%;
+	}
+	.sim-beat {
+		flex-direction: column;
+		gap: 6px;
+		padding: 10px 14px;
+	}
+	.sim-beat-text {
+		font-size: 14px;
+	}
+	.sim-foot {
+		justify-content: center;
+		text-align: center;
+	}
+	.sim-attract .sim-stage {
+		aspect-ratio: auto;
+		height: 340px;
+	}
+	.sim-still-split {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ----------------------------------------------------- reduced motion -- */
+
+@media (prefers-reduced-motion: reduce) {
+	.sim-layer,
+	.sim-pane {
+		transition: none;
+	}
+	.sim-hot,
+	.sim-tag-red,
+	.sim-tile-alert,
+	.sim-led-red,
+	.sim-pane-guilty {
+		animation: none;
+	}
+	.sim-pane-guilty {
+		box-shadow: 0 0 0 2px rgba(255, 93, 73, 0.55);
+	}
+}

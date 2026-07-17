@@ -43,6 +43,14 @@ import {
 	GallerySwitcher,
 	useGalleryPass,
 } from "#/components/prototype/gallery-pass";
+// PROTOTYPE (wayfinder #42): ?sim=spectacle|pain swaps Every day after's
+// anchor for the sim attract loop + fullscreen playable sim, dev builds
+// only. Remove with src/components/prototype/sim-pass.tsx.
+import {
+	SimActTwo,
+	SimSwitcher,
+	useSimPass,
+} from "#/components/prototype/sim-pass";
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -59,6 +67,8 @@ function LandingPage() {
 	const [footer, setFooter] = useFooterPass();
 	// PROTOTYPE (wayfinder #35): gallery treatment variant state.
 	const [gallery, setGallery] = useGalleryPass();
+	// PROTOTYPE (wayfinder #42): gamified sim variant state.
+	const [sim, setSim] = useSimPass();
 	return (
 		<div
 			className="lp"
@@ -71,7 +81,7 @@ function LandingPage() {
 				<main>
 					<Hero />
 					<ActOne />
-					<ActTwo />
+					{sim === null ? <ActTwo /> : <SimActTwo variant={sim} />}
 					<Showcase />
 					<FounderNote />
 					{gallery === "b" && <GalleryArchive />}
@@ -88,6 +98,7 @@ function LandingPage() {
 			<FaqSwitcher current={faq} onChange={setFaq} />
 			<FooterSwitcher current={footer} onChange={setFooter} />
 			<GallerySwitcher current={gallery} onChange={setGallery} />
+			<SimSwitcher current={sim} onChange={setSim} />
 		</div>
 	);
 }
