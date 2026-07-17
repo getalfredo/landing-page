@@ -94,11 +94,18 @@ function LandingPage() {
 			{(gallery === "a" || gallery === "c") && (
 				<GalleryPass variant={gallery} />
 			)}
-			<CtaSwitcher current={cta} onChange={setCta} />
-			<FaqSwitcher current={faq} onChange={setFaq} />
-			<FooterSwitcher current={footer} onChange={setFooter} />
-			<GallerySwitcher current={gallery} onChange={setGallery} />
-			<SimSwitcher current={sim} onChange={setSim} />
+			{/* Decided passes (#30/#31/#32/#35/#42) keep their prototypes but hide
+			    their bars unless the variant param is explicitly in the URL —
+			    the page stays inspectable while newer tickets prototype on it. */}
+			{cta !== null && <CtaSwitcher current={cta} onChange={setCta} />}
+			{faq !== null && <FaqSwitcher current={faq} onChange={setFaq} />}
+			{footer !== null && (
+				<FooterSwitcher current={footer} onChange={setFooter} />
+			)}
+			{gallery !== null && (
+				<GallerySwitcher current={gallery} onChange={setGallery} />
+			)}
+			{sim !== null && <SimSwitcher current={sim} onChange={setSim} />}
 		</div>
 	);
 }

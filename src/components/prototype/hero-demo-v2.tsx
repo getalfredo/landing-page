@@ -553,6 +553,17 @@ function Hv2Engine({ axes }: { axes: Hv2Axes }) {
 		setNow(clamped);
 	};
 
+	// the axis bar lives outside the engine; jump requests arrive as events
+	useEffect(() => {
+		const onJump = (e: Event) => {
+			const t = (e as CustomEvent<number>).detail;
+			origin.current = performance.now() / 1000 - t;
+			setNow(t);
+		};
+		window.addEventListener("hv2-jump", onJump);
+		return () => window.removeEventListener("hv2-jump", onJump);
+	}, []);
+
 	const w = worldAt(now);
 
 	return (
@@ -1204,6 +1215,26 @@ function Hv2Bar({
 						onClick={() => onAxes({ ...axes, ms: opt })}
 					>
 						{opt}
+					</button>
+				))}
+			</div>
+			<div className="hv2-bar-group">
+				<span className="hv2-bar-label">JUMP</span>
+				{MILESTONES.map((m) => (
+					<button
+						type="button"
+						key={m.id}
+						className="hv2-bar-btn"
+						title={m.big}
+						onClick={() =>
+							window.dispatchEvent(
+								new CustomEvent("hv2-jump", {
+									detail: Math.max(0, m.celAt - 0.7),
+								}),
+							)
+						}
+					>
+						★ {m.pin.toLowerCase()}
 					</button>
 				))}
 			</div>
