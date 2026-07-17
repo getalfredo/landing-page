@@ -52,6 +52,16 @@ import {
 	SimSwitcher,
 	useSimPass,
 } from "#/components/prototype/sim-pass";
+// PROTOTYPE (wayfinder #51): ?topo=a|b|c places the etched mono topology
+// diagram (Day one coda / FAQ answer / standalone interlude), dev builds
+// only. Remove with src/components/prototype/topo-pass.tsx.
+import {
+	TopoDayOne,
+	TopoFaq,
+	TopoInterlude,
+	TopoSwitcher,
+	useTopoPass,
+} from "#/components/prototype/topo-pass";
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -67,20 +77,26 @@ function LandingPage() {
 	const [glossary, setGlossary] = useGlossaryPass();
 	// PROTOTYPE (wayfinder #50): LIVE etch variant state.
 	const [live, setLive] = useLivePass();
+	// PROTOTYPE (wayfinder #51): topology diagram variant state.
+	const [topo, setTopo] = useTopoPass();
 	return (
 		<div className="lp" style={consoleCssVars}>
 			<Header />
 			<Minimap />
 			<main>
 				<Hero />
-				<DayOne />
+				{/* #51: variant a closes Day one with the diagram; variant c mounts
+				    the interlude band between Day one and the showcase. */}
+				{topo === "a" ? <TopoDayOne /> : <DayOne />}
+				{topo === "c" && <TopoInterlude />}
 				<Showcase />
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
 				<FounderNote />
 				{gallery === "b" && <GalleryArchive />}
 				{/* #50: variant b swaps the crescendo for the refrain-proof copy. */}
 				{live === "b" ? <LiveCrescendo /> : <Crescendo />}
-				<Faq />
+				{/* #51: variant b puts the diagram inside "Where does it run?". */}
+				{topo === "b" ? <TopoFaq /> : <Faq />}
 				{/* #49 round 2: glossary sits BEFORE "Get in" (the final CTA),
 				    not at the page tail. */}
 				{glossary !== null && <GlossaryPass variant={glossary} />}
@@ -98,9 +114,9 @@ function LandingPage() {
 			{(gallery === "a" || gallery === "c") && (
 				<GalleryPass variant={gallery} />
 			)}
-			{/* Decided passes (#35/#42/#49) keep their prototypes but hide their
-			    bars unless the variant param is explicitly in the URL — the page
-			    stays inspectable while newer tickets prototype on it. */}
+			{/* Decided passes (#35/#42/#49/#50) keep their prototypes but hide
+			    their bars unless the variant param is explicitly in the URL — the
+			    page stays inspectable while newer tickets prototype on it. */}
 			{gallery !== null && (
 				<GallerySwitcher current={gallery} onChange={setGallery} />
 			)}
@@ -108,9 +124,10 @@ function LandingPage() {
 			{glossary !== null && (
 				<GlossarySwitcher current={glossary} onChange={setGlossary} />
 			)}
-			{/* LIVE etch (#50) is the live prototype: its bar shows by default so
+			{live !== null && <LiveSwitcher current={live} onChange={setLive} />}
+			{/* Topology (#51) is the live prototype: its bar shows by default so
 			    the variants are discoverable; [ ] flips between them. */}
-			<LiveSwitcher current={live} onChange={setLive} />
+			<TopoSwitcher current={topo} onChange={setTopo} />
 		</div>
 	);
 }
