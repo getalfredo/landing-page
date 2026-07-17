@@ -349,7 +349,8 @@ function mileAt(t: number): Mile {
 type ProjStatus = "prov" | "live" | "down" | "off" | "out";
 
 type Spot =
-	| { kind: "empty" | "quiet" }
+	| { kind: "empty" }
+	| { kind: "quiet" }
 	| {
 			kind: "wiring" | "live" | "trickle" | "signups" | "retired";
 			proj: string;
@@ -359,24 +360,26 @@ type Spot =
 	| { kind: "down" | "recovered"; proj: string }
 	| { kind: "payments"; proj: string };
 
-const SPOTS: [number, Spot][] = [
-	[0, { kind: "empty" }],
-	...CH.flatMap<[number, Spot]>((ch) => [
-		[ch.wireAt, { kind: "wiring", proj: ch.name }],
-		[ch.liveAt, { kind: "live", proj: ch.name }],
-	]),
-	[CH[0].liveAt + 1.2, { kind: "trickle", proj: CH[0].name }],
-	[SIGNUPS_AT, { kind: "signups", proj: CH[1].name }],
-	[LP_SPIKE[0], { kind: "spike", proj: CH[0].name }],
-	[MULTI[0], { kind: "multispike" }],
-	[DOWN[0], { kind: "down", proj: CH[1].name }],
-	[DOWN[1], { kind: "recovered", proj: CH[1].name }],
-	[RETIRE_AT, { kind: "retired", proj: CH[0].name }],
-	[VIRAL_AT, { kind: "viral", proj: CH[3].name }],
-	[PAYMENTS[0].at, { kind: "payments", proj: CH[3].name }],
-	[QUIET_AT, { kind: "quiet" }],
-	[EMPTY_AT, { kind: "empty" }],
-].sort((a, b) => a[0] - b[0]) as [number, Spot][];
+const SPOTS: [number, Spot][] = (
+	[
+		[0, { kind: "empty" }],
+		...CH.flatMap<[number, Spot]>((ch) => [
+			[ch.wireAt, { kind: "wiring", proj: ch.name }],
+			[ch.liveAt, { kind: "live", proj: ch.name }],
+		]),
+		[CH[0].liveAt + 1.2, { kind: "trickle", proj: CH[0].name }],
+		[SIGNUPS_AT, { kind: "signups", proj: CH[1].name }],
+		[LP_SPIKE[0], { kind: "spike", proj: CH[0].name }],
+		[MULTI[0], { kind: "multispike" }],
+		[DOWN[0], { kind: "down", proj: CH[1].name }],
+		[DOWN[1], { kind: "recovered", proj: CH[1].name }],
+		[RETIRE_AT, { kind: "retired", proj: CH[0].name }],
+		[VIRAL_AT, { kind: "viral", proj: CH[3].name }],
+		[PAYMENTS[0].at, { kind: "payments", proj: CH[3].name }],
+		[QUIET_AT, { kind: "quiet" }],
+		[EMPTY_AT, { kind: "empty" }],
+	] as [number, Spot][]
+).sort((a, b) => a[0] - b[0]);
 
 function spotAt(t: number): Spot {
 	let cur: Spot = { kind: "empty" };

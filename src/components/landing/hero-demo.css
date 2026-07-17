@@ -35,6 +35,15 @@
 	border-radius: 14px 14px 0 0;
 	border-bottom: none;
 }
+.wcn-bezel-top .wcn-etch {
+	white-space: nowrap;
+}
+/* Narrow screens: three etches don't fit — the unit tag goes first. */
+@media (max-width: 640px) {
+	.wcn-bezel-top .wcn-etch:last-child {
+		display: none;
+	}
+}
 .wcn-bezel-bottom {
 	border-radius: 0 0 14px 14px;
 	border-top: none;

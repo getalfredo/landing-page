@@ -205,7 +205,7 @@ function DashScreen({
 
 			<div className="wcn-dash-term">
 				<span className="wcn-term-mini">
-					{"> fleet — "}
+					{"> status — "}
 					{shown.length}
 					{" projects · bay 00"}
 					{shown.length + 1}
@@ -487,7 +487,7 @@ export function HeroDemo() {
 			<div className="wcn-app">
 				<div className="wcn-appbar">
 					<span className="wcn-etch">
-						{screen === "dash" ? "FLEET OVERVIEW" : "NEW PROJECT"}
+						{screen === "dash" ? "PROJECT OVERVIEW" : "NEW PROJECT"}
 					</span>
 					{screen === "deploy" ? (
 						// Only exists once it IS the next step — no idle affordance.

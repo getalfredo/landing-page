@@ -32,6 +32,10 @@ export const Route = createRootRoute({
 				content: DESCRIPTION,
 			},
 			{
+				name: "theme-color",
+				content: "#14150e",
+			},
+			{
 				property: "og:title",
 				content: TITLE,
 			},
@@ -85,6 +89,10 @@ export const Route = createRootRoute({
 				href: "/generated/apple-touch-icon.png",
 				sizes: "180x180",
 			},
+			{
+				rel: "manifest",
+				href: "/manifest.json",
+			},
 		],
 	}),
 	shellComponent: RootDocument,
@@ -99,17 +107,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body>
 				<PostHogProvider>
 					{children}
-					<TanStackDevtools
-						config={{
-							position: "bottom-right",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-						]}
-					/>
+					{import.meta.env.DEV && (
+						<TanStackDevtools
+							config={{
+								position: "bottom-right",
+							}}
+							plugins={[
+								{
+									name: "Tanstack Router",
+									render: <TanStackRouterDevtoolsPanel />,
+								},
+							]}
+						/>
+					)}
 				</PostHogProvider>
 				<Scripts />
 			</body>

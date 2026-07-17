@@ -2,7 +2,13 @@ import { PostHogProvider as BasePostHogProvider } from "@posthog/react";
 import posthog from "posthog-js";
 import type { ReactNode } from "react";
 
-if (typeof window !== "undefined" && import.meta.env.VITE_POSTHOG_KEY) {
+// Placeholder keys (phc_xxx) must not init: bogus keys spam the console in
+// dev and would silently drop every event if they ever reached prod.
+if (
+	typeof window !== "undefined" &&
+	import.meta.env.VITE_POSTHOG_KEY &&
+	import.meta.env.VITE_POSTHOG_KEY !== "phc_xxx"
+) {
 	posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
 		api_host: import.meta.env.VITE_POSTHOG_HOST || "https://eu.i.posthog.com",
 		person_profiles: "identified_only",

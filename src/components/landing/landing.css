@@ -40,6 +40,13 @@
 .lp-header-btn {
 	padding: 8px 18px;
 	font-size: 13px;
+	white-space: nowrap;
+}
+/* Narrow screens: the SELF-HOSTED etch wraps into the wordmark LED — drop it. */
+@media (max-width: 479px) {
+	.lp-header-right > .lp-etch {
+		display: none;
+	}
 }
 .lp-wordmark {
 	font-weight: 700;

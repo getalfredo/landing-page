@@ -13,3 +13,6 @@ __unconfig*
 todos.json
 out/
 .alp-river/
+
+# local sqlite dev database (prod path is /data/alfredo.db, outside the checkout)
+dev.db

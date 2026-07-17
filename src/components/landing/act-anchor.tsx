@@ -49,7 +49,7 @@ export function ActAnchor({
 					ref={videoRef}
 					src={src}
 					poster={poster}
-					autoPlay
+					preload="metadata"
 					muted
 					loop
 					playsInline
