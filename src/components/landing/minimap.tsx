@@ -184,8 +184,11 @@ export function Minimap() {
 						onPointerUp={(e) => e.stopPropagation()}
 					>
 						<span className="lp-mm-dot" aria-hidden="true" />
+						<span className="lp-mm-index" aria-hidden="true">
+							{s.index}
+						</span>
 						<span className="lp-mm-label" aria-hidden="true">
-							<span className="lp-mm-index">{s.index}</span> {s.label}
+							{s.label}
 						</span>
 					</button>
 				))}

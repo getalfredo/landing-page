@@ -754,6 +754,15 @@
 	cursor: pointer;
 	touch-action: none;
 }
+/* the 1px rail needs a real hit area for click/drag */
+.lp-mm-rail::before {
+	content: "";
+	position: absolute;
+	top: -8px;
+	bottom: -8px;
+	left: -12px;
+	right: -12px;
+}
 .lp-mm-fill {
 	position: absolute;
 	top: 0;
@@ -804,27 +813,31 @@
 	border-radius: 50%;
 	border: 1px solid rgba(var(--paper-rgb), 0.25);
 }
+/* index always visible; only the label waits for active/hover */
+.lp-mm-index,
 .lp-mm-label {
 	position: absolute;
-	left: 24px;
-	display: flex;
-	gap: 6px;
 	white-space: nowrap;
 	font-family: "IBM Plex Mono", monospace;
 	font-size: 9px;
 	letter-spacing: 0.26em;
 	text-transform: uppercase;
+	pointer-events: none;
+}
+.lp-mm-index {
+	left: 24px;
+	color: var(--paper);
+	opacity: 0.55;
+}
+.lp-mm-label {
+	left: 52px;
 	color: var(--paper-soft);
 	opacity: 0;
-	pointer-events: none;
 }
 /* hover peek must beat the scroll-driven inline opacity */
 .lp-mm-node:hover .lp-mm-label,
 .lp-mm-node:focus-visible .lp-mm-label {
 	opacity: 1 !important;
-}
-.lp-mm-index {
-	color: var(--paper);
 }
 
 /* ---------- Utilities ---------- */
