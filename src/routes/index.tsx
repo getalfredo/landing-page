@@ -33,6 +33,15 @@ import {
 	GlossarySwitcher,
 	useGlossaryPass,
 } from "#/components/prototype/glossary-pass";
+// PROTOTYPE (wayfinder #52): ?keys=a|b|c couples the physical keyboard to
+// the page's keycaps (Enter in the waitlist input depresses the submit cap;
+// optionally Enter presses the demo's hot key), dev builds only. Remove
+// with src/components/prototype/keys-pass.tsx.
+import {
+	KeysCoupler,
+	KeysSwitcher,
+	useKeysPass,
+} from "#/components/prototype/keys-pass";
 // PROTOTYPE (wayfinder #50): ?live=a|b|c puts one piece of real telemetry
 // on the page as a LIVE etch (footer colophon line / crescendo proof line /
 // live meter strip), dev builds only. Remove with
@@ -67,6 +76,8 @@ function LandingPage() {
 	const [glossary, setGlossary] = useGlossaryPass();
 	// PROTOTYPE (wayfinder #50): LIVE etch variant state.
 	const [live, setLive] = useLivePass();
+	// PROTOTYPE (wayfinder #52): keyboard-coupled keycaps variant state.
+	const keys = useKeysPass();
 	return (
 		<div className="lp" style={consoleCssVars}>
 			<Header />
@@ -109,6 +120,15 @@ function LandingPage() {
 				<GlossarySwitcher current={glossary} onChange={setGlossary} />
 			)}
 			{live !== null && <LiveSwitcher current={live} onChange={setLive} />}
+			<KeysCoupler variant={keys.variant} demo={keys.demo} />
+			{keys.variant !== null && (
+				<KeysSwitcher
+					current={keys.variant}
+					onChange={keys.setVariant}
+					demo={keys.demo}
+					onDemoChange={keys.setDemo}
+				/>
+			)}
 		</div>
 	);
 }
