@@ -14,16 +14,30 @@
 // control the ghost click hits; the form overlay lives on the RIGHT and
 // hides quickly after a deploy. Dashboard essentials: WAITLIST · TRAFFIC
 // (trend) · MRR. Axes left: view = desktop | mobile (?hv2=1, dev only).
+//
+// Wayfinder #46 adds METRIC MILESTONES on a second axis (?ms=). Crossing
+// times are derived from the same rate integrals by bisection, so the
+// celebrations stay a pure function of t. Three treatments:
+//   stamp  — celebrate at the metric source: tile flashes, keeps an etched pin
+//   beat   — milestone takes over the spotlight; records marked on the scrubber
+//   ledger — a record strip above the tiles prints each milestone, keeps count
+// Waitlist rates ×2 vs #26 so the loop closes on a "100 on the waitlist" beat.
 import { useEffect, useRef, useState } from "react";
 import { consoleCssVars } from "#/components/landing/console-vars";
 import "#/components/prototype/hero-demo-v2.css";
 
 /* ---------------------------------------------------------------- axes -- */
 
-export type Hv2Axes = { view: "desktop" | "mobile" };
+export type Hv2Axes = {
+	view: "desktop" | "mobile";
+	ms: "off" | "stamp" | "beat" | "ledger";
+};
 
-const AXIS_OPTIONS = { view: ["desktop", "mobile"] } as const;
-const DEFAULT_AXES: Hv2Axes = { view: "desktop" };
+const AXIS_OPTIONS = {
+	view: ["desktop", "mobile"],
+	ms: ["off", "stamp", "beat", "ledger"],
+} as const;
+const DEFAULT_AXES: Hv2Axes = { view: "desktop", ms: "beat" };
 
 export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 	const [axes, setAxes] = useState<Hv2Axes | null>(null);
@@ -33,17 +47,24 @@ export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 		const q = new URLSearchParams(window.location.search);
 		if (!q.has("hv2")) return;
 		const v = q.get("view");
-		setAxes({ view: v === "mobile" ? "mobile" : DEFAULT_AXES.view });
+		const m = q.get("ms");
+		setAxes({
+			view: v === "mobile" ? "mobile" : DEFAULT_AXES.view,
+			ms: (AXIS_OPTIONS.ms as readonly string[]).includes(m ?? "")
+				? (m as Hv2Axes["ms"])
+				: DEFAULT_AXES.ms,
+		});
 	}, []);
 
 	const update = (a: Hv2Axes | null) => {
 		setAxes(a);
 		const q = new URLSearchParams(window.location.search);
 		if (a === null) {
-			for (const k of ["hv2", "view"]) q.delete(k);
+			for (const k of ["hv2", "view", "ms"]) q.delete(k);
 		} else {
 			q.set("hv2", "1");
 			q.set("view", a.view);
+			q.set("ms", a.ms);
 		}
 		const qs = q.toString();
 		window.history.replaceState(
@@ -182,18 +203,22 @@ const VIEW_RATES: Record<string, Seg[]> = {
 	],
 };
 
+// ×2 vs #26 so "100 on the waitlist" crosses before teardown (#46)
 const WAITLIST_RATE: Seg[] = [
-	[SIGNUPS_AT, MULTI[0], 1.2],
-	[MULTI[0], MULTI[1], 3.5],
-	[MULTI[1], VIRAL_AT, 1.4],
-	[VIRAL_AT, VIRAL_END, 3.2],
-	[VIRAL_END, QUIET_AT, 1.5],
+	[SIGNUPS_AT, MULTI[0], 2.4],
+	[MULTI[0], MULTI[1], 7],
+	[MULTI[1], VIRAL_AT, 2.8],
+	[VIRAL_AT, VIRAL_END, 6.4],
+	[VIRAL_END, QUIET_AT, 3],
 ];
 
-function integ(segs: Seg[], t: number) {
+function integRaw(segs: Seg[], t: number) {
 	let sum = 0;
 	for (const [a, b, r] of segs) sum += Math.max(0, Math.min(t, b) - a) * r;
-	return Math.floor(sum);
+	return sum;
+}
+function integ(segs: Seg[], t: number) {
+	return Math.floor(integRaw(segs, t));
 }
 function rateAt(segs: Seg[], t: number) {
 	for (const [a, b, r] of segs) if (t >= a && t < b) return r;
@@ -205,6 +230,118 @@ function totalRate(t: number) {
 
 function fmt(n: number) {
 	return n.toLocaleString("en-US");
+}
+
+/* --------------------------------------------------- metric milestones -- */
+// #46 — every crossing time is solved from the same deterministic rate
+// integrals, so milestones never drift from what the tiles display.
+
+function crossT(f: (t: number) => number, target: number) {
+	let lo = 0;
+	let hi = QUIET_AT;
+	if (f(hi) < target) return Number.POSITIVE_INFINITY; // never crosses
+	for (let i = 0; i < 48; i++) {
+		const m = (lo + hi) / 2;
+		if (f(m) >= target) hi = m;
+		else lo = m;
+	}
+	return hi;
+}
+
+const viewsRaw = (t: number) =>
+	Object.values(VIEW_RATES).reduce((s, segs) => s + integRaw(segs, t), 0);
+const waitRaw = (t: number) => integRaw(WAITLIST_RATE, t);
+
+type Milestone = {
+	id: string;
+	at: number; // metric crossing
+	celAt: number; // celebration start (staggered so windows never overlap)
+	etch: string; // metric family, etched
+	big: string; // headline
+	pin: string; // short record label (stamp pins, ledger lines)
+	sub: string;
+	tile: "waitlist" | "traffic" | "mrr" | "row";
+};
+
+const CEL_LEN = 2.6; // seconds a celebration holds
+
+const MILESTONE_DEFS: Omit<Milestone, "celAt">[] = [
+	{
+		id: "v100",
+		at: crossT(viewsRaw, 100),
+		etch: "TRAFFIC",
+		big: "100th visitor",
+		pin: "100 VISITS",
+		sub: "counted across every project",
+		tile: "traffic",
+	},
+	{
+		id: "p3",
+		at: CH[2].liveAt,
+		etch: "PROJECTS",
+		big: "3 projects live",
+		pin: "3 LIVE",
+		sub: "one HQ watching all of them",
+		tile: "row",
+	},
+	{
+		id: "wl50",
+		at: crossT(waitRaw, 50),
+		etch: "WAITLIST",
+		big: "50 on the waitlist",
+		pin: "50 SIGNUPS",
+		sub: "geo-monitor keeps signing them up",
+		tile: "waitlist",
+	},
+	{
+		id: "eur1",
+		at: PAYMENTS[0].at,
+		etch: "REVENUE",
+		big: "First € earned",
+		pin: "FIRST €",
+		sub: "content-factory · checkout completed",
+		tile: "mrr",
+	},
+	{
+		id: "wl100",
+		at: crossT(waitRaw, 100),
+		etch: "WAITLIST",
+		big: "100 on the waitlist",
+		pin: "100 SIGNUPS",
+		sub: "the hundredth signup, counted live",
+		tile: "waitlist",
+	},
+];
+
+const MILESTONES: Milestone[] = MILESTONE_DEFS.filter((m) =>
+	Number.isFinite(m.at),
+)
+	.sort((a, b) => a.at - b.at)
+	.map((m) => ({ ...m, celAt: m.at }));
+
+// stagger: a milestone landing inside the previous celebration queues up
+for (let i = 1; i < MILESTONES.length; i++) {
+	MILESTONES[i].celAt = Math.max(
+		MILESTONES[i].at,
+		MILESTONES[i - 1].celAt + CEL_LEN + 0.15,
+	);
+}
+
+type Mile = {
+	reached: Milestone[]; // crossed at time t (resets with the loop)
+	active: Milestone | null; // celebration window containing t
+	frac: number; // 0..1 through the active window
+};
+
+function mileAt(t: number): Mile {
+	const reached = MILESTONES.filter((m) => m.at <= t);
+	const active =
+		MILESTONES.find((m) => t >= m.celAt && t < m.celAt + CEL_LEN) ?? null;
+	return {
+		reached,
+		active,
+		frac: active ? (t - active.celAt) / CEL_LEN : 0,
+	};
 }
 
 /* --------------------------------------------------------- worldAt(t) -- */
@@ -277,6 +414,7 @@ type World = {
 	plusRing: boolean;
 	plusActive: boolean;
 	chapter: number; // -1 outside chapters
+	mile: Mile;
 };
 
 function inWin(t: number, from: number, len = 0.9) {
@@ -370,6 +508,7 @@ function worldAt(t: number): World {
 		plusRing: CH.some((ch) => t >= ch.plusAt && t < ch.plusAt + 0.5),
 		plusActive: form !== null,
 		chapter,
+		mile: mileAt(t),
 	};
 }
 
@@ -430,7 +569,7 @@ function Hv2Engine({ axes }: { axes: Hv2Axes }) {
 
 			<div className={`hv2-glass${vertical ? " hv2-vert" : ""}`}>
 				<div className="hv2-full">
-					<Dash w={w} />
+					<Dash w={w} ms={axes.ms} />
 					<div
 						className={`hv2-sheet${w.form ? " hv2-sheet-in" : ""}`}
 						aria-hidden={!w.form}
@@ -441,7 +580,12 @@ function Hv2Engine({ axes }: { axes: Hv2Axes }) {
 			</div>
 
 			{/* the bottom cap: full-width scrubber, chapter titles underneath */}
-			<ProgressBar now={now} onSeek={seek} chapter={w.chapter} />
+			<ProgressBar
+				now={now}
+				onSeek={seek}
+				chapter={w.chapter}
+				markers={axes.ms === "beat"}
+			/>
 		</section>
 	);
 }
@@ -452,10 +596,12 @@ function ProgressBar({
 	now,
 	onSeek,
 	chapter,
+	markers,
 }: {
 	now: number;
 	onSeek: (t: number) => void;
 	chapter: number;
+	markers: boolean;
 }) {
 	const trackRef = useRef<HTMLDivElement>(null);
 
@@ -510,6 +656,17 @@ function ProgressBar({
 						</div>
 					);
 				})}
+				{/* beat variant: record markers, youtube key-moment style */}
+				{markers &&
+					MILESTONES.map((m) => (
+						<span
+							className={`hv2-ms-mark${now >= m.at ? " hv2-ms-mark-hit" : ""}`}
+							key={m.id}
+							style={{ left: `${(m.at / TOTAL) * 100}%` }}
+							title={m.big}
+							aria-hidden="true"
+						/>
+					))}
 			</div>
 		</div>
 	);
@@ -575,7 +732,15 @@ function DeployForm({ form }: { form: NonNullable<World["form"]> }) {
 
 /* ---------------------------------------------------------- dashboard -- */
 
-function Dash({ w }: { w: World }) {
+function Dash({ w, ms }: { w: World; ms: Hv2Axes["ms"] }) {
+	const { reached, active } = w.mile;
+	// stamp variant: which tile is celebrating right now, which pins it keeps
+	const celTile = ms === "stamp" && active ? active.tile : null;
+	const pinsFor = (tile: Milestone["tile"]) =>
+		ms === "stamp"
+			? reached.filter((m) => m.tile === tile).map((m) => m.pin)
+			: [];
+	const rowMile = reached.find((m) => m.tile === "row");
 	return (
 		<div className="hv2-dash">
 			{/* thin fixed top row: every project + the add-new control */}
@@ -636,9 +801,28 @@ function Dash({ w }: { w: World }) {
 					</span>
 					<span className="hv2-plus-label">new project</span>
 				</div>
+				{/* stamp variant: the fleet-size record pins onto the row itself */}
+				{ms === "stamp" && rowMile && (
+					<div
+						className={`hv2-ms-rowpin${
+							celTile === "row" ? " hv2-ms-cele" : ""
+						}`}
+					>
+						<span className="hv2-ms-star" aria-hidden="true">
+							★
+						</span>
+						<span className="hv2-etch">{rowMile.pin}</span>
+					</div>
+				)}
 			</div>
 
-			<Spotlight w={w} />
+			{ms === "beat" && active ? (
+				<MilestoneSpot m={active} />
+			) : (
+				<Spotlight w={w} />
+			)}
+
+			{ms === "ledger" && <MsLedger w={w} />}
 
 			{/* essentials: waitlist, traffic trend, MRR */}
 			<div className="hv2-tiles">
@@ -646,8 +830,15 @@ function Dash({ w }: { w: World }) {
 					etch="WAITLIST"
 					num={fmt(w.waitlist)}
 					ripple={w.spot.kind === "signups"}
+					pins={pinsFor("waitlist")}
+					cele={celTile === "waitlist"}
 				/>
-				<div className="hv2-tile">
+				<div
+					className={`hv2-tile${celTile === "traffic" ? " hv2-ms-cele" : ""}`}
+				>
+					{celTile === "traffic" && (
+						<span className="hv2-ripple hv2-ripple-amber" aria-hidden="true" />
+					)}
 					<span className="hv2-etch">TRAFFIC</span>
 					<div className="hv2-tile-row">
 						<span className="hv2-tile-num">
@@ -666,11 +857,14 @@ function Dash({ w }: { w: World }) {
 							))}
 						</span>
 					</div>
+					<Pins pins={pinsFor("traffic")} />
 				</div>
 				<Tile
 					etch="MRR"
 					num={`€ ${fmt(w.mrr)}`}
 					ripple={w.spot.kind === "payments" && w.toasts.length > 0}
+					pins={pinsFor("mrr")}
+					cele={celTile === "mrr"}
 				/>
 			</div>
 		</div>
@@ -682,19 +876,108 @@ function Tile({
 	num,
 	ripple,
 	warn,
+	pins = [],
+	cele,
 }: {
 	etch: string;
 	num: string;
 	ripple?: boolean;
 	warn?: boolean;
+	pins?: string[];
+	cele?: boolean;
 }) {
 	return (
-		<div className={`hv2-tile${warn ? " hv2-tile-warn" : ""}`}>
+		<div
+			className={`hv2-tile${warn ? " hv2-tile-warn" : ""}${cele ? " hv2-ms-cele" : ""}`}
+		>
 			{ripple && (
 				<span className="hv2-ripple hv2-ripple-green" aria-hidden="true" />
 			)}
+			{cele && (
+				<span className="hv2-ripple hv2-ripple-amber" aria-hidden="true" />
+			)}
 			<span className="hv2-etch">{etch}</span>
 			<span className="hv2-tile-num">{num}</span>
+			<Pins pins={pins} />
+		</div>
+	);
+}
+
+/* stamp variant: etched record pins a tile keeps after the flash */
+function Pins({ pins }: { pins: string[] }) {
+	if (pins.length === 0) return null;
+	return (
+		<span className="hv2-ms-pins">
+			{pins.map((p) => (
+				<span className="hv2-ms-pin" key={p}>
+					<span className="hv2-ms-star" aria-hidden="true">
+						★
+					</span>
+					{p}
+				</span>
+			))}
+		</span>
+	);
+}
+
+/* beat variant: the milestone takes the spotlight as a story beat */
+function MilestoneSpot({ m }: { m: Milestone }) {
+	return (
+		<div className="hv2-spot hv2-ms-spot" key={m.id}>
+			<div className="hv2-spot-head">
+				<span className="hv2-etch">MILESTONE · {m.etch}</span>
+				<span className="hv2-tag-amber">RECORD</span>
+			</div>
+			<span className="hv2-ms-spot-big">
+				<span className="hv2-ms-star hv2-ms-star-big" aria-hidden="true">
+					★
+				</span>
+				{m.big}
+			</span>
+			<span className="hv2-spot-sub">{m.sub}</span>
+		</div>
+	);
+}
+
+/* ledger variant: a record strip that prints each milestone and keeps count */
+function MsLedger({ w }: { w: World }) {
+	const { reached, active } = w.mile;
+	const latest = active ?? reached[reached.length - 1] ?? null;
+	// typewriter while celebrating; settled etch afterwards
+	const line = latest
+		? active
+			? latest.big.slice(
+					0,
+					Math.max(0, Math.floor((w.t - active.celAt) / 0.045)),
+				)
+			: latest.big
+		: "";
+	return (
+		<div className={`hv2-ms-strip${active ? " hv2-ms-cele" : ""}`}>
+			<span className="hv2-etch">RECORDS</span>
+			<span className={`hv2-ms-line${active ? " hv2-ms-line-hot" : ""}`}>
+				{latest ? (
+					<>
+						<span className="hv2-ms-star" aria-hidden="true">
+							★
+						</span>
+						{line}
+						{active && <span className="hv2-caret" aria-hidden="true" />}
+					</>
+				) : (
+					<span className="hv2-ms-line-idle">none yet — keep shipping</span>
+				)}
+			</span>
+			<span className="hv2-ms-pips" aria-hidden="true">
+				{MILESTONES.map((m) => (
+					<span
+						className={`hv2-ms-pip${
+							reached.includes(m) ? " hv2-ms-pip-on" : ""
+						}`}
+						key={m.id}
+					/>
+				))}
+			</span>
 		</div>
 	);
 }
@@ -905,7 +1188,20 @@ function Hv2Bar({
 						type="button"
 						key={opt}
 						className={`hv2-bar-btn${axes.view === opt ? " hv2-bar-on" : ""}`}
-						onClick={() => onAxes({ view: opt })}
+						onClick={() => onAxes({ ...axes, view: opt })}
+					>
+						{opt}
+					</button>
+				))}
+			</div>
+			<div className="hv2-bar-group">
+				<span className="hv2-bar-label">MILESTONES</span>
+				{AXIS_OPTIONS.ms.map((opt) => (
+					<button
+						type="button"
+						key={opt}
+						className={`hv2-bar-btn${axes.ms === opt ? " hv2-bar-on" : ""}`}
+						onClick={() => onAxes({ ...axes, ms: opt })}
 					>
 						{opt}
 					</button>
