@@ -11,7 +11,7 @@ import { HeroDemoV2, useHeroV2 } from "#/components/prototype/hero-demo-v2";
 export function Hero() {
 	const [hv2, setHv2] = useHeroV2();
 	return (
-		<section className="lp-hero">
+		<section className="lp-hero" id="wp-hero">
 			<h1 className="lp-h1">
 				Ship your next <CyclingWord /> in minutes.
 				<br />

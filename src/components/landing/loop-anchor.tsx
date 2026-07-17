@@ -1,5 +1,5 @@
-// Shared act-video mount per issue-15: the approved wiring loop rendered to
-// video at build, mounted below the act copy in console-glass framing (the
+// Shared loop-video mount per issue-15: the approved wiring loop rendered to
+// video at build, mounted below the section copy in console-glass framing (the
 // compositions carry their own bezel chrome inside the frame, so the web
 // glass stays a plain mount — no captions, no SIMULATED etch). Playing
 // loops pause off-viewport; prefers-reduced-motion swaps the video for the
@@ -7,7 +7,7 @@
 import { useEffect, useRef } from "react";
 import { usePrefersReducedMotion } from "#/components/landing/use-prefers-reduced-motion";
 
-export function ActAnchor({
+export function LoopAnchor({
 	src,
 	poster,
 	reducedSrc,

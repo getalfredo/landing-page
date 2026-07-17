@@ -1,10 +1,12 @@
-// Act 1: Birth — setup tax → wired-once payoff (copy verbatim from
-// issue-14), anchored by the WiringPatchBay loop (issue-15/18).
-import { ActAnchor } from "#/components/landing/act-anchor";
+// Day one (issue-27, formerly Act 1): setup tax → wired-once payoff (copy
+// verbatim from issue-14), anchored by the WiringPatchBay loop (issue-15/18).
+import { LoopAnchor } from "#/components/landing/loop-anchor";
+import { Waypoint } from "#/components/landing/waypoint";
 
-export function ActOne() {
+export function DayOne() {
 	return (
-		<section className="lp-section">
+		<section className="lp-section" id="wp-deploy">
+			<Waypoint index="01" label="DEPLOY" />
 			<h2 className="lp-h2">
 				Every new project makes you set up the same boilerplate again.
 			</h2>
@@ -20,7 +22,7 @@ export function ActOne() {
 				<strong>Alfredo wires all of it once, on your own server.</strong> Your
 				next project is live in minutes.
 			</p>
-			<ActAnchor
+			<LoopAnchor
 				src="/generated/wiring-patchbay.mp4"
 				poster="/generated/wiring-patchbay-poster.jpg"
 				reducedSrc="/generated/wiring-patchbay-reduced-motion.jpg"

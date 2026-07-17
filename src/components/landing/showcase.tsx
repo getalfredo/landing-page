@@ -13,6 +13,7 @@ import {
 } from "#/components/landing/showcase-intents";
 import "#/components/landing/showcase.css";
 import { usePrefersReducedMotion } from "#/components/landing/use-prefers-reduced-motion";
+import { Waypoint } from "#/components/landing/waypoint";
 
 export function Showcase() {
 	const reduced = usePrefersReducedMotion();
@@ -67,7 +68,12 @@ export function Showcase() {
 	};
 
 	return (
-		<section className="lp-section" aria-label="Inside the headquarters">
+		<section
+			className="lp-section lp-band"
+			id="wp-hq"
+			aria-label="Inside the headquarters"
+		>
+			<Waypoint index="02" label="THE HQ" />
 			<h2 className="lp-h2">Inside the headquarters.</h2>
 			<p className="lp-sub">
 				The views you get on day one, across every project you run.

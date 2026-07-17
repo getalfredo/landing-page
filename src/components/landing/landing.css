@@ -23,14 +23,26 @@
 	opacity: 0.8;
 }
 
-/* ---------- Header ---------- */
+/* ---------- Header (sticky glass band, issue-30) ---------- */
 .lp-header {
+	position: sticky;
+	top: 0;
+	z-index: 50;
 	max-width: 1060px;
 	margin: 0 auto;
-	padding: 30px 32px 0;
+	padding: 14px 32px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	border-radius: 0 0 14px 14px;
+	background: rgba(14, 16, 15, 0.82);
+	backdrop-filter: blur(10px);
+	transition: box-shadow 0.3s ease;
+}
+.lp-header-armed {
+	box-shadow:
+		0 1px 0 var(--seam),
+		0 10px 30px rgba(0, 0, 0, 0.45);
 }
 .lp-header-right {
 	display: inline-flex;
@@ -158,6 +170,60 @@
 	padding: 136px 24px 0;
 	text-align: center;
 }
+
+/* ---------- Waypoints (issue-29, system D) ---------- */
+.lp-waypoint {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	max-width: 560px;
+	margin: 0 auto 56px;
+}
+.lp-waypoint-line {
+	flex: 1;
+	height: 1px;
+	background: var(--seam);
+}
+.lp-waypoint-text {
+	letter-spacing: 0.3em;
+	white-space: nowrap;
+}
+.lp-waypoint-index {
+	color: var(--paper);
+}
+.lp-waypoint-led {
+	flex: none;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.lp-waypoint-led-amber {
+	background: var(--amber);
+	box-shadow: 0 0 8px var(--amber-glow);
+}
+
+/* ---------- Contained bands (issue-29): showcase + amber crescendo ---------- */
+.lp-section.lp-band {
+	max-width: 1080px;
+	margin-top: 136px;
+	padding: 76px 48px 84px;
+	border-radius: 22px;
+	border: 1px solid var(--seam);
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+}
+.lp-section.lp-band-amber {
+	/* amber-warmed panel tone, issue-29 spec literal */
+	background: linear-gradient(180deg, #1e1b10 0%, var(--surface) 100%);
+	border-color: rgba(var(--amber-rgb), 0.22);
+}
+@media (max-width: 640px) {
+	.lp-section.lp-band {
+		padding: 56px 20px 64px;
+		border-radius: 18px;
+	}
+}
 .lp-h2 {
 	margin: 0;
 	font-size: clamp(30px, 4vw, 46px);
@@ -213,26 +279,85 @@
 	color: var(--paper-soft);
 }
 
-/* ---------- FAQ ---------- */
-.lp-faq-list {
+/* ---------- FAQ (issue-31, exclusive accordion panel) ---------- */
+.lp-faq-panel {
 	margin: 48px auto 0;
-	max-width: 640px;
+	max-width: 680px;
 	text-align: left;
+	background: var(--panel);
+	border: 1px solid var(--seam);
+	border-radius: 16px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+	overflow: hidden;
+}
+.lp-faq-row + .lp-faq-row {
+	border-top: 1px solid var(--seam);
+}
+.lp-faq-row-btn {
 	display: flex;
-	flex-direction: column;
-	gap: 40px;
+	align-items: baseline;
+	gap: 16px;
+	width: 100%;
+	padding: 22px 24px;
+	border: none;
+	background: transparent;
+	color: var(--paper);
+	font-family: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+.lp-faq-row-btn:hover {
+	background: rgba(var(--paper-rgb), 0.03);
+}
+.lp-faq-index {
+	color: var(--paper-soft);
+	opacity: 0.75;
 }
 .lp-faq-q {
-	margin: 0;
-	font-size: 20px;
+	flex: 1;
+	font-size: 19px;
 	font-weight: 700;
 	letter-spacing: -0.02em;
+	line-height: 1.3;
+}
+.lp-faq-led {
+	align-self: center;
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--led-off);
+	transition:
+		background 0.2s ease,
+		box-shadow 0.2s ease;
+}
+.lp-faq-row-open .lp-faq-led {
+	background: var(--led);
+	box-shadow: 0 0 9px var(--led-glow);
+}
+.lp-faq-fold {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.28s ease;
+}
+.lp-faq-row-open .lp-faq-fold {
+	grid-template-rows: 1fr;
+}
+.lp-faq-fold-inner {
+	overflow: hidden;
+	min-height: 0;
 }
 .lp-faq-a {
-	margin: 12px 0 0;
+	margin: 0;
+	padding: 0 52px 24px 64px;
 	font-size: 16.5px;
 	line-height: 1.75;
 	color: var(--paper-soft);
+}
+@media (max-width: 560px) {
+	.lp-faq-a {
+		padding: 0 24px 22px;
+	}
 }
 .lp-link {
 	color: var(--green-text);
@@ -240,16 +365,65 @@
 	text-underline-offset: 3px;
 }
 
-/* ---------- Footer ---------- */
-.lp-footer {
-	margin-top: 136px;
-	padding: 64px 24px 48px;
+/* ---------- Footer (issue-32, nameplate) ---------- */
+.lp-nameplate {
+	margin: 136px auto 0;
+	max-width: 1020px;
+	padding: 88px 24px 40px;
+	border-top: 1px solid var(--seam);
+}
+.lp-nameplate-mark {
+	margin: 0;
+	font-size: clamp(72px, 13vw, 168px);
+	font-weight: 700;
+	letter-spacing: -0.05em;
+	line-height: 0.95;
+	display: flex;
+	align-items: baseline;
+	gap: clamp(12px, 1.6vw, 22px);
+	color: var(--paper);
+}
+.lp-nameplate-led {
+	width: clamp(16px, 2.4vw, 30px);
+	height: clamp(16px, 2.4vw, 30px);
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 24px var(--led-glow);
+	animation: lp-ledbreath 3.2s ease-in-out infinite;
+}
+@keyframes lp-ledbreath {
+	0%,
+	100% {
+		box-shadow: 0 0 24px var(--led-glow);
+	}
+	50% {
+		box-shadow: 0 0 10px var(--led-glow);
+	}
+}
+.lp-nameplate-row {
+	margin-top: 40px;
+	padding-top: 20px;
 	border-top: 1px solid var(--seam);
 	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 20px;
-	text-align: center;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 16px 32px;
+	flex-wrap: wrap;
+}
+.lp-nameplate-links {
+	display: inline-flex;
+	gap: 28px;
+	flex-wrap: wrap;
+}
+.lp-etch-link {
+	text-decoration: none;
+	transition:
+		color 0.15s ease,
+		text-shadow 0.15s ease;
+}
+.lp-etch-link:hover {
+	color: var(--green-text);
+	text-shadow: 0 0 12px var(--green-glow);
 }
 
 /* ---------- Privacy page ---------- */
@@ -435,6 +609,35 @@
 		inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
+/* armed keycap (issue-30): the page's join buttons — amber gradient and the
+   breathing pulse, but NO LED dot; the blinking dot stays exclusive to the
+   hero demo's single hot key (lp-btn-next below). */
+.lp-btn-armed {
+	background: linear-gradient(
+		180deg,
+		var(--keycap-amber-top) 0%,
+		var(--keycap-amber-bottom) 100%
+	);
+	color: var(--keycap-ink);
+	box-shadow:
+		0 3px 0 var(--keycap-amber-shadow),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+	animation: lp-amberbreath 2.2s ease-in-out infinite;
+}
+.lp-btn-armed:hover:not(:disabled) {
+	background: linear-gradient(
+		180deg,
+		var(--keycap-amber-hover-top) 0%,
+		var(--keycap-amber-top) 100%
+	);
+}
+.lp-btn-armed:active:not(:disabled) {
+	transform: translateY(2px);
+	box-shadow:
+		0 1px 0 var(--keycap-amber-shadow),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
 /* the ONE next-step button: amber keycap, amber breathing pulse, live LED dot */
 .lp-btn-next {
 	background: linear-gradient(
@@ -509,6 +712,131 @@
 	}
 }
 
+/* ---------- Final CTA status etch (issue-30) ---------- */
+.lp-cta-status {
+	margin: 0 0 22px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+.lp-cta-status .lp-etch {
+	font-size: 11px;
+}
+.lp-cta-status-led {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 9px var(--led-glow);
+	animation: lp-dotblink 1.6s ease-in-out infinite;
+}
+
+/* ---------- Timeline minimap (issue-29, desktop only) ---------- */
+.lp-mm {
+	display: none;
+}
+@media (min-width: 1280px) {
+	.lp-mm {
+		display: block;
+		position: fixed;
+		left: 30px;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 40;
+	}
+}
+.lp-mm-rail {
+	position: relative;
+	width: 1px;
+	height: min(56vh, 520px);
+	background: var(--seam);
+	cursor: pointer;
+	touch-action: none;
+}
+.lp-mm-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 1px;
+	background: var(--paper-soft);
+	pointer-events: none;
+}
+.lp-mm-bleed {
+	position: absolute;
+	top: 0;
+	left: -1px;
+	width: 3px;
+	background: linear-gradient(
+		180deg,
+		transparent,
+		rgba(var(--led-rgb), 1),
+		transparent
+	);
+	filter: blur(2px);
+	opacity: 0.5;
+	pointer-events: none;
+}
+.lp-mm-tick {
+	position: absolute;
+	top: -1px;
+	left: -3px;
+	width: 7px;
+	height: 2px;
+	background: var(--led);
+	box-shadow: 0 0 6px var(--led-glow);
+	pointer-events: none;
+}
+.lp-mm-node {
+	position: absolute;
+	left: 0.5px;
+	transform: translate(-50%, -50%);
+	display: flex;
+	align-items: center;
+	padding: 8px;
+	border: none;
+	background: none;
+	cursor: pointer;
+}
+.lp-mm-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	border: 1px solid rgba(var(--paper-rgb), 0.25);
+}
+.lp-mm-label {
+	position: absolute;
+	left: 24px;
+	display: flex;
+	gap: 6px;
+	white-space: nowrap;
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 9px;
+	letter-spacing: 0.26em;
+	text-transform: uppercase;
+	color: var(--paper-soft);
+	opacity: 0;
+	pointer-events: none;
+}
+/* hover peek must beat the scroll-driven inline opacity */
+.lp-mm-node:hover .lp-mm-label,
+.lp-mm-node:focus-visible .lp-mm-label {
+	opacity: 1 !important;
+}
+.lp-mm-index {
+	color: var(--paper);
+}
+
+/* ---------- Utilities ---------- */
+.lp-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
 .lp *:focus-visible {
 	outline: 2px solid var(--green-text);
 	outline-offset: 2px;
@@ -516,10 +844,19 @@
 @media (prefers-reduced-motion: reduce) {
 	.lp-btn-next,
 	.lp-btn-next::before,
+	.lp-btn-armed,
+	.lp-cta-status-led,
+	.lp-nameplate-led,
 	.h1c-letter {
 		animation: none !important;
 	}
 	.h1c-box {
+		transition: none !important;
+	}
+	.lp-faq-fold,
+	.lp-faq-led,
+	.lp-etch-link,
+	.lp-header {
 		transition: none !important;
 	}
 }

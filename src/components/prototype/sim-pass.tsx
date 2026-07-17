@@ -9,7 +9,7 @@
 //   pain      — the sprawl is the game: hunt the incident by opening panes
 //               (every pane is another tab), fix it in place; your own click
 //               count is the contrast.
-// Section copy duplicated from act-two.tsx on purpose — the prototype dies
+// Section copy duplicated from every-day-after.tsx on purpose — the prototype dies
 // whole. New strings are directional and go through copy discipline (#14)
 // before any build. Remove with sim-world.ts / sim-pass.css.
 import { useEffect, useReducer, useRef, useState } from "react";
@@ -117,7 +117,7 @@ const fmt = (n: number) => Math.floor(n).toLocaleString("en-US");
 
 /* ------------------------------------------------- Every day after ------ */
 
-// Replaces ActTwo whole while the prototype runs: same copy, the sim's
+// Replaces EveryDayAfter whole while the prototype runs: same copy, the sim's
 // attract loop as the section anchor, dive-in keycap on the glass.
 export function SimActTwo({ variant }: { variant: SimVariant }) {
 	const [open, setOpen] = useState(false);

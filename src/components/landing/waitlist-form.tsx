@@ -112,7 +112,7 @@ export function WaitlistForm({
 					onChange={(e) => setCompany(e.target.value)}
 				/>
 				<button
-					className="lp-btn lp-btn-keycap wf-key"
+					className="lp-btn lp-btn-armed wf-key"
 					type="submit"
 					disabled={state.phase === "submitting"}
 					onClick={trackCta ? () => trackCtaClick(source) : undefined}
