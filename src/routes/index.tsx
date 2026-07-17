@@ -33,6 +33,17 @@ import {
 	GlossarySwitcher,
 	useGlossaryPass,
 } from "#/components/prototype/glossary-pass";
+// PROTOTYPE (wayfinder #50): ?live=a|b|c puts one piece of real telemetry
+// on the page as a LIVE etch (footer colophon line / crescendo proof line /
+// live meter strip), dev builds only. Remove with
+// src/components/prototype/live-pass.tsx and src/routes/api/live.ts.
+import {
+	LiveCrescendo,
+	LiveFooter,
+	LiveMeterStrip,
+	LiveSwitcher,
+	useLivePass,
+} from "#/components/prototype/live-pass";
 // PROTOTYPE (wayfinder #42): ?sim=spectacle|pain swaps Every day after's
 // anchor for the sim attract loop + fullscreen playable sim, dev builds
 // only. Remove with src/components/prototype/sim-pass.tsx.
@@ -54,6 +65,8 @@ function LandingPage() {
 	const [sim, setSim] = useSimPass();
 	// PROTOTYPE (wayfinder #49): glossary treatment variant state.
 	const [glossary, setGlossary] = useGlossaryPass();
+	// PROTOTYPE (wayfinder #50): LIVE etch variant state.
+	const [live, setLive] = useLivePass();
 	return (
 		<div className="lp" style={consoleCssVars}>
 			<Header />
@@ -65,27 +78,34 @@ function LandingPage() {
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
 				<FounderNote />
 				{gallery === "b" && <GalleryArchive />}
-				<Crescendo />
+				{/* #50: variant b swaps the crescendo for the refrain-proof copy. */}
+				{live === "b" ? <LiveCrescendo /> : <Crescendo />}
 				<Faq />
 				{/* #49 round 2: glossary sits BEFORE "Get in" (the final CTA),
 				    not at the page tail. */}
 				{glossary !== null && <GlossaryPass variant={glossary} />}
 				<FinalCta />
 			</main>
-			<Footer />
+			{/* #50: variant c mounts the live meter strip above the footer;
+			    variant a swaps the footer for the colophon-line copy. */}
+			{live === "c" && <LiveMeterStrip />}
+			{live === "a" ? <LiveFooter /> : <Footer />}
 			{(gallery === "a" || gallery === "c") && (
 				<GalleryPass variant={gallery} />
 			)}
-			{/* Decided passes (#35/#42) keep their prototypes but hide their bars
-			    unless the variant param is explicitly in the URL — the page stays
-			    inspectable while newer tickets prototype on it. */}
+			{/* Decided passes (#35/#42/#49) keep their prototypes but hide their
+			    bars unless the variant param is explicitly in the URL — the page
+			    stays inspectable while newer tickets prototype on it. */}
 			{gallery !== null && (
 				<GallerySwitcher current={gallery} onChange={setGallery} />
 			)}
 			{sim !== null && <SimSwitcher current={sim} onChange={setSim} />}
-			{/* Glossary (#49) is the live prototype: its bar shows by default so
-			    the treatments are discoverable; [ ] flips between them. */}
-			<GlossarySwitcher current={glossary} onChange={setGlossary} />
+			{glossary !== null && (
+				<GlossarySwitcher current={glossary} onChange={setGlossary} />
+			)}
+			{/* LIVE etch (#50) is the live prototype: its bar shows by default so
+			    the variants are discoverable; [ ] flips between them. */}
+			<LiveSwitcher current={live} onChange={setLive} />
 		</div>
 	);
 }
