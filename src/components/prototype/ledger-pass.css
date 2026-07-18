@@ -171,6 +171,41 @@ tfoot .ldg-again.ldg-total {
 	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
 	padding: 18px 22px 22px;
 }
+.ldg-flip-head {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 8px;
+}
+/* progress to the next auto-switch, restarted (via key) on every flip */
+.ldg-flip-progress {
+	display: block;
+	height: 2px;
+	border-radius: 999px;
+	background: var(--seam);
+	overflow: hidden;
+}
+.ldg-flip-progress-fill {
+	display: block;
+	height: 100%;
+	width: 100%;
+	transform-origin: left;
+	transform: scaleX(0);
+	background: rgba(var(--paper-rgb), 0.4);
+	animation: ldg-progress linear forwards;
+}
+@keyframes ldg-progress {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.ldg-flip-progress {
+		display: none;
+	}
+}
 .ldg-flip-toggle {
 	/* fieldset reset */
 	margin: 0;

@@ -15,10 +15,12 @@
 //        dotted leaders (AUTH ...... AGAIN), a TOTAL DUE line, and a
 //        green WIRED ONCE stamp angled across it. Sits AFTER the payoff
 //        as its echo; the contrast is temporal (bill, then stamp).
-//   c "Flip strip" — one state at a time: a two-cap toggle re-lights five
-//        slots and a SETUPS DUE counter (5 → 0). Ambient auto-flip
-//        every few seconds (legal per #16's ambient-motion amendment;
-//        reduced motion gets the WIRED state static, toggle still works).
+//   c "Flip strip" — WINNER (operator pick): one state at a time, a
+//        two-cap toggle re-lights five slots and a SETUPS DUE counter
+//        (5 → 0). Auto-switches every 2s with a progress bar under the
+//        toggle (ambient motion legal per #16's amendment); clicking a
+//        cap jumps there and restarts the cycle; reduced motion gets
+//        the WIRED state static, toggle still works, bar hidden.
 //
 // Copy note: the strip is new page copy and #14 locks copy — headers,
 // row labels, AGAIN/WIRED cells and the totals wording here are a copy
@@ -27,7 +29,7 @@
 // includes Secrets instead of Payments — flagged for the fold-in ruling.
 // No SIMULATED etch: this is a diagram, not a product-looking screenshot
 // (honesty rule scoped per #15). Remove with ledger-pass.css.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { LoopAnchor } from "#/components/landing/loop-anchor";
 import { usePrefersReducedMotion } from "#/components/landing/use-prefers-reduced-motion";
 import { Waypoint } from "#/components/landing/waypoint";
@@ -152,53 +154,71 @@ function LedgerReceipt() {
 
 /* ------------- variant c: one-state flip strip --------------- */
 
+const FLIP_MS = 2000;
+
 function LedgerFlip() {
 	const reduced = usePrefersReducedMotion();
 	// Reduced motion starts (and stays, absent clicks) on the payoff state.
 	const [wired, setWired] = useState(false);
-	const [touched, setTouched] = useState(false);
-	const touchedRef = useRef(false);
+	// Counts every flip (auto or manual): keys the progress bar so its
+	// fill animation restarts in sync with each switch.
+	const [cycle, setCycle] = useState(0);
+	// Bumped on manual picks so the interval restarts from that moment.
+	const [resetKey, setResetKey] = useState(0);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies(resetKey): resetKey restarts the interval so a manual pick gets a full 2s before the next auto-switch.
 	useEffect(() => {
 		if (reduced) {
 			setWired(true);
 			return;
 		}
 		const id = setInterval(() => {
-			if (!touchedRef.current) setWired((w) => !w);
-		}, 3600);
+			setWired((w) => !w);
+			setCycle((c) => c + 1);
+		}, FLIP_MS);
 		return () => clearInterval(id);
-	}, [reduced]);
+	}, [reduced, resetKey]);
 
 	const pick = (w: boolean) => {
-		touchedRef.current = true;
-		setTouched(true);
 		setWired(w);
+		setCycle((c) => c + 1);
+		setResetKey((k) => k + 1);
 	};
 
 	return (
-		<div className="ldg-flip" data-touched={touched || undefined}>
-			<fieldset
-				className="ldg-flip-toggle"
-				aria-label="Setup cost, before and after Alfredo"
-			>
-				<button
-					type="button"
-					className="lp-etch ldg-flip-cap"
-					aria-pressed={!wired}
-					onClick={() => pick(false)}
+		<div className="ldg-flip">
+			<div className="ldg-flip-head">
+				<fieldset
+					className="ldg-flip-toggle"
+					aria-label="Setup cost, before and after Alfredo"
 				>
-					EVERY NEW PROJECT
-				</button>
-				<button
-					type="button"
-					className="lp-etch ldg-flip-cap"
-					aria-pressed={wired}
-					onClick={() => pick(true)}
-				>
-					WITH ALFREDO
-				</button>
-			</fieldset>
+					<button
+						type="button"
+						className="lp-etch ldg-flip-cap"
+						aria-pressed={!wired}
+						onClick={() => pick(false)}
+					>
+						EVERY NEW PROJECT
+					</button>
+					<button
+						type="button"
+						className="lp-etch ldg-flip-cap"
+						aria-pressed={wired}
+						onClick={() => pick(true)}
+					>
+						WITH ALFREDO
+					</button>
+				</fieldset>
+				{!reduced && (
+					<span className="ldg-flip-progress" aria-hidden="true">
+						<span
+							key={cycle}
+							className="ldg-flip-progress-fill"
+							style={{ animationDuration: `${FLIP_MS}ms` }}
+						/>
+					</span>
+				)}
+			</div>
 			<div className="ldg-flip-row">
 				<ul className="ldg-flip-slots">
 					{ROWS.map((r) => (
