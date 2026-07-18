@@ -106,6 +106,14 @@
 	align-items: center;
 	padding: 64px 24px 0;
 }
+/* #68: the sprawl-contrast etch below the demo glass — inert typography;
+   the green span rhymes with the H1's "one HQ" two beats above */
+.lp-hero-tabs {
+	margin: 30px 0 0;
+}
+.lp-hero-tabs .lp-green {
+	text-shadow: 0 0 12px var(--green-glow);
+}
 
 /* ---------- H1 cycling word (#16) ---------- */
 .h1c {

@@ -1,15 +1,12 @@
 // Hero per issue-14 (+ issue-17 HQ swap): dual-promise H1 with the cycling
-// product word (#16), sub, the interactive HQ demo (#12/20/22) and waitlist
-// mount #1. The header's scroll button targets #waitlist.
+// product word (#16), sub, the ambient HQ demo (#26/#46/#47 fold-in, #71),
+// the #68 contrast etch and waitlist mount #1. The header's scroll button
+// targets #waitlist.
 import { CyclingWord } from "#/components/landing/cycling-word";
 import { HeroDemo } from "#/components/landing/hero-demo";
 import { WaitlistForm } from "#/components/landing/waitlist-form";
-// PROTOTYPE (wayfinder #26): ?hv2=1 swaps the demo for the v2 combined
-// screen, dev builds only. Remove with src/components/prototype/.
-import { HeroDemoV2, useHeroV2 } from "#/components/prototype/hero-demo-v2";
 
 export function Hero() {
-	const [hv2, setHv2] = useHeroV2();
 	return (
 		<section className="lp-hero" id="wp-hero">
 			<h1 className="lp-h1">
@@ -22,7 +19,13 @@ export function Hero() {
 				with auth, email, database and analytics already wired. And every
 				project you add is watched from one place.
 			</p>
-			{hv2 ? <HeroDemoV2 axes={hv2} onAxes={setHv2} /> : <HeroDemo />}
+			<HeroDemo />
+			{/* #68: the sprawl contrast as an inert caption scoring the demo,
+			    page-level typography outside the bezel */}
+			<p className="lp-etch lp-hero-tabs">
+				COUNTLESS TABS <span aria-hidden="true">→</span>{" "}
+				<span className="lp-green">ONE HQ</span>
+			</p>
 			<div className="lp-hero-cta" id="waitlist">
 				<WaitlistForm source="hero" />
 			</div>

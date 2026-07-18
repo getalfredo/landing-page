@@ -67,7 +67,7 @@ const ENTRIES: GalleryEntry[] = [
 		label: "THE HQ DEMO",
 		short: "HQ DEMO",
 		kind: "LIVE",
-		caption: "The deploy story, playable. Click through it right here.",
+		caption: "The deploy story on a loop. Scrub it right here.",
 		Live: HeroDemo,
 		jumpTo: ".lp-hero",
 	},
