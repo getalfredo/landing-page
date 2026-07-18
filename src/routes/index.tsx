@@ -6,6 +6,7 @@
 // inline from console-tokens (console-vars.ts).
 import { createFileRoute } from "@tanstack/react-router";
 import { consoleCssVars } from "#/components/landing/console-vars";
+import { SITE_URL } from "#/routes/__root";
 import { Crescendo } from "#/components/landing/crescendo";
 import { DayOne } from "#/components/landing/day-one";
 import { EveryDayAfter } from "#/components/landing/every-day-after";
@@ -72,6 +73,16 @@ import {
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
+	// Canonicals are per-route (wayfinder #58) — links accumulate across route
+	// heads, so the root declares none and each page links its own.
+	head: () => ({
+		links: [
+			{
+				rel: "canonical",
+				href: SITE_URL,
+			},
+		],
+	}),
 	component: LandingPage,
 });
 

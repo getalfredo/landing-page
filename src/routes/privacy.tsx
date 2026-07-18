@@ -4,12 +4,50 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { consoleCssVars } from "#/components/landing/console-vars";
 import { Wordmark } from "#/components/landing/wordmark";
+import { SITE_URL } from "#/routes/__root";
 import "#/components/landing/landing.css";
 
 const CONTACT_EMAIL = "alportac@gmail.com";
 const LAST_UPDATED = "2026-07-12";
 
+// Own head per wayfinder #58: title, description and a self-referencing
+// canonical (the page used to inherit the root's homepage canonical), plus
+// the OG tags that would otherwise still describe the homepage.
+const TITLE = "Privacy · Alfredo";
+const DESCRIPTION =
+	"How this site handles your data: a waitlist email if you join, cookieless anonymous analytics, and short-lived server logs. No cookies, no ads, no tracking.";
+const CANONICAL = `${SITE_URL}/privacy`;
+
 export const Route = createFileRoute("/privacy")({
+	head: () => ({
+		meta: [
+			{
+				title: TITLE,
+			},
+			{
+				name: "description",
+				content: DESCRIPTION,
+			},
+			{
+				property: "og:title",
+				content: TITLE,
+			},
+			{
+				property: "og:description",
+				content: DESCRIPTION,
+			},
+			{
+				property: "og:url",
+				content: CANONICAL,
+			},
+		],
+		links: [
+			{
+				rel: "canonical",
+				href: CANONICAL,
+			},
+		],
+	}),
 	component: PrivacyPage,
 });
 

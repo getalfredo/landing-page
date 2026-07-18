@@ -6,15 +6,17 @@ import PostHogProvider from "../integrations/posthog/provider";
 
 import appCss from "../styles.css?url";
 
-// Share surface per wayfinder #21: title/description locked there, canonical
-// at the root, OG image as an absolute URL. JSON-LD per wayfinder #57:
-// WebSite + Organization + minimal SoftwareApplication, no FAQPage (rich
-// result removed May 2026), no offers/ratings (pre-launch).
+// Share surface per wayfinder #21: title/description locked there, OG image
+// as an absolute URL. JSON-LD per wayfinder #57: WebSite + Organization +
+// minimal SoftwareApplication, no FAQPage (rich result removed May 2026),
+// no offers/ratings (pre-launch). Canonicals are per-route (wayfinder #58):
+// each page links its own; the root head carries none.
 const TITLE = "Alfredo · Ship your next SaaS in minutes";
 const DESCRIPTION =
 	"Alfredo is the home for your projects. Your next one is live in minutes, with auth, email, database and analytics already wired. Watch them all from one HQ.";
-const CANONICAL = "https://getalfredo.com";
-const OG_IMAGE = "https://getalfredo.com/generated/og.png";
+export const SITE_URL = "https://getalfredo.com";
+const CANONICAL = SITE_URL;
+const OG_IMAGE = `${SITE_URL}/generated/og.png`;
 
 const JSON_LD = JSON.stringify({
 	"@context": "https://schema.org",
@@ -85,8 +87,25 @@ export const Route = createRootRoute({
 				content: "website",
 			},
 			{
+				property: "og:site_name",
+				content: "Alfredo",
+			},
+			{
 				property: "og:image",
 				content: OG_IMAGE,
+			},
+			{
+				property: "og:image:width",
+				content: "1200",
+			},
+			{
+				property: "og:image:height",
+				content: "630",
+			},
+			{
+				property: "og:image:alt",
+				content:
+					"Alfredo. Ship your next SaaS in minutes, next to a dark console dashboard watching every project.",
 			},
 			{
 				name: "twitter:card",
@@ -101,10 +120,6 @@ export const Route = createRootRoute({
 			{
 				rel: "stylesheet",
 				href: appCss,
-			},
-			{
-				rel: "canonical",
-				href: CANONICAL,
 			},
 			{
 				rel: "icon",
