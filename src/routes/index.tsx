@@ -17,15 +17,6 @@ import { Header } from "#/components/landing/header";
 import { Hero } from "#/components/landing/hero";
 import { Minimap } from "#/components/landing/minimap";
 import { Showcase } from "#/components/landing/showcase";
-// PROTOTYPE (wayfinder #55): ?dim=a|b dims the bezel chrome, hairlines and
-// non-load-bearing etches a step (a) or two (b) so green and amber are the
-// only signal colors, dev builds only. Param absent = the current page, the
-// side-by-side control. Remove with src/components/prototype/dim-pass.tsx.
-import {
-	DimSwitcher,
-	dimRootClass,
-	useDimPass,
-} from "#/components/prototype/dim-pass";
 // PROTOTYPE (wayfinder #35): ?gallery=a|b|c swaps the gallery treatment, dev
 // builds only. Remove with src/components/prototype/gallery-pass.tsx.
 import {
@@ -97,10 +88,8 @@ function LandingPage() {
 	const [ledger, setLedger] = useLedgerPass();
 	// PROTOTYPE (wayfinder #52): keyboard-coupled keycaps variant state.
 	const keys = useKeysPass();
-	// PROTOTYPE (wayfinder #55): chrome-dimming variant state.
-	const [dim, setDim] = useDimPass();
 	return (
-		<div className={dimRootClass(dim)} style={consoleCssVars}>
+		<div className="lp" style={consoleCssVars}>
 			<Header />
 			<Minimap />
 			<main>
@@ -146,10 +135,6 @@ function LandingPage() {
 			{ledger !== null && (
 				<LedgerSwitcher current={ledger} onChange={setLedger} />
 			)}
-			{/* #55 (undecided, bar always on in dev): the null state (current
-			    page) is this ticket's side-by-side control, so the bar renders
-			    even without ?dim= to flip dimmed vs current in place. */}
-			<DimSwitcher current={dim} onChange={setDim} />
 			<KeysCoupler variant={keys.variant} demo={keys.demo} />
 			{keys.variant !== null && (
 				<KeysSwitcher
