@@ -1,0 +1,14 @@
+# Alfredo
+
+> Alfredo is the home for your projects: it deploys your next one in minutes with auth, email, database and analytics already wired, and watches every project from one HQ on your own servers.
+
+Alfredo does two things. When you deploy a project, you pick the integrations it needs and Alfredo creates the keys and config each one needs and wires them in automatically. You never copy a secret into a .env file, first project included. Integrations already running for other projects are reused. After that, every project reports to one HQ: one dashboard for traffic, email delivery, errors, payments and uptime across all your projects, and it gets more useful with every project you add.
+
+Alfredo runs on your own servers. Any VPS you can SSH into works; Alfredo does not host your projects. The code is open source. Alfredo is pre-launch today: this site collects waitlist emails and nothing else.
+
+Integrations Alfredo starts with: Umami for analytics, Postmark for email, Convex for the database, Better-Auth for auth, Creem for payments, Sentry for errors, GitHub, and Uptime Kuma for uptime. The lineup grows from what you ask for.
+
+## Pages
+
+- [Alfredo](https://getalfredo.com/): the landing page, with the interactive HQ demo and the waitlist
+- [Privacy](https://getalfredo.com/privacy): what happens with waitlist emails and analytics data
