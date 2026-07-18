@@ -6,8 +6,11 @@
 // click; the attract fill is pre-step theater. Reduced-motion visitors get
 // the form pre-filled. Palette arrives as CSS custom properties set inline
 // on the demo root from console-tokens; hero-demo.css consumes var(--…).
+
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { consoleCssVars } from "#/components/landing/console-vars";
+import { useLocalTime } from "#/components/landing/local-time";
 import "#/components/landing/hero-demo.css";
 
 const ALL_SERVICES = [
@@ -335,6 +338,7 @@ export function HeroDemo() {
 	const [deployed, setDeployed] = useState(false);
 	const [armed, setArmed] = useState(false);
 	const { fleet, newborn } = useFleetTick();
+	const { hhmm, glow } = useLocalTime();
 
 	const timers = useRef<number[]>([]);
 	const t = (fn: () => void, ms: number) => {
@@ -474,14 +478,16 @@ export function HeroDemo() {
 		<section
 			className="wcn-bezel"
 			aria-label="Alfredo HQ demo"
-			style={consoleCssVars}
+			style={{ ...consoleCssVars, "--tod-glow": glow } as CSSProperties}
 		>
 			<div className="wcn-bezel-top">
 				<span className="wcn-etch">ALFREDO OS 0.1</span>
 				<span className="wcn-etch">
 					HQ / {screen === "dash" ? "DASHBOARD" : "DEPLOY"}
 				</span>
-				<span className="wcn-etch">UNIT 000-001</span>
+				<span className="wcn-etch wcn-unit">UNIT 000-001</span>
+				{/* #53: the visitor's real wall clock — the demo's one live detail */}
+				<span className="wcn-etch wcn-clock">{hhmm ?? "--:--"}</span>
 			</div>
 
 			<div className="wcn-app">

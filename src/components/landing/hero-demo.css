@@ -38,9 +38,13 @@
 .wcn-bezel-top .wcn-etch {
 	white-space: nowrap;
 }
-/* Narrow screens: three etches don't fit — the unit tag goes first. */
+/* #53: the visitor's real local time, ticking per minute in the corner. */
+.wcn-clock {
+	font-variant-numeric: tabular-nums;
+}
+/* Narrow screens: four etches don't fit — the unit tag goes first. */
 @media (max-width: 640px) {
-	.wcn-bezel-top .wcn-etch:last-child {
+	.wcn-unit {
 		display: none;
 	}
 }
@@ -158,7 +162,7 @@
 	line-height: 18px;
 	text-align: center;
 	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-	text-shadow: 0 0 6px var(--green-glow);
+	text-shadow: 0 0 calc(6px * var(--tod-glow, 1)) var(--green-glow);
 }
 .wcn-check[aria-pressed="false"] .wcn-check-name,
 .wcn-check[aria-pressed="false"] .wcn-check-spec {
@@ -197,7 +201,7 @@
 .wcn-term-line {
 	opacity: 0;
 	animation: wcn-on 0.05s linear forwards;
-	text-shadow: 0 0 7px var(--green-glow);
+	text-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--green-glow);
 	white-space: pre;
 }
 .wcn-term-line:last-of-type {
@@ -293,7 +297,7 @@
 	height: 8px;
 	border-radius: 50%;
 	background: var(--led);
-	box-shadow: 0 0 7px var(--led-glow);
+	box-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--led-glow);
 	flex-shrink: 0;
 }
 .wcn-loadbar {
@@ -309,7 +313,7 @@
 }
 .wcn-seg-lit {
 	background: var(--led);
-	box-shadow: 0 0 4px var(--led-glow);
+	box-shadow: 0 0 calc(4px * var(--tod-glow, 1)) var(--led-glow);
 }
 .wcn-dash-term {
 	display: flex;
@@ -326,7 +330,7 @@
 	font-family: "VT323", monospace;
 	font-size: 16px;
 	color: var(--display-text);
-	text-shadow: 0 0 6px var(--green-glow);
+	text-shadow: 0 0 calc(6px * var(--tod-glow, 1)) var(--green-glow);
 	white-space: pre;
 }
 .wcn-cursor {
