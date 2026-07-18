@@ -130,7 +130,7 @@
 }
 .wsi-key-services {
 	margin-left: auto;
-	font-family: "IBM Plex Mono", monospace;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
 	font-size: 7.5px;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
@@ -247,7 +247,7 @@
 	min-height: 0;
 }
 .scp-etch {
-	font-family: "IBM Plex Mono", monospace;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
 	font-size: 10px;
 	font-weight: 400;
 	letter-spacing: 0.22em;
@@ -260,7 +260,7 @@
 	font-size: 9px;
 }
 .scp-mono {
-	font-family: "IBM Plex Mono", monospace;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
 	font-size: 13px;
 	font-variant-numeric: tabular-nums;
 }
@@ -271,7 +271,7 @@
 	color: var(--amber);
 }
 .scp-tag-amber {
-	font-family: "IBM Plex Mono", monospace;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
 	font-size: 9px;
 	letter-spacing: 0.18em;
 	color: var(--keycap-ink);
@@ -386,7 +386,7 @@
 }
 .scp-pay-who {
 	flex: 1;
-	font-family: "IBM Plex Mono", monospace;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
 	font-size: 11px;
 	color: var(--paper-soft);
 	white-space: nowrap;

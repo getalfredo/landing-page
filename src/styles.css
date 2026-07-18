@@ -2,13 +2,65 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
-@import "@fontsource/space-grotesk";
-@import "@fontsource/space-grotesk/500.css";
-@import "@fontsource/space-grotesk/700.css";
-@import "@fontsource/ibm-plex-mono";
-@import "@fontsource/ibm-plex-mono/500.css";
-@import "@fontsource/vt323";
+/* Fonts ship latin + latin-ext only (wayfinder #59) — the full @fontsource
+   imports bundled every script subset (29 woff2). VT323 is dropped: no page
+   CSS references it; Remotion loads its own copy at render time. */
+@import "@fontsource/space-grotesk/latin-400.css";
+@import "@fontsource/space-grotesk/latin-500.css";
+@import "@fontsource/space-grotesk/latin-700.css";
+@import "@fontsource/space-grotesk/latin-ext-400.css";
+@import "@fontsource/space-grotesk/latin-ext-500.css";
+@import "@fontsource/space-grotesk/latin-ext-700.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-400.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-500.css";
+
+/* Inter is the theme-default sans only — no landing surface renders it
+   (everything sits in the Space Grotesk .lp shell), so it may drop out
+   entirely under `optional` without visual cost. */
+@font-face {
+	font-family: "Inter Variable";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 100 900;
+	src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2")
+		format("woff2-variations");
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+		U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+		U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: "Inter Variable";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 100 900;
+	src: url("@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2")
+		format("woff2-variations");
+	unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+		U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+		U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Metric-matched local fallbacks so the font-display swap is near
+   shift-free (wayfinder #59). Values computed fontaine-style from the
+   shipped woff2 against Arial / Courier New metrics. */
+@font-face {
+	font-family: "Space Grotesk Fallback";
+	src: local("Arial"), local("Helvetica Neue"), local("Helvetica");
+	size-adjust: 110.91%;
+	ascent-override: 88.72%;
+	descent-override: 26.33%;
+	line-gap-override: 0%;
+}
+@font-face {
+	font-family: "IBM Plex Mono Fallback";
+	src: local("Courier New"), local("Courier");
+	size-adjust: 99.98%;
+	ascent-override: 102.52%;
+	descent-override: 27.5%;
+	line-gap-override: 0%;
+}
 
 @custom-variant dark (&:is(.dark *));
 

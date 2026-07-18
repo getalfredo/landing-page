@@ -1,9 +1,12 @@
+// Above-the-fold faces, preloaded (wayfinder #59): the H1 sets Space
+// Grotesk 700, the bezel etches set IBM Plex Mono 400. Everything else
+// waits for the CSS-discovered load behind metric-matched fallbacks.
+import plexMono400 from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url";
+import spaceGrotesk700 from "@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-
 import PostHogProvider from "../integrations/posthog/provider";
-
 import appCss from "../styles.css?url";
 
 // Share surface per wayfinder #21: title/description locked there, OG image
@@ -117,6 +120,20 @@ export const Route = createRootRoute({
 			},
 		],
 		links: [
+			{
+				rel: "preload",
+				href: spaceGrotesk700,
+				as: "font",
+				type: "font/woff2",
+				crossOrigin: "anonymous",
+			},
+			{
+				rel: "preload",
+				href: plexMono400,
+				as: "font",
+				type: "font/woff2",
+				crossOrigin: "anonymous",
+			},
 			{
 				rel: "stylesheet",
 				href: appCss,
