@@ -42,6 +42,14 @@ import {
 	KeysSwitcher,
 	useKeysPass,
 } from "#/components/prototype/keys-pass";
+// PROTOTYPE (wayfinder #54): ?ledger=a|b|c mounts the setup-tax ledger
+// strip inside Day one (two-column ledger / stamped receipt / flip strip),
+// dev builds only. Remove with src/components/prototype/ledger-pass.tsx.
+import {
+	LedgerDayOne,
+	LedgerSwitcher,
+	useLedgerPass,
+} from "#/components/prototype/ledger-pass";
 // PROTOTYPE (wayfinder #50): ?live=a|b|c puts one piece of real telemetry
 // on the page as a LIVE etch (footer colophon line / crescendo proof line /
 // live meter strip), dev builds only. Remove with
@@ -76,6 +84,8 @@ function LandingPage() {
 	const [glossary, setGlossary] = useGlossaryPass();
 	// PROTOTYPE (wayfinder #50): LIVE etch variant state.
 	const [live, setLive] = useLivePass();
+	// PROTOTYPE (wayfinder #54): setup-tax ledger variant state.
+	const [ledger, setLedger] = useLedgerPass();
 	// PROTOTYPE (wayfinder #52): keyboard-coupled keycaps variant state.
 	const keys = useKeysPass();
 	return (
@@ -84,7 +94,7 @@ function LandingPage() {
 			<Minimap />
 			<main>
 				<Hero />
-				<DayOne />
+				{ledger === null ? <DayOne /> : <LedgerDayOne variant={ledger} />}
 				<Showcase />
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
 				<FounderNote />
@@ -120,6 +130,10 @@ function LandingPage() {
 				<GlossarySwitcher current={glossary} onChange={setGlossary} />
 			)}
 			{live !== null && <LiveSwitcher current={live} onChange={setLive} />}
+			{/* #54 (undecided, bar always on in dev): the null state ("no strip")
+			    is this ticket's control, so the bar renders even without ?ledger=
+			    to flip strip vs no-strip in place. */}
+			<LedgerSwitcher current={ledger} onChange={setLedger} />
 			<KeysCoupler variant={keys.variant} demo={keys.demo} />
 			{keys.variant !== null && (
 				<KeysSwitcher
