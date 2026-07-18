@@ -568,6 +568,25 @@
 .wf-state-err {
 	color: var(--amber);
 }
+.wf-slot-ok {
+	color: var(--green-text);
+	margin-left: 8px;
+	letter-spacing: 0;
+}
+.wf-done {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	text-align: center;
+}
+.wf-next {
+	display: block;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--paper-soft);
+	max-width: 46ch;
+}
 
 /* ---------- Buttons (identity v2 keycaps) ---------- */
 .lp-btn {

@@ -423,3 +423,98 @@ describe("POST /api/waitlist — queue position ordering (A15)", () => {
 		expect(thirdBody.queuePosition).toBeGreaterThan(secondBody.queuePosition);
 	});
 });
+
+// --- No-JS form path (wayfinder #60): urlencoded posts get 303 redirects ---
+
+function postForm(
+	fields: Record<string, string>,
+	opts: { source?: string } = {},
+): Request {
+	const qs = opts.source ? `?source=${opts.source}` : "";
+	return new Request(`http://localhost/api/waitlist${qs}`, {
+		method: "POST",
+		headers: { "content-type": "application/x-www-form-urlencoded" },
+		body: new URLSearchParams(fields).toString(),
+	});
+}
+
+describe("POST /api/waitlist — form-encoded no-JS path (B1–B5)", () => {
+	const consentText = "One email when Alfredo is ready. Nothing else.";
+
+	it("stores the row and 303-redirects with wl=ok, the queue position, and the source anchor (B1)", async () => {
+		const res = await handleWaitlistPost(
+			postForm(
+				{ email: "form@example.com", consentText, source: "hero" },
+				{ source: "hero" },
+			),
+		);
+		expect(res.status).toBe(303);
+		const location = res.headers.get("Location") ?? "";
+		expect(location).toContain("wl=ok");
+		expect(location).toContain("pos=1");
+		expect(location).toContain("src=hero");
+		expect(location).toContain("#wl-hero");
+		expect(rowCount()).toBe(1);
+		expect(emailRow("form@example.com")?.consent_text).toBe(consentText);
+	});
+
+	it("redirects with wl=invalid and no insert for a bad address (B2)", async () => {
+		const res = await handleWaitlistPost(
+			postForm(
+				{ email: "not-an-email", consentText, source: "final-cta" },
+				{ source: "final-cta" },
+			),
+		);
+		expect(res.status).toBe(303);
+		const location = res.headers.get("Location") ?? "";
+		expect(location).toContain("wl=invalid");
+		expect(location).toContain("#wl-final-cta");
+		expect(rowCount()).toBe(0);
+	});
+
+	it("honeypot gets a normal-looking ok redirect and writes nothing (B3)", async () => {
+		const res = await handleWaitlistPost(
+			postForm(
+				{
+					email: "bot@example.com",
+					consentText,
+					source: "hero",
+					company: "Bot Inc",
+				},
+				{ source: "hero" },
+			),
+		);
+		expect(res.status).toBe(303);
+		expect(res.headers.get("Location")).toContain("wl=ok");
+		expect(rowCount()).toBe(0);
+	});
+
+	it("falls back to the hero anchor when the source query is missing or tampered (B4)", async () => {
+		const res = await handleWaitlistPost(
+			postForm(
+				{ email: "x@example.com", consentText, source: "hero" },
+				{ source: "..%2Fevil" },
+			),
+		);
+		expect(res.status).toBe(303);
+		expect(res.headers.get("Location")).toContain("#wl-hero");
+	});
+
+	it("duplicate form submits redirect with the identical ok payload (B5)", async () => {
+		const first = await handleWaitlistPost(
+			postForm(
+				{ email: "dup@example.com", consentText, source: "hero" },
+				{ source: "hero" },
+			),
+		);
+		const second = await handleWaitlistPost(
+			postForm(
+				{ email: "dup@example.com", consentText, source: "hero" },
+				{ source: "hero" },
+			),
+		);
+		expect(second.status).toBe(303);
+		expect(second.headers.get("Location")).toBe(first.headers.get("Location"));
+		expect(rowCount()).toBe(1);
+	});
+});

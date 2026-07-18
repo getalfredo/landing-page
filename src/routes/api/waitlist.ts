@@ -4,6 +4,13 @@
 // `handleWaitlistPost` and `createRateLimiter` are exported as the test
 // seam (src/routes/api/waitlist.test.ts) — tests invoke them without the
 // route framework.
+//
+// No-JS path (wayfinder #60): the form also submits natively as
+// application/x-www-form-urlencoded. Those requests get 303 redirects back
+// to the page (`?wl=ok|invalid|rate|error&src=<source>#wl-<source>`) instead
+// of JSON; the form component restores the matching state from the params.
+// Duplicates still redirect with the identical ok payload (issue-4: no
+// list-membership leakage).
 import { createFileRoute } from "@tanstack/react-router";
 import { createMiddleware } from "@tanstack/react-start";
 import { count, eq, sql } from "drizzle-orm";
@@ -71,6 +78,35 @@ export function getClientIp(request: Request): string {
 	return parts[parts.length - 1]?.trim() || "unknown";
 }
 
+export function isFormPost(request: Request): boolean {
+	const contentType = request.headers.get("content-type") ?? "";
+	return (
+		contentType.includes("application/x-www-form-urlencoded") ||
+		contentType.includes("multipart/form-data")
+	);
+}
+
+// The form's `action` carries `?source=` so redirects can target the right
+// form instance (`#wl-<source>`) even when the body can't be parsed (or, in
+// the middleware, before it is read). Sanitized so a tampered value can't
+// inject arbitrary fragments into the Location header.
+function redirectSource(request: Request): string {
+	const source = new URL(request.url).searchParams.get("source") ?? "";
+	return /^[a-z0-9-]{1,32}$/.test(source) ? source : "hero";
+}
+
+function formRedirect(
+	request: Request,
+	params: Record<string, string>,
+): Response {
+	const src = redirectSource(request);
+	const qs = new URLSearchParams({ ...params, src });
+	return new Response(null, {
+		status: 303,
+		headers: { Location: `/?${qs.toString()}#wl-${src}` },
+	});
+}
+
 const checkRateLimit = createRateLimiter();
 
 const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
@@ -78,6 +114,12 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
 		const verdict = checkRateLimit(getClientIp(request));
 
 		if (!verdict.allowed) {
+			if (isFormPost(request)) {
+				return formRedirect(request, {
+					wl: "rate",
+					retry: String(verdict.retryAfter ?? 1),
+				});
+			}
 			return Response.json(
 				{ error: "rate_limited" },
 				{
@@ -92,6 +134,7 @@ const rateLimitMiddleware = createMiddleware({ type: "request" }).server(
 );
 
 export async function handleWaitlistPost(request: Request): Promise<Response> {
+	const isForm = isFormPost(request);
 	let body: {
 		email?: unknown;
 		consentText?: unknown;
@@ -99,21 +142,37 @@ export async function handleWaitlistPost(request: Request): Promise<Response> {
 		company?: unknown; // honeypot field, must stay empty
 	};
 	try {
-		body = await request.json();
+		if (isForm) {
+			const fields = await request.formData();
+			body = {
+				email: fields.get("email") ?? undefined,
+				consentText: fields.get("consentText") ?? undefined,
+				source: fields.get("source") ?? undefined,
+				company: fields.get("company") || undefined,
+			};
+		} else {
+			body = await request.json();
+		}
 	} catch {
-		return Response.json({ error: "invalid_body" }, { status: 400 });
+		return isForm
+			? formRedirect(request, { wl: "error" })
+			: Response.json({ error: "invalid_body" }, { status: 400 });
 	}
 
 	// Honeypot: bots fill every field. Return a normal-looking success
 	// without touching the DB so the bot doesn't learn it was caught.
 	if (body.company) {
-		return Response.json({ ok: true, queuePosition: 1 }, { status: 201 });
+		return isForm
+			? formRedirect(request, { wl: "ok", pos: "1" })
+			: Response.json({ ok: true, queuePosition: 1 }, { status: 201 });
 	}
 
 	const email =
 		typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
 	if (!email || !email.includes("@") || email.length > 254) {
-		return Response.json({ error: "invalid_email" }, { status: 400 });
+		return isForm
+			? formRedirect(request, { wl: "invalid" })
+			: Response.json({ error: "invalid_email" }, { status: 400 });
 	}
 
 	const consentText =
@@ -125,7 +184,9 @@ export async function handleWaitlistPost(request: Request): Promise<Response> {
 		consentText.length > 2000 ||
 		source.length > 200
 	) {
-		return Response.json({ error: "invalid_body" }, { status: 400 });
+		return isForm
+			? formRedirect(request, { wl: "error" })
+			: Response.json({ error: "invalid_body" }, { status: 400 });
 	}
 
 	// Idempotent insert: ON CONFLICT DO NOTHING, then always look up the row
@@ -143,7 +204,9 @@ export async function handleWaitlistPost(request: Request): Promise<Response> {
 		.get();
 
 	if (!row) {
-		return Response.json({ error: "insert_failed" }, { status: 500 });
+		return isForm
+			? formRedirect(request, { wl: "error" })
+			: Response.json({ error: "insert_failed" }, { status: 500 });
 	}
 
 	const ahead = db
@@ -152,10 +215,10 @@ export async function handleWaitlistPost(request: Request): Promise<Response> {
 		.where(sql`${waitlist.id} < ${row.id}`)
 		.get();
 
-	return Response.json(
-		{ ok: true, queuePosition: (ahead?.n ?? 0) + 1 },
-		{ status: 201 },
-	);
+	const queuePosition = (ahead?.n ?? 0) + 1;
+	return isForm
+		? formRedirect(request, { wl: "ok", pos: String(queuePosition) })
+		: Response.json({ ok: true, queuePosition }, { status: 201 });
 }
 
 export const Route = createFileRoute("/api/waitlist")({
