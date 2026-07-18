@@ -7,12 +7,45 @@ import PostHogProvider from "../integrations/posthog/provider";
 import appCss from "../styles.css?url";
 
 // Share surface per wayfinder #21: title/description locked there, canonical
-// at the root, OG image as an absolute URL, no JSON-LD.
+// at the root, OG image as an absolute URL. JSON-LD per wayfinder #57:
+// WebSite + Organization + minimal SoftwareApplication, no FAQPage (rich
+// result removed May 2026), no offers/ratings (pre-launch).
 const TITLE = "Alfredo · Ship your next SaaS in minutes";
 const DESCRIPTION =
 	"Alfredo is the home for your projects. Your next one is live in minutes, with auth, email, database and analytics already wired. Watch them all from one HQ.";
 const CANONICAL = "https://getalfredo.com";
 const OG_IMAGE = "https://getalfredo.com/generated/og.png";
+
+const JSON_LD = JSON.stringify({
+	"@context": "https://schema.org",
+	"@graph": [
+		{
+			"@type": "WebSite",
+			"@id": `${CANONICAL}/#website`,
+			name: "Alfredo",
+			url: CANONICAL,
+			publisher: { "@id": `${CANONICAL}/#organization` },
+		},
+		{
+			"@type": "Organization",
+			"@id": `${CANONICAL}/#organization`,
+			name: "Alfredo",
+			url: CANONICAL,
+			description: DESCRIPTION,
+			logo: "https://getalfredo.com/generated/apple-touch-icon.png",
+			sameAs: ["https://github.com/getalfredo", "https://x.com/alperortac"],
+		},
+		{
+			"@type": "SoftwareApplication",
+			"@id": `${CANONICAL}/#app`,
+			name: "Alfredo",
+			url: CANONICAL,
+			description: DESCRIPTION,
+			applicationCategory: "DeveloperApplication",
+			publisher: { "@id": `${CANONICAL}/#organization` },
+		},
+	],
+});
 
 export const Route = createRootRoute({
 	head: () => ({
@@ -92,6 +125,12 @@ export const Route = createRootRoute({
 			{
 				rel: "manifest",
 				href: "/manifest.json",
+			},
+		],
+		scripts: [
+			{
+				type: "application/ld+json",
+				children: JSON_LD,
 			},
 		],
 	}),
