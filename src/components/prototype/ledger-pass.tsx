@@ -17,7 +17,7 @@
 //        as its echo; the contrast is temporal (bill, then stamp).
 //   c "Flip strip" — WINNER (operator pick): one state at a time, a
 //        two-cap toggle re-lights five slots and a SETUPS DUE counter
-//        (5 → 0). Auto-switches every 2s with a progress bar under the
+//        (5 → 0). Auto-switches every 3s with a progress bar under the
 //        toggle (ambient motion legal per #16's amendment); clicking a
 //        cap jumps there and restarts the cycle; reduced motion gets
 //        the WIRED state static, toggle still works, bar hidden.
@@ -154,7 +154,7 @@ function LedgerReceipt() {
 
 /* ------------- variant c: one-state flip strip --------------- */
 
-const FLIP_MS = 2000;
+const FLIP_MS = 3000;
 
 function LedgerFlip() {
 	const reduced = usePrefersReducedMotion();
@@ -166,7 +166,7 @@ function LedgerFlip() {
 	// Bumped on manual picks so the interval restarts from that moment.
 	const [resetKey, setResetKey] = useState(0);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies(resetKey): resetKey restarts the interval so a manual pick gets a full 2s before the next auto-switch.
+	// biome-ignore lint/correctness/useExhaustiveDependencies(resetKey): resetKey restarts the interval so a manual pick gets a full cycle before the next auto-switch.
 	useEffect(() => {
 		if (reduced) {
 			setWired(true);
