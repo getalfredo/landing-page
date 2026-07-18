@@ -319,22 +319,23 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+/* #53 fold-in: --tod-glow (1 / 1.25 / 1.5) brightens the LEDs after dark */
 .hv2-led {
 	width: 7px;
 	height: 7px;
 	border-radius: 50%;
 	background: var(--led);
-	box-shadow: 0 0 7px var(--led-glow);
+	box-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--led-glow);
 	flex-shrink: 0;
 }
 .hv2-led-amber {
 	background: var(--amber);
-	box-shadow: 0 0 7px var(--amber-glow);
+	box-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--amber-glow);
 	animation: hv2-blink 0.8s steps(1) infinite;
 }
 .hv2-led-red {
 	background: var(--red);
-	box-shadow: 0 0 7px var(--red-glow);
+	box-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--red-glow);
 	animation: hv2-blink 0.5s steps(1) infinite;
 }
 /* after .hv2-led so the grey actually wins the cascade */
@@ -592,7 +593,7 @@
 .hv2-seg-fill {
 	height: 100%;
 	background: var(--amber);
-	box-shadow: 0 0 6px rgba(var(--amber-rgb), 0.5);
+	box-shadow: 0 0 calc(6px * var(--tod-glow, 1)) rgba(var(--amber-rgb), 0.5);
 }
 .hv2-seg-title {
 	font-size: 8px;
@@ -784,6 +785,112 @@
 		opacity: 1;
 		transform: translateY(0) scale(1);
 	}
+}
+
+/* ---- #47 story v2: legibility choreography and quiet-state polish ---- */
+
+/* staggered spot reveal: etch → headline → sub, directing the eye */
+.hv2-s2 .hv2-spot > .hv2-spot-head {
+	animation: hv2-rise 0.35s ease both;
+}
+.hv2-s2 .hv2-spot > .hv2-spot-big {
+	animation: hv2-rise 0.4s ease 0.1s both;
+}
+.hv2-s2 .hv2-spot > .hv2-spot-sub {
+	animation: hv2-rise 0.4s ease 0.2s both;
+}
+/* attention sweep: a soft amber wash on every spotlight change, so the
+   viewer registers "something just happened" without watching closely */
+.hv2-s2 .hv2-spot::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	box-shadow: inset 0 0 34px rgba(var(--amber-rgb), 0.14);
+	animation: hv2-sweep 0.9s ease-out both;
+}
+@keyframes hv2-rise {
+	from {
+		opacity: 0;
+		transform: translateY(7px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+@keyframes hv2-sweep {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+/* source link: the project card the spotlight is talking about */
+.hv2-s2 .hv2-proj-focus:not(.hv2-proj-down) {
+	border-color: rgba(var(--amber-rgb), 0.5);
+	box-shadow: 0 0 0 1px rgba(var(--amber-rgb), 0.18);
+}
+.hv2-s2 .hv2-proj-focus:not(.hv2-proj-down) .hv2-proj-name {
+	color: var(--amber);
+}
+
+/* text-only spots cluster mid-panel instead of stretching to the edges */
+.hv2-spot-mid {
+	justify-content: center;
+	gap: 7px;
+}
+.hv2-spot-mid > .hv2-spot-head {
+	position: absolute;
+	top: 16px;
+	left: 18px;
+	right: 18px;
+}
+.hv2-spot-mid > .hv2-spot-sub {
+	margin-top: 0;
+}
+
+/* quiet v2: the ambient overview rows */
+.hv2-quiet2 .hv2-qrows {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 8px;
+}
+.hv2-qrow {
+	display: grid;
+	grid-template-columns: 14px 1fr auto auto;
+	align-items: center;
+	gap: 10px;
+	background: rgba(var(--paper-rgb), 0.025);
+	border: 1px solid rgba(var(--paper-rgb), 0.1);
+	border-radius: 9px;
+	padding: 8px 12px;
+	animation: hv2-rise 0.4s ease both;
+}
+.hv2-qrow-name {
+	font-weight: 700;
+	font-size: 13px;
+	letter-spacing: -0.01em;
+}
+.hv2-qrow-val {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 11px;
+	color: var(--paper-soft);
+}
+.hv2-qrow-state {
+	font-size: 8px;
+	color: var(--green-text);
+}
+.hv2-qrow .hv2-led-off + .hv2-qrow-name {
+	opacity: 0.5;
+}
+.hv2-qrow:has(.hv2-led-off) .hv2-qrow-state {
+	color: var(--paper-soft);
 }
 
 /* ---- pings and ripples: the exaggeration layer ---- */

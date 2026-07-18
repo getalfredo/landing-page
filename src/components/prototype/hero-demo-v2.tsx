@@ -22,8 +22,17 @@
 //   beat   — milestone takes over the spotlight; records marked on the scrubber
 //   ledger — a record strip above the tiles prints each milestone, keeps count
 // Waitlist rates ×2 vs #26 so the loop closes on a "100 on the waitlist" beat.
-import { useEffect, useRef, useState } from "react";
+//
+// Wayfinder #47 (this round) adds a STORY axis (?story=v1|v2). The timeline
+// skeleton is shared; v2 swaps the cast for real-feeling indie SaaS names,
+// rewrites the spotlight copy for aspiration + relief, and turns on the
+// legibility choreography (staggered spot reveal, attention sweep, source-
+// card focus link, ambient ALL QUIET overview). Applied to BOTH stories as
+// fold-in rules: incident spots preempt milestone celebrations (blackout
+// around the DOWN window), and the #53 local-time etch + --tod-glow.
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { consoleCssVars } from "#/components/landing/console-vars";
+import { useLocalTime } from "#/components/landing/local-time";
 import "#/components/prototype/hero-demo-v2.css";
 
 /* ---------------------------------------------------------------- axes -- */
@@ -31,13 +40,16 @@ import "#/components/prototype/hero-demo-v2.css";
 export type Hv2Axes = {
 	view: "desktop" | "mobile";
 	ms: "off" | "stamp" | "beat" | "ledger";
+	story: "v1" | "v2";
 };
+type Story = Hv2Axes["story"];
 
 const AXIS_OPTIONS = {
 	view: ["desktop", "mobile"],
 	ms: ["off", "stamp", "beat", "ledger"],
+	story: ["v1", "v2"],
 } as const;
-const DEFAULT_AXES: Hv2Axes = { view: "desktop", ms: "beat" };
+const DEFAULT_AXES: Hv2Axes = { view: "desktop", ms: "beat", story: "v2" };
 
 export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 	const [axes, setAxes] = useState<Hv2Axes | null>(null);
@@ -48,11 +60,13 @@ export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 		if (!q.has("hv2")) return;
 		const v = q.get("view");
 		const m = q.get("ms");
+		const s = q.get("story");
 		setAxes({
 			view: v === "mobile" ? "mobile" : DEFAULT_AXES.view,
 			ms: (AXIS_OPTIONS.ms as readonly string[]).includes(m ?? "")
 				? (m as Hv2Axes["ms"])
 				: DEFAULT_AXES.ms,
+			story: s === "v1" ? "v1" : DEFAULT_AXES.story,
 		});
 	}, []);
 
@@ -60,11 +74,12 @@ export function useHeroV2(): [Hv2Axes | null, (a: Hv2Axes | null) => void] {
 		setAxes(a);
 		const q = new URLSearchParams(window.location.search);
 		if (a === null) {
-			for (const k of ["hv2", "view", "ms"]) q.delete(k);
+			for (const k of ["hv2", "view", "ms", "story"]) q.delete(k);
 		} else {
 			q.set("hv2", "1");
 			q.set("view", a.view);
 			q.set("ms", a.ms);
+			q.set("story", a.story);
 		}
 		const qs = q.toString();
 		window.history.replaceState(
@@ -94,6 +109,18 @@ const CAST = [
 	{ name: "growth-automator", picks: [0, 1, 2, 3], dwell: 6.8 },
 	{ name: "content-factory", picks: [0, 1, 2, 3, 4], dwell: 8.6 },
 ];
+
+// #47 story v2 cast: real-feeling indie SaaS someone wishes they were
+// running. Same timeline skeleton (keyed on v1 names), display-mapped here.
+//   landing-page — kept: it's literally what the visitor is on, and it earns
+//                  its retirement beat ("did its job")
+//   shipnote     — changelogs for indie apps (signups chapter)
+//   cronpilot    — cron jobs with a pulse (spike + incident chapter)
+//   snapkit      — screenshot API (slow start → viral → first revenue)
+const CAST_V2 = ["landing-page", "shipnote", "cronpilot", "snapkit"];
+const NAME_V2 = new Map(CAST.map((c, i) => [c.name, CAST_V2[i]]));
+const dn = (proj: string, story: Story) =>
+	story === "v2" ? (NAME_V2.get(proj) ?? proj) : proj;
 
 type Chapter = {
 	name: string;
@@ -256,23 +283,27 @@ type Milestone = {
 	id: string;
 	at: number; // metric crossing
 	celAt: number; // celebration start (staggered so windows never overlap)
+	celEnd: number; // celebration end (may be cut short by an incident)
 	etch: string; // metric family, etched
 	big: string; // headline
 	pin: string; // short record label (stamp pins, ledger lines)
-	sub: string;
+	sub: Record<Story, string>;
 	tile: "waitlist" | "traffic" | "mrr" | "row";
 };
 
 const CEL_LEN = 2.6; // seconds a celebration holds
 
-const MILESTONE_DEFS: Omit<Milestone, "celAt">[] = [
+const MILESTONE_DEFS: Omit<Milestone, "celAt" | "celEnd">[] = [
 	{
 		id: "v100",
 		at: crossT(viewsRaw, 100),
 		etch: "TRAFFIC",
 		big: "100th visitor",
 		pin: "100 VISITS",
-		sub: "counted across every project",
+		sub: {
+			v1: "counted across every project",
+			v2: "counted across every project",
+		},
 		tile: "traffic",
 	},
 	{
@@ -281,7 +312,10 @@ const MILESTONE_DEFS: Omit<Milestone, "celAt">[] = [
 		etch: "PROJECTS",
 		big: "3 projects live",
 		pin: "3 LIVE",
-		sub: "one HQ watching all of them",
+		sub: {
+			v1: "one HQ watching all of them",
+			v2: "one HQ watching all of them",
+		},
 		tile: "row",
 	},
 	{
@@ -290,7 +324,10 @@ const MILESTONE_DEFS: Omit<Milestone, "celAt">[] = [
 		etch: "WAITLIST",
 		big: "50 on the waitlist",
 		pin: "50 SIGNUPS",
-		sub: "geo-monitor keeps signing them up",
+		sub: {
+			v1: "geo-monitor keeps signing them up",
+			v2: "shipnote keeps signing them up",
+		},
 		tile: "waitlist",
 	},
 	{
@@ -299,7 +336,10 @@ const MILESTONE_DEFS: Omit<Milestone, "celAt">[] = [
 		etch: "REVENUE",
 		big: "First € earned",
 		pin: "FIRST €",
-		sub: "content-factory · checkout completed",
+		sub: {
+			v1: "content-factory · checkout completed",
+			v2: "snapkit · checkout completed",
+		},
 		tile: "mrr",
 	},
 	{
@@ -308,7 +348,10 @@ const MILESTONE_DEFS: Omit<Milestone, "celAt">[] = [
 		etch: "WAITLIST",
 		big: "100 on the waitlist",
 		pin: "100 SIGNUPS",
-		sub: "the hundredth signup, counted live",
+		sub: {
+			v1: "the hundredth signup, counted live",
+			v2: "the hundredth signup, counted live",
+		},
 		tile: "waitlist",
 	},
 ];
@@ -317,14 +360,27 @@ const MILESTONES: Milestone[] = MILESTONE_DEFS.filter((m) =>
 	Number.isFinite(m.at),
 )
 	.sort((a, b) => a.at - b.at)
-	.map((m) => ({ ...m, celAt: m.at }));
+	.map((m) => ({ ...m, celAt: m.at, celEnd: m.at + CEL_LEN }));
+
+// #47 fold-in rule: incident spots preempt milestone celebrations. No
+// celebration window may overlap the DOWN→RECOVERED drama; one that is
+// already running gets CUT when the incident lands (which reads as the
+// incident stealing the spotlight — deliberate), one that would start
+// inside it waits the incident out.
+const BLACKOUT: [number, number] = [DOWN[0] - 0.15, DOWN[1] + 0.8];
 
 // stagger: a milestone landing inside the previous celebration queues up
-for (let i = 1; i < MILESTONES.length; i++) {
-	MILESTONES[i].celAt = Math.max(
-		MILESTONES[i].at,
-		MILESTONES[i - 1].celAt + CEL_LEN + 0.15,
-	);
+{
+	let prevEnd = Number.NEGATIVE_INFINITY;
+	for (const m of MILESTONES) {
+		let s = Math.max(m.at, prevEnd + 0.15);
+		if (s >= BLACKOUT[0] && s < BLACKOUT[1]) s = BLACKOUT[1];
+		let e = s + CEL_LEN;
+		if (s < BLACKOUT[0] && e > BLACKOUT[0]) e = BLACKOUT[0];
+		m.celAt = s;
+		m.celEnd = e;
+		prevEnd = e;
+	}
 }
 
 type Mile = {
@@ -335,8 +391,7 @@ type Mile = {
 
 function mileAt(t: number): Mile {
 	const reached = MILESTONES.filter((m) => m.at <= t);
-	const active =
-		MILESTONES.find((m) => t >= m.celAt && t < m.celAt + CEL_LEN) ?? null;
+	const active = MILESTONES.find((m) => t >= m.celAt && t < m.celEnd) ?? null;
 	return {
 		reached,
 		active,
@@ -532,6 +587,9 @@ function Hv2Engine({ axes }: { axes: Hv2Axes }) {
 	const [now, setNow] = useState(0);
 	const origin = useRef(0);
 	const vertical = axes.view === "mobile";
+	// #53 fold-in: the visitor's real wall clock on the bezel, and a glow
+	// multiplier that brightens the LEDs after dark.
+	const { hhmm, glow } = useLocalTime();
 
 	useEffect(() => {
 		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -571,24 +629,26 @@ function Hv2Engine({ axes }: { axes: Hv2Axes }) {
 
 	return (
 		<section
-			className={`hv2-bezel${vertical ? " hv2-mobile" : ""}`}
+			className={`hv2-bezel${vertical ? " hv2-mobile" : ""}${
+				axes.story === "v2" ? " hv2-s2" : ""
+			}`}
 			aria-label="Alfredo HQ demo (prototype v2)"
-			style={consoleCssVars}
+			style={{ ...consoleCssVars, "--tod-glow": glow } as CSSProperties}
 		>
 			<div className="hv2-btop">
 				<span className="hv2-etch">ALFREDO OS 0.1</span>
 				<span className="hv2-etch">HQ / LIVE</span>
-				<span className="hv2-etch">UNIT 000-001</span>
+				<span className="hv2-etch">{hhmm ?? "--:--"}</span>
 			</div>
 
 			<div className={`hv2-glass${vertical ? " hv2-vert" : ""}`}>
 				<div className="hv2-full">
-					<Dash w={w} ms={axes.ms} />
+					<Dash w={w} ms={axes.ms} story={axes.story} />
 					<div
 						className={`hv2-sheet${w.form ? " hv2-sheet-in" : ""}`}
 						aria-hidden={!w.form}
 					>
-						{w.form && <DeployForm form={w.form} />}
+						{w.form && <DeployForm form={w.form} story={axes.story} />}
 					</div>
 				</div>
 			</div>
@@ -599,6 +659,7 @@ function Hv2Engine({ axes }: { axes: Hv2Axes }) {
 				onSeek={seek}
 				chapter={w.chapter}
 				markers={axes.ms === "beat"}
+				story={axes.story}
 			/>
 		</section>
 	);
@@ -611,11 +672,13 @@ function ProgressBar({
 	onSeek,
 	chapter,
 	markers,
+	story,
 }: {
 	now: number;
 	onSeek: (t: number) => void;
 	chapter: number;
 	markers: boolean;
+	story: Story;
 }) {
 	const trackRef = useRef<HTMLDivElement>(null);
 
@@ -665,7 +728,7 @@ function ProgressBar({
 									seg.label && seg.label === active ? " hv2-seg-title-on" : ""
 								}`}
 							>
-								{seg.label}
+								{seg.label && dn(seg.label, story)}
 							</span>
 						</div>
 					);
@@ -688,7 +751,16 @@ function ProgressBar({
 
 /* --------------------------------------------------------- the form ---- */
 
-function DeployForm({ form }: { form: NonNullable<World["form"]> }) {
+function DeployForm({
+	form,
+	story,
+}: {
+	form: NonNullable<World["form"]>;
+	story: Story;
+}) {
+	// the timeline types at v1-name speed; a shorter v2 name just finishes
+	// its typing early, which reads as a natural pause before the picks
+	const shown = dn(form.name, story);
 	return (
 		<div className={`hv2-form hv2-form-${form.phase}`}>
 			<div className="hv2-form-head">
@@ -702,8 +774,8 @@ function DeployForm({ form }: { form: NonNullable<World["form"]> }) {
 			<div className="hv2-field">
 				<span className="hv2-field-label">Project name</span>
 				<span className="hv2-input">
-					{form.name.slice(0, form.typed)}
-					{form.phase === "filling" && form.typed < form.name.length && (
+					{shown.slice(0, form.typed)}
+					{form.phase === "filling" && form.typed < shown.length && (
 						<span className="hv2-caret" aria-hidden="true" />
 					)}
 				</span>
@@ -746,7 +818,7 @@ function DeployForm({ form }: { form: NonNullable<World["form"]> }) {
 
 /* ---------------------------------------------------------- dashboard -- */
 
-function Dash({ w, ms }: { w: World; ms: Hv2Axes["ms"] }) {
+function Dash({ w, ms, story }: { w: World; ms: Hv2Axes["ms"]; story: Story }) {
 	const { reached, active } = w.mile;
 	// stamp variant: which tile is celebrating right now, which pins it keeps
 	const celTile = ms === "stamp" && active ? active.tile : null;
@@ -755,12 +827,23 @@ function Dash({ w, ms }: { w: World; ms: Hv2Axes["ms"] }) {
 			? reached.filter((m) => m.tile === tile).map((m) => m.pin)
 			: [];
 	const rowMile = reached.find((m) => m.tile === "row");
+	// #47 v2 legibility: the project card the spotlight is talking about
+	// lights a focus link, so the eye connects card ↔ story
+	const focus =
+		story === "v2" && !(ms === "beat" && active) && "proj" in w.spot
+			? w.spot.proj
+			: null;
 	return (
 		<div className="hv2-dash">
 			{/* thin fixed top row: every project + the add-new control */}
 			<div className="hv2-toprow">
 				{w.projects.map((p) => (
-					<div className={`hv2-proj hv2-proj-${p.status}`} key={p.name}>
+					<div
+						className={`hv2-proj hv2-proj-${p.status}${
+							p.name === focus ? " hv2-proj-focus" : ""
+						}`}
+						key={p.name}
+					>
 						{p.ripple && (
 							<span
 								className={`hv2-ripple hv2-ripple-${p.ripple.color}`}
@@ -781,7 +864,7 @@ function Dash({ w, ms }: { w: World; ms: Hv2Axes["ms"] }) {
 								}`}
 								aria-hidden="true"
 							/>
-							<span className="hv2-proj-name">{p.name}</span>
+							<span className="hv2-proj-name">{dn(p.name, story)}</span>
 						</span>
 						<span className="hv2-proj-chips">
 							{p.picks.map((pk, i) => (
@@ -831,9 +914,9 @@ function Dash({ w, ms }: { w: World; ms: Hv2Axes["ms"] }) {
 			</div>
 
 			{ms === "beat" && active ? (
-				<MilestoneSpot m={active} />
+				<MilestoneSpot m={active} story={story} />
 			) : (
-				<Spotlight w={w} />
+				<Spotlight w={w} story={story} />
 			)}
 
 			{ms === "ledger" && <MsLedger w={w} />}
@@ -935,7 +1018,7 @@ function Pins({ pins }: { pins: string[] }) {
 }
 
 /* beat variant: the milestone takes the spotlight as a story beat */
-function MilestoneSpot({ m }: { m: Milestone }) {
+function MilestoneSpot({ m, story }: { m: Milestone; story: Story }) {
 	return (
 		<div className="hv2-spot hv2-ms-spot" key={m.id}>
 			<div className="hv2-spot-head">
@@ -948,7 +1031,7 @@ function MilestoneSpot({ m }: { m: Milestone }) {
 				</span>
 				{m.big}
 			</span>
-			<span className="hv2-spot-sub">{m.sub}</span>
+			<span className="hv2-spot-sub">{m.sub[story]}</span>
 		</div>
 	);
 }
@@ -1012,8 +1095,47 @@ function Spark({ trend }: { trend: number[] }) {
 	);
 }
 
-function Spotlight({ w }: { w: World }) {
+/* v2 quiet state: instead of an empty void, an ambient overview — every
+   project humming, nothing demanding attention. Quiet life fills the space
+   the #26 round flagged as dead. */
+function QuietAmbient({ w, story }: { w: World; story: Story }) {
+	return (
+		<div className="hv2-spot hv2-quiet2" key="quiet2">
+			<div className="hv2-spot-head">
+				<span className="hv2-etch">ALL QUIET</span>
+				<span className="hv2-tag-green">HEALTHY</span>
+			</div>
+			<div className="hv2-qrows">
+				{w.projects
+					.filter((p) => p.status !== "out")
+					.map((p) => (
+						<div className="hv2-qrow" key={p.name}>
+							<span
+								className={`hv2-led${p.status === "off" ? " hv2-led-off" : ""}`}
+								aria-hidden="true"
+							/>
+							<span className="hv2-qrow-name">{dn(p.name, story)}</span>
+							<span className="hv2-qrow-val hv2-num">
+								{fmt(integ(VIEW_RATES[p.name] ?? [], w.t))} views
+							</span>
+							<span className="hv2-qrow-state hv2-etch">
+								{p.status === "off" ? "ARCHIVED" : "OK"}
+							</span>
+						</div>
+					))}
+			</div>
+			<span className="hv2-spot-sub">nothing needs you — go build</span>
+		</div>
+	);
+}
+
+function Spotlight({ w, story }: { w: World; story: Story }) {
 	const s = w.spot;
+	const v2 = story === "v2";
+	// v2 legibility: text-only spots cluster their content mid-panel instead
+	// of stretching headline and sub to opposite edges
+	const mid = v2 ? " hv2-spot-mid" : "";
+	const nm = "proj" in s ? dn(s.proj, story) : "";
 
 	if (s.kind === "empty") {
 		return (
@@ -1021,12 +1143,15 @@ function Spotlight({ w }: { w: World }) {
 				<span className="hv2-empty-led" aria-hidden="true" />
 				<span className="hv2-spot-big">No projects yet</span>
 				<span className="hv2-spot-sub">
-					Create your first project — everything gets wired for you.
+					{v2
+						? "one deploy wires everything — analytics, email, database, auth"
+						: "Create your first project — everything gets wired for you."}
 				</span>
 			</div>
 		);
 	}
 	if (s.kind === "quiet") {
+		if (v2) return <QuietAmbient w={w} story={story} />;
 		return (
 			<div className="hv2-spot hv2-spot-idle">
 				<span className="hv2-etch">ALL QUIET</span>
@@ -1035,26 +1160,37 @@ function Spotlight({ w }: { w: World }) {
 		);
 	}
 	if (s.kind === "wiring") {
+		const picks = CH.find((c) => c.name === s.proj)?.picks ?? [];
 		return (
-			<div className="hv2-spot" key={`w-${s.proj}`}>
+			<div className={`hv2-spot${mid}`} key={`w-${s.proj}`}>
 				<div className="hv2-spot-head">
 					<span className="hv2-etch">DEPLOYING</span>
 					<span className="hv2-tag-amber">WIRING</span>
 				</div>
-				<span className="hv2-spot-big">{s.proj}</span>
-				<span className="hv2-spot-sub">integrations coming online…</span>
+				<span className="hv2-spot-big">{nm}</span>
+				<span className="hv2-spot-sub">
+					{v2
+						? `${picks
+								.map((i) => INTEGRATIONS[i].label.toLowerCase())
+								.join(" · ")} — wired in one step`
+						: "integrations coming online…"}
+				</span>
 			</div>
 		);
 	}
 	if (s.kind === "live") {
 		return (
-			<div className="hv2-spot" key={`l-${s.proj}`}>
+			<div className={`hv2-spot${mid}`} key={`l-${s.proj}`}>
 				<div className="hv2-spot-head">
 					<span className="hv2-etch">DEPLOYED</span>
 					<span className="hv2-tag-green">LIVE</span>
 				</div>
-				<span className="hv2-spot-big">{s.proj}</span>
-				<span className="hv2-spot-sub">wired and watched from here on</span>
+				<span className="hv2-spot-big">{nm}</span>
+				<span className="hv2-spot-sub">
+					{v2
+						? "live — watched from this screen from here on"
+						: "wired and watched from here on"}
+				</span>
 			</div>
 		);
 	}
@@ -1069,19 +1205,27 @@ function Spotlight({ w }: { w: World }) {
 					{fmt(integ(VIEW_RATES["landing-page"], w.t))}
 				</span>
 				<Spark trend={w.trend} />
-				<span className="hv2-spot-sub">{s.proj} — a steady trickle</span>
+				<span className="hv2-spot-sub">
+					{v2
+						? `${nm} — someone's out there reading`
+						: `${nm} — a steady trickle`}
+				</span>
 			</div>
 		);
 	}
 	if (s.kind === "signups") {
 		return (
-			<div className="hv2-spot" key="signups">
+			<div className={`hv2-spot${mid}`} key="signups">
 				<div className="hv2-spot-head">
 					<span className="hv2-etch">WAITLIST</span>
 					<span className="hv2-tag-green">GROWING</span>
 				</div>
 				<span className="hv2-spot-big hv2-num">{fmt(w.waitlist)}</span>
-				<span className="hv2-spot-sub">{s.proj} — signups rolling in</span>
+				<span className="hv2-spot-sub">
+					{v2
+						? `${nm} — strangers trusting you with their email`
+						: `${nm} — signups rolling in`}
+				</span>
 			</div>
 		);
 	}
@@ -1100,8 +1244,12 @@ function Spotlight({ w }: { w: World }) {
 				<Spark trend={w.trend} />
 				<span className="hv2-spot-sub">
 					{s.kind === "viral"
-						? `${s.proj} — the link is everywhere`
-						: `${s.proj} — traffic spike`}
+						? v2
+							? `${nm} — the launch tweet is everywhere`
+							: `${nm} — the link is everywhere`
+						: v2
+							? `${nm} — your post landed`
+							: `${nm} — traffic spike`}
 				</span>
 			</div>
 		);
@@ -1117,48 +1265,58 @@ function Spotlight({ w }: { w: World }) {
 					{fmt(Math.round(w.rate * 60))}/min
 				</span>
 				<Spark trend={w.trend} />
-				<span className="hv2-spot-sub">three projects, one surge</span>
+				<span className="hv2-spot-sub">
+					{v2
+						? "three projects surging — still one screen"
+						: "three projects, one surge"}
+				</span>
 			</div>
 		);
 	}
 	if (s.kind === "down") {
 		return (
-			<div className="hv2-spot hv2-spot-down" key="down">
+			<div className={`hv2-spot hv2-spot-down${mid}`} key="down">
 				<div className="hv2-spot-head">
 					<span className="hv2-etch">HEALTH</span>
 					<span className="hv2-tag-red">DOWN</span>
 				</div>
-				<span className="hv2-spot-big">{s.proj} not responding</span>
+				<span className="hv2-spot-big">{nm} not responding</span>
 				<span className="hv2-spot-sub">
-					caught in 3s — before the first user noticed
+					{v2
+						? "caught in 3s — no angry DMs, no refund requests"
+						: "caught in 3s — before the first user noticed"}
 				</span>
 			</div>
 		);
 	}
 	if (s.kind === "recovered") {
 		return (
-			<div className="hv2-spot" key="recovered">
+			<div className={`hv2-spot${mid}`} key="recovered">
 				<div className="hv2-spot-head">
 					<span className="hv2-etch">HEALTH</span>
 					<span className="hv2-tag-green">RECOVERED</span>
 				</div>
-				<span className="hv2-spot-big">{s.proj} is back</span>
+				<span className="hv2-spot-big">{nm} is back</span>
 				<span className="hv2-spot-sub">
-					downtime 2s · you'd have been pinged
+					{v2
+						? "downtime 2s — nobody ever knew"
+						: "downtime 2s · you'd have been pinged"}
 				</span>
 			</div>
 		);
 	}
 	if (s.kind === "retired") {
 		return (
-			<div className="hv2-spot hv2-spot-idle" key="retired">
+			<div className={`hv2-spot hv2-spot-idle${mid}`} key="retired">
 				<div className="hv2-spot-head">
 					<span className="hv2-etch">FLEET</span>
 					<span className="hv2-tag-dim">RETIRED</span>
 				</div>
-				<span className="hv2-spot-big">{s.proj} archived</span>
+				<span className="hv2-spot-big">{nm} archived</span>
 				<span className="hv2-spot-sub">
-					its job is done — the integrations keep running for the rest
+					{v2
+						? "it did its job — its integrations keep running for the rest"
+						: "its job is done — the integrations keep running for the rest"}
 				</span>
 			</div>
 		);
@@ -1174,12 +1332,16 @@ function Spotlight({ w }: { w: World }) {
 				{w.toasts.map((toast) => (
 					<div className="hv2-toast" key={toast.id}>
 						<span className="hv2-toast-amt">€ {toast.amt}</span>
-						<span className="hv2-toast-proj">{s.proj}</span>
+						<span className="hv2-toast-proj">{nm}</span>
 						<span className="hv2-toast-label">{toast.label}</span>
 					</div>
 				))}
 			</div>
-			<span className="hv2-spot-sub">first revenue — MRR starts here</span>
+			<span className="hv2-spot-sub">
+				{v2
+					? "first € on your own server — MRR starts here"
+					: "first revenue — MRR starts here"}
+			</span>
 		</div>
 	);
 }
@@ -1203,6 +1365,19 @@ function Hv2Bar({
 						key={opt}
 						className={`hv2-bar-btn${axes.view === opt ? " hv2-bar-on" : ""}`}
 						onClick={() => onAxes({ ...axes, view: opt })}
+					>
+						{opt}
+					</button>
+				))}
+			</div>
+			<div className="hv2-bar-group">
+				<span className="hv2-bar-label">STORY</span>
+				{AXIS_OPTIONS.story.map((opt) => (
+					<button
+						type="button"
+						key={opt}
+						className={`hv2-bar-btn${axes.story === opt ? " hv2-bar-on" : ""}`}
+						onClick={() => onAxes({ ...axes, story: opt })}
 					>
 						{opt}
 					</button>
