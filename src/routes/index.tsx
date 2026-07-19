@@ -6,7 +6,6 @@
 // inline from console-tokens (console-vars.ts).
 import { createFileRoute } from "@tanstack/react-router";
 import { consoleCssVars } from "#/components/landing/console-vars";
-import { SITE_URL } from "#/routes/__root";
 import { Crescendo } from "#/components/landing/crescendo";
 import { DayOne } from "#/components/landing/day-one";
 import { EveryDayAfter } from "#/components/landing/every-day-after";
@@ -18,6 +17,15 @@ import { Header } from "#/components/landing/header";
 import { Hero } from "#/components/landing/hero";
 import { Minimap } from "#/components/landing/minimap";
 import { Showcase } from "#/components/landing/showcase";
+// PROTOTYPE (wayfinder #43): ?compare=a|b|c mounts the comparison section
+// between Every day after and the founder note (situation switcher / honest
+// prose / bring-your-stack), dev builds only. Remove with
+// src/components/prototype/comparison-pass.tsx.
+import {
+	CompareSection,
+	CompareSwitcher,
+	useComparePass,
+} from "#/components/prototype/comparison-pass";
 // PROTOTYPE (wayfinder #35): ?gallery=a|b|c swaps the gallery treatment, dev
 // builds only. Remove with src/components/prototype/gallery-pass.tsx.
 import {
@@ -70,6 +78,7 @@ import {
 	SimSwitcher,
 	useSimPass,
 } from "#/components/prototype/sim-pass";
+import { SITE_URL } from "#/routes/__root";
 import "#/components/landing/landing.css";
 
 export const Route = createFileRoute("/")({
@@ -87,6 +96,8 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+	// PROTOTYPE (wayfinder #43): comparison section variant state.
+	const [compare, setCompare] = useComparePass();
 	// PROTOTYPE (wayfinder #35): gallery treatment variant state.
 	const [gallery, setGallery] = useGalleryPass();
 	// PROTOTYPE (wayfinder #42): gamified sim variant state.
@@ -108,6 +119,9 @@ function LandingPage() {
 				{ledger === null ? <DayOne /> : <LedgerDayOne variant={ledger} />}
 				<Showcase />
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
+				{/* #43: the comparison section sits between Every day after and
+				    the founder note (#41 decision 3); absent unless ?compare= set. */}
+				{compare !== null && <CompareSection variant={compare} />}
 				<FounderNote />
 				{gallery === "b" && <GalleryArchive />}
 				{/* #50: variant b swaps the crescendo for the refrain-proof copy. */}
@@ -133,6 +147,9 @@ function LandingPage() {
 			{/* Decided passes (#35/#42/#49/#50) keep their prototypes but hide
 			    their bars unless the variant param is explicitly in the URL — the
 			    page stays inspectable while newer tickets prototype on it. */}
+			{compare !== null && (
+				<CompareSwitcher current={compare} onChange={setCompare} />
+			)}
 			{gallery !== null && (
 				<GallerySwitcher current={gallery} onChange={setGallery} />
 			)}
