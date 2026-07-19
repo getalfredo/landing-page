@@ -1,0 +1,93 @@
+/* PROTOTYPE — throwaway (wayfinder #69, showcase record etches). Three
+   record-slot treatments, all STATIC (no animation — #46 reserves the
+   celebration beat for the hero demo). Reuses the showcase.css etch family;
+   the record lights display-green (an earned high) where SIMULATED dims. */
+
+/* --- variant a: fourth stat cell, pushed to the strip's right edge --- */
+.rec-cell {
+	margin-left: auto;
+	padding-left: 22px;
+	border-left: 1px solid var(--seam);
+	align-items: flex-start;
+}
+.rec-etch-green {
+	color: var(--green-text);
+	opacity: 0.85;
+}
+
+/* --- variant b: calm-green record pill in the window title bar --- */
+.rec-head-right {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+.rec-pin {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+	font-size: 9px;
+	letter-spacing: 0.16em;
+	white-space: nowrap;
+	color: var(--green-text);
+	border: 1px solid rgba(var(--green-rgb), 0.4);
+	border-radius: 4px;
+	padding: 2px 7px;
+}
+.rec-pin-label {
+	opacity: 0.6;
+}
+
+/* --- variant c: hairline record sub-line under one live stat --- */
+.rec-under {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 2px;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+	font-size: 9px;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--green-text);
+	opacity: 0.82;
+	white-space: nowrap;
+}
+.rec-under-star {
+	font-size: 10px;
+}
+
+/* ------------------------- switcher bar ------------------------- */
+.rec-switcher {
+	position: fixed;
+	bottom: 18px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999;
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: #101010;
+	color: #eaeaea;
+	border: 1px solid #333;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 12px;
+	letter-spacing: 0.08em;
+}
+.rec-switcher button {
+	background: #222;
+	color: #eaeaea;
+	border: 1px solid #444;
+	border-radius: 6px;
+	width: 26px;
+	height: 26px;
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1;
+}
+.rec-switcher button:hover {
+	background: #2e2e2e;
+}

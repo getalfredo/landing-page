@@ -70,6 +70,14 @@ import {
 	LiveSwitcher,
 	useLivePass,
 } from "#/components/prototype/live-pass";
+// PROTOTYPE (wayfinder #69): ?rec=a|b|c mounts static record etches in the
+// showcase intent views (fourth stat cell / head pin / under-etch), dev
+// builds only. Remove with src/components/prototype/rec-pass.tsx.
+import {
+	RecShowcase,
+	RecSwitcher,
+	useRecPass,
+} from "#/components/prototype/rec-pass";
 // PROTOTYPE (wayfinder #42): ?sim=spectacle|pain swaps Every day after's
 // anchor for the sim attract loop + fullscreen playable sim, dev builds
 // only. Remove with src/components/prototype/sim-pass.tsx.
@@ -110,6 +118,8 @@ function LandingPage() {
 	const [ledger, setLedger] = useLedgerPass();
 	// PROTOTYPE (wayfinder #52): keyboard-coupled keycaps variant state.
 	const keys = useKeysPass();
+	// PROTOTYPE (wayfinder #69): showcase record-etch variant state.
+	const [rec, setRec] = useRecPass();
 	return (
 		<div className="lp" style={consoleCssVars}>
 			<Header />
@@ -117,7 +127,7 @@ function LandingPage() {
 			<main>
 				<Hero />
 				{ledger === null ? <DayOne /> : <LedgerDayOne variant={ledger} />}
-				<Showcase />
+				{rec === null ? <Showcase /> : <RecShowcase variant={rec} />}
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
 				{/* #43: the comparison section sits between Every day after and
 				    the founder note (#41 decision 3); absent unless ?compare= set. */}
@@ -163,6 +173,9 @@ function LandingPage() {
 			{ledger !== null && (
 				<LedgerSwitcher current={ledger} onChange={setLedger} />
 			)}
+			{/* #69 active prototype: bar stays visible so the operator can flip
+			    in from OFF; self-hides in prod. */}
+			<RecSwitcher current={rec} onChange={setRec} />
 			<KeysCoupler variant={keys.variant} demo={keys.demo} />
 			{keys.variant !== null && (
 				<KeysSwitcher
