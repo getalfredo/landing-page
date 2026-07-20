@@ -1,0 +1,284 @@
+/* Glossary section (wayfinder #49, variant D "Vocabulary tree"). Consumes
+   the shared console tokens (var(--…) set on the .lp root from
+   console-vars.ts); defines no palette literals of its own. */
+
+/* ---------- collapsed affordance ---------- */
+.glp-collapsed {
+	display: inline-flex;
+	align-items: center;
+	gap: 14px;
+	margin: 8px auto 0;
+	padding: 16px 26px;
+	border: 1px solid var(--seam);
+	border-radius: 999px;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+	cursor: pointer;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+.glp-collapsed:hover {
+	border-color: rgba(var(--led-rgb), 0.4);
+	box-shadow: 0 0 24px rgba(var(--led-rgb), 0.12);
+}
+.glp-collapsed-led {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.glp-collapsed-label {
+	color: var(--paper);
+}
+.glp-collapsed-cue {
+	color: var(--green-text);
+}
+
+/* ---------- expanded: hint + close ---------- */
+.glp-tree-hint {
+	margin: 14px auto 0;
+	letter-spacing: 0.3em;
+	opacity: 0.7;
+}
+.glp-collapse-close {
+	margin: 30px auto 0;
+	padding: 8px 16px;
+	background: transparent;
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+	color: var(--paper-soft);
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+.glp-collapse-close:hover {
+	color: var(--green-text);
+}
+
+/* ---------- the tree ---------- */
+.glp-tree {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 40px auto 0;
+}
+/* trunk from HQ down to the porter bus */
+.glp-trunk {
+	width: 1px;
+	height: 30px;
+	background: var(--seam);
+}
+.glp-porter-row {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+}
+/* each porter column draws its own connector up to the shared bus */
+.glp-porter-col {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 30px 22px 0;
+}
+.glp-porter-col::before {
+	/* vertical stub from the bus down to the porter node */
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 1px;
+	height: 30px;
+	background: var(--seam);
+}
+.glp-porter-col::after {
+	/* half of the horizontal bus, joined at the row centre */
+	content: "";
+	position: absolute;
+	top: 0;
+	width: 50%;
+	height: 1px;
+	background: var(--seam);
+}
+.glp-porter-col:first-child::after {
+	right: 0;
+}
+.glp-porter-col:last-child::after {
+	left: 0;
+}
+/* tray fan under each porter */
+.glp-tray-row {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	margin-top: 0;
+}
+.glp-tray-col {
+	position: relative;
+	padding: 26px 10px 0;
+}
+.glp-tray-col::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 1px;
+	height: 26px;
+	background: var(--seam);
+}
+.glp-tray-col::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	width: 50%;
+	height: 1px;
+	background: var(--seam);
+}
+.glp-tray-col:first-child::after {
+	right: 0;
+}
+.glp-tray-col:last-child::after {
+	left: 0;
+}
+/* a single tray under a porter needs no horizontal bus */
+.glp-tray-col:only-child::after {
+	display: none;
+}
+
+/* ---------- nodes (buttons) ---------- */
+.glp-tnode {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+	cursor: pointer;
+	font-family: "IBM Plex Mono", monospace;
+	transition:
+		border-color 0.18s ease,
+		box-shadow 0.18s ease,
+		transform 0.12s ease;
+}
+.glp-tnode:hover {
+	border-color: rgba(var(--led-rgb), 0.45);
+}
+.glp-tnode-led {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.glp-tnode-face {
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	color: var(--paper);
+}
+.glp-tnode-hq {
+	flex-direction: row;
+	gap: 10px;
+	padding: 14px 26px;
+}
+.glp-tnode-hq .glp-tnode-face {
+	color: var(--green-text);
+	text-shadow: 0 0 14px var(--green-glow);
+}
+.glp-tnode-porter {
+	flex-direction: row;
+	gap: 10px;
+	align-items: baseline;
+	padding: 12px 22px;
+}
+.glp-tnode-sub {
+	color: var(--paper-soft);
+}
+/* trays mirror the porter node: the coined type word TRAY reads big, the
+   integration name rides alongside as the small qualifier (like SERVER 01
+   on a porter) — so every node in the tree names its coined term. */
+.glp-tnode-tray {
+	flex-direction: row;
+	gap: 8px;
+	align-items: baseline;
+	padding: 11px 14px;
+}
+.glp-tnode-tray .glp-tnode-face {
+	font-size: 13px;
+}
+/* active node: amber ring + lift */
+.glp-tnode-active {
+	border-color: rgba(var(--amber-rgb), 0.6);
+	box-shadow:
+		0 0 0 1px rgba(var(--amber-rgb), 0.35),
+		0 0 20px rgba(var(--amber-rgb), 0.18);
+	transform: translateY(-1px);
+}
+.glp-tnode-active .glp-tnode-sub {
+	color: var(--paper);
+}
+
+/* ---------- readout ---------- */
+.glp-readout {
+	max-width: 620px;
+	margin: 34px auto 0;
+	padding: 26px 30px;
+	border: 1px solid var(--seam);
+	border-radius: 12px;
+	background: var(--display-bg);
+	text-align: left;
+	min-height: 132px;
+}
+.glp-readout-etch {
+	color: rgba(var(--green-rgb), 0.75);
+}
+.glp-readout-def {
+	margin: 16px 0 0;
+	font-size: 17px;
+	line-height: 1.6;
+	color: var(--display-text);
+	text-shadow: 0 0 12px var(--green-glow);
+	text-wrap: pretty;
+}
+.glp-readout-lede {
+	color: #fff;
+}
+
+@media (max-width: 640px) {
+	/* the two porters can't sit side by side at phone width — stack them
+	   into a vertical spine (HQ -> porter 01 + its trays -> porter 02 + its
+	   trays) so nothing overflows the viewport. */
+	.glp-porter-row {
+		flex-direction: column;
+		align-items: center;
+		gap: 0;
+	}
+	.glp-porter-col {
+		padding: 28px 0 0;
+	}
+	.glp-porter-col::after {
+		display: none; /* no horizontal bus when stacked */
+	}
+	.glp-tray-col {
+		padding: 24px 3px 0;
+	}
+	/* stack TRAY over its integration name so three fit one phone row */
+	.glp-tnode-tray {
+		flex-direction: column;
+		gap: 3px;
+		align-items: center;
+		padding: 9px 8px;
+		min-width: 0;
+	}
+	.glp-tnode-tray .glp-tnode-face {
+		font-size: 11px;
+	}
+	.glp-tnode-tray .glp-tnode-sub {
+		font-size: 8.5px;
+		letter-spacing: 0.06em;
+	}
+	.glp-tnode-porter {
+		padding: 11px 16px;
+	}
+}

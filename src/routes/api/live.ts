@@ -1,9 +1,13 @@
-// PROTOTYPE — throwaway (wayfinder #50, LIVE etch). Read-only telemetry
-// for the LIVE-etch variants: host uptime from /proc/uptime (the VPS's own
-// clock, survives deploys; process uptime as the non-Linux fallback) and
-// the real waitlist row count. No PII, no params, nothing cacheable worth
-// caching. 404s in production builds — the fold-in decides what ships.
-// Remove with src/components/prototype/live-pass.tsx.
+// Read-only telemetry for the footer LIVE meter (wayfinder #50): the VPS's
+// own host uptime from /proc/uptime (survives deploys; process uptime as the
+// non-Linux fallback) and the real waitlist row count. No PII, no params,
+// nothing worth caching. Serves in production — the meter's honesty depends
+// on it being genuinely live.
+//
+// DATABASE_URL gotcha (wayfinder #24/#70): db resolves DATABASE_URL with no
+// fallback and no bundled .env, so a fresh deploy that hasn't set it will
+// throw in waitlistCount(); the try/catch degrades to a null count (the
+// meter shows its stub) rather than 500-ing the endpoint.
 import { readFileSync } from "node:fs";
 import { createFileRoute } from "@tanstack/react-router";
 import { count } from "drizzle-orm";
@@ -33,15 +37,11 @@ function waitlistCount(): number | null {
 export const Route = createFileRoute("/api/live")({
 	server: {
 		handlers: {
-			GET: () => {
-				if (import.meta.env.PROD) {
-					return new Response("Not found", { status: 404 });
-				}
-				return Response.json({
+			GET: () =>
+				Response.json({
 					uptimeSeconds: hostUptimeSeconds(),
 					waitlistCount: waitlistCount(),
-				});
-			},
+				}),
 		},
 	},
 });

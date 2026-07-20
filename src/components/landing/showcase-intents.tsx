@@ -91,6 +91,11 @@ export function HealthPanel() {
 						6d ago <small>shiplog</small>
 					</span>
 				</div>
+				{/* #69 record cell (variant a): the all-time best beside the now. */}
+				<div className="scp-stat rec-cell">
+					<span className="scp-etch rec-etch-green">★ BEST STREAK</span>
+					<span className="scp-stat-num scp-green">41 DAYS ALL UP</span>
+				</div>
 			</div>
 			<div className="scp-win-body sci-body">
 				<div className="sci-sect">
@@ -191,6 +196,11 @@ export function ActivityPanel() {
 				<div className="scp-stat">
 					<span className="scp-etch">STARS THIS WEEK</span>
 					<span className="scp-stat-num">★ +61</span>
+				</div>
+				{/* #69 record cell (variant a): the all-time best beside the now. */}
+				<div className="scp-stat rec-cell">
+					<span className="scp-etch rec-etch-green">★ BEST DAY</span>
+					<span className="scp-stat-num scp-green">3,420 VISITS</span>
 				</div>
 			</div>
 			<div className="scp-win-body sci-body">
@@ -307,6 +317,11 @@ export function MoneyPanel() {
 						invoicer <small>€1,880</small>
 					</span>
 				</div>
+				{/* #69 record cell (variant a): the all-time best beside the now. */}
+				<div className="scp-stat rec-cell">
+					<span className="scp-etch rec-etch-green">★ MILESTONE</span>
+					<span className="scp-stat-num scp-green">FIRST € · MAR 3</span>
+				</div>
 			</div>
 			<div className="scp-win-body sci-body sci-rows">
 				{PAYMENTS.map((p) => (
@@ -391,6 +406,11 @@ export function MailIntentPanel() {
 				<div className="scp-stat">
 					<span className="scp-etch">BOUNCED</span>
 					<span className="scp-stat-num scp-amber">1</span>
+				</div>
+				{/* #69 record cell (variant a): the all-time best beside the now. */}
+				<div className="scp-stat rec-cell">
+					<span className="scp-etch rec-etch-green">★ BEST DAY</span>
+					<span className="scp-stat-num scp-green">100% · 512 SENT</span>
 				</div>
 			</div>
 			<div className="scp-win-body sci-body sci-rows">

@@ -659,6 +659,9 @@
 	);
 }
 .lp-btn-armed:active:not(:disabled) {
+	/* suspend the breathing pulse for the press — lp-amberbreath animates
+	   box-shadow and would otherwise override the shadow collapse (#52). */
+	animation: none;
 	transform: translateY(2px);
 	box-shadow:
 		0 1px 0 var(--keycap-amber-shadow),
@@ -688,10 +691,27 @@
 	);
 }
 .lp-btn-next:active:not(:disabled) {
+	/* same fix as armed: stop the pulse so the press shadow reads (#52). */
+	animation: none;
 	transform: translateY(2px);
 	box-shadow:
 		0 1px 0 var(--keycap-amber-shadow),
 		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Keyboard-coupled press pose (#52, variant c "Hold"): the coupler adds
+   .kp-down to the waitlist submit keycap while Enter is held, matching the
+   mouse :active travel + shadow collapse. animation:none because
+   lp-amberbreath animates box-shadow and would otherwise override the
+   collapsed shadow for the whole hold. */
+.kp-down {
+	animation: none !important;
+	transform: translateY(2px) !important;
+}
+.kp-down.lp-btn-armed {
+	box-shadow:
+		0 1px 0 var(--keycap-amber-shadow),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
 }
 .lp-btn-next::before {
 	content: "";

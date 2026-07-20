@@ -13,8 +13,11 @@ import { Faq } from "#/components/landing/faq";
 import { FinalCta } from "#/components/landing/final-cta";
 import { Footer } from "#/components/landing/footer";
 import { FounderNote } from "#/components/landing/founder-note";
+import { Gallery } from "#/components/landing/gallery";
+import { Glossary } from "#/components/landing/glossary";
 import { Header } from "#/components/landing/header";
 import { Hero } from "#/components/landing/hero";
+import { KeycapCoupling } from "#/components/landing/keycap-coupling";
 import { Minimap } from "#/components/landing/minimap";
 import { Showcase } from "#/components/landing/showcase";
 // PROTOTYPE (wayfinder #43): ?compare=a|b|c mounts the comparison section
@@ -26,58 +29,6 @@ import {
 	CompareSwitcher,
 	useComparePass,
 } from "#/components/prototype/comparison-pass";
-// PROTOTYPE (wayfinder #35): ?gallery=a|b|c swaps the gallery treatment, dev
-// builds only. Remove with src/components/prototype/gallery-pass.tsx.
-import {
-	GalleryArchive,
-	GalleryPass,
-	GallerySwitcher,
-	useGalleryPass,
-} from "#/components/prototype/gallery-pass";
-// PROTOTYPE (wayfinder #49): ?glossary=a|b|c mounts a glossary treatment at
-// the page tail (before the footer), dev builds only. Remove with
-// src/components/prototype/glossary-pass.tsx.
-import {
-	GlossaryPass,
-	GlossarySwitcher,
-	useGlossaryPass,
-} from "#/components/prototype/glossary-pass";
-// PROTOTYPE (wayfinder #52): ?keys=a|b|c couples the physical keyboard to
-// the page's keycaps (Enter in the waitlist input depresses the submit cap;
-// optionally Enter presses the demo's hot key), dev builds only. Remove
-// with src/components/prototype/keys-pass.tsx.
-import {
-	KeysCoupler,
-	KeysSwitcher,
-	useKeysPass,
-} from "#/components/prototype/keys-pass";
-// PROTOTYPE (wayfinder #54): ?ledger=a|b|c mounts the setup-tax ledger
-// strip inside Day one (two-column ledger / stamped receipt / flip strip),
-// dev builds only. Remove with src/components/prototype/ledger-pass.tsx.
-import {
-	LedgerDayOne,
-	LedgerSwitcher,
-	useLedgerPass,
-} from "#/components/prototype/ledger-pass";
-// PROTOTYPE (wayfinder #50): ?live=a|b|c puts one piece of real telemetry
-// on the page as a LIVE etch (footer colophon line / crescendo proof line /
-// live meter strip), dev builds only. Remove with
-// src/components/prototype/live-pass.tsx and src/routes/api/live.ts.
-import {
-	LiveCrescendo,
-	LiveFooter,
-	LiveMeterFooter,
-	LiveSwitcher,
-	useLivePass,
-} from "#/components/prototype/live-pass";
-// PROTOTYPE (wayfinder #69): ?rec=a|b|c mounts static record etches in the
-// showcase intent views (fourth stat cell / head pin / under-etch), dev
-// builds only. Remove with src/components/prototype/rec-pass.tsx.
-import {
-	RecShowcase,
-	RecSwitcher,
-	useRecPass,
-} from "#/components/prototype/rec-pass";
 // PROTOTYPE (wayfinder #42): ?sim=spectacle|pain swaps Every day after's
 // anchor for the sim attract loop + fullscreen playable sim, dev builds
 // only. Remove with src/components/prototype/sim-pass.tsx.
@@ -106,85 +57,41 @@ export const Route = createFileRoute("/")({
 function LandingPage() {
 	// PROTOTYPE (wayfinder #43): comparison section variant state.
 	const [compare, setCompare] = useComparePass();
-	// PROTOTYPE (wayfinder #35): gallery treatment variant state.
-	const [gallery, setGallery] = useGalleryPass();
 	// PROTOTYPE (wayfinder #42): gamified sim variant state.
 	const [sim, setSim] = useSimPass();
-	// PROTOTYPE (wayfinder #49): glossary treatment variant state.
-	const [glossary, setGlossary] = useGlossaryPass();
-	// PROTOTYPE (wayfinder #50): LIVE etch variant state.
-	const [live, setLive] = useLivePass();
-	// PROTOTYPE (wayfinder #54): setup-tax ledger variant state.
-	const [ledger, setLedger] = useLedgerPass();
-	// PROTOTYPE (wayfinder #52): keyboard-coupled keycaps variant state.
-	const keys = useKeysPass();
-	// PROTOTYPE (wayfinder #69): showcase record-etch variant state.
-	const [rec, setRec] = useRecPass();
 	return (
 		<div className="lp" style={consoleCssVars}>
 			<Header />
 			<Minimap />
 			<main>
 				<Hero />
-				{ledger === null ? <DayOne /> : <LedgerDayOne variant={ledger} />}
-				{rec === null ? <Showcase /> : <RecShowcase variant={rec} />}
+				<DayOne />
+				<Showcase />
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
 				{/* #43: the comparison section sits between Every day after and
 				    the founder note (#41 decision 3); absent unless ?compare= set. */}
 				{compare !== null && <CompareSection variant={compare} />}
 				<FounderNote />
-				{gallery === "b" && <GalleryArchive />}
-				{/* #50: variant b swaps the crescendo for the refrain-proof copy. */}
-				{live === "b" ? <LiveCrescendo /> : <Crescendo />}
+				<Crescendo />
 				<Faq />
 				{/* #49 round 2: glossary sits BEFORE "Get in" (the final CTA),
-				    not at the page tail. */}
-				{glossary !== null && <GlossaryPass variant={glossary} />}
+				    not at the page tail — waypoint 07 TERMS, Get in → 08. */}
+				<Glossary />
 				<FinalCta />
 			</main>
-			{/* #50: variant c (winner) swaps the footer for the meter-below-the-
-			    wordmark copy; variant a swaps in the colophon-line copy. */}
-			{live === "c" ? (
-				<LiveMeterFooter />
-			) : live === "a" ? (
-				<LiveFooter />
-			) : (
-				<Footer />
-			)}
-			{(gallery === "a" || gallery === "c") && (
-				<GalleryPass variant={gallery} />
-			)}
-			{/* Decided passes (#35/#42/#49/#50) keep their prototypes but hide
-			    their bars unless the variant param is explicitly in the URL — the
-			    page stays inspectable while newer tickets prototype on it. */}
+			<Footer />
+			{/* #35 (variant C "Monitor wall"): a right-edge pull-tab opens a
+			    full-screen wall of every set-piece; mounts outside <main>. */}
+			<Gallery />
+			{/* Live prototypes still being worked keep their bars, hidden unless
+			    the variant param is explicitly in the URL (#42 sim → map #72,
+			    #43 comparison → #74). */}
 			{compare !== null && (
 				<CompareSwitcher current={compare} onChange={setCompare} />
 			)}
-			{gallery !== null && (
-				<GallerySwitcher current={gallery} onChange={setGallery} />
-			)}
 			{sim !== null && <SimSwitcher current={sim} onChange={setSim} />}
-			{glossary !== null && (
-				<GlossarySwitcher current={glossary} onChange={setGlossary} />
-			)}
-			{live !== null && <LiveSwitcher current={live} onChange={setLive} />}
-			{/* #54 decided (flip strip c won): bar hides unless ?ledger= is in
-			    the URL, like the other decided passes. */}
-			{ledger !== null && (
-				<LedgerSwitcher current={ledger} onChange={setLedger} />
-			)}
-			{/* #69 active prototype: bar stays visible so the operator can flip
-			    in from OFF; self-hides in prod. */}
-			<RecSwitcher current={rec} onChange={setRec} />
-			<KeysCoupler variant={keys.variant} demo={keys.demo} />
-			{keys.variant !== null && (
-				<KeysSwitcher
-					current={keys.variant}
-					onChange={keys.setVariant}
-					demo={keys.demo}
-					onDemoChange={keys.setDemo}
-				/>
-			)}
+			{/* #52 (variant c "Hold"): waitlist submit keycap mirrors Enter. */}
+			<KeycapCoupling />
 		</div>
 	);
 }

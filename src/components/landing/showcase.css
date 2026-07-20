@@ -485,3 +485,19 @@
 		transition: none;
 	}
 }
+
+/* Record cell (wayfinder #69, variant a): a fourth founder-metric stat cell
+   appended to each intent view's strip, pushed to the right edge behind a
+   hairline seam — the all-time best beside the now. Static (no beat; #46
+   reserves the celebration for the hero demo); lights display-green (an
+   earned high) where SIMULATED FEED dims. */
+.rec-cell {
+	margin-left: auto;
+	padding-left: 22px;
+	border-left: 1px solid var(--seam);
+	align-items: flex-start;
+}
+.rec-etch-green {
+	color: var(--green-text);
+	opacity: 0.85;
+}

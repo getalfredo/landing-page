@@ -1,0 +1,164 @@
+/* Setup-tax ledger strip (wayfinder #54, variant c "Flip strip") inside Day
+   one. Consumes the shared console tokens (var(--…) set on the .lp root).
+   The AGAIN side dims (paper-soft); the WIRED side lights (phosphor green +
+   glow) — the same LIVE-vs-SIMULATED energy contrast the #50 rule locked. */
+
+.ldg-again {
+	color: var(--paper-soft);
+	opacity: 0.55;
+}
+.ldg-etch-green {
+	color: var(--green-text);
+	text-shadow: 0 0 10px var(--green-glow);
+}
+
+.ldg-flip {
+	margin: 44px auto 0;
+	max-width: 760px;
+	border: 1px solid var(--seam);
+	border-radius: 14px;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+	padding: 18px 22px 22px;
+}
+.ldg-flip-head {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 8px;
+}
+/* progress to the next auto-switch, restarted (via key) on every flip */
+.ldg-flip-progress {
+	display: block;
+	height: 2px;
+	border-radius: 999px;
+	background: var(--seam);
+	overflow: hidden;
+}
+.ldg-flip-progress-fill {
+	display: block;
+	height: 100%;
+	width: 100%;
+	transform-origin: left;
+	transform: scaleX(0);
+	background: rgba(var(--paper-rgb), 0.4);
+	animation: ldg-progress linear forwards;
+}
+@keyframes ldg-progress {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.ldg-flip-progress {
+		display: none;
+	}
+}
+.ldg-flip-toggle {
+	/* fieldset reset */
+	margin: 0;
+	padding: 0;
+	min-inline-size: 0;
+	display: inline-flex;
+	border: 1px solid var(--seam);
+	border-radius: 999px;
+	overflow: hidden;
+}
+.ldg-flip-cap {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	padding: 8px 16px;
+	cursor: pointer;
+	color: var(--paper-soft);
+	transition:
+		background 0.25s ease,
+		color 0.25s ease;
+}
+.ldg-flip-cap[aria-pressed="true"] {
+	background: rgba(var(--paper-rgb), 0.08);
+	color: var(--paper);
+}
+.ldg-flip-row {
+	margin-top: 18px;
+	display: flex;
+	align-items: stretch;
+	gap: 22px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.ldg-flip-slots {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.ldg-flip-slot {
+	flex: 1;
+	min-width: 96px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 7px;
+	padding: 13px 8px 12px;
+	border: 1px solid var(--seam);
+	border-radius: 10px;
+	background: var(--display-bg);
+	transition: border-color 0.35s ease;
+}
+.ldg-flip-slot-wired {
+	border-color: rgba(var(--led-rgb), 0.4);
+}
+.ldg-flip-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--led-off);
+	transition:
+		background 0.35s ease,
+		box-shadow 0.35s ease;
+}
+.ldg-flip-dot-on {
+	background: var(--led);
+	box-shadow: 0 0 8px var(--led-glow);
+}
+.ldg-flip-name {
+	font-size: 9px;
+	color: var(--paper);
+}
+.ldg-flip-counter {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 0 26px;
+	border-left: 1px solid var(--seam);
+}
+.ldg-flip-counter-label {
+	font-size: 9px;
+	opacity: 0.75;
+}
+.ldg-flip-counter-value {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 34px;
+	line-height: 1;
+	color: var(--paper-soft);
+	font-variant-numeric: tabular-nums;
+}
+.ldg-flip-counter-zero {
+	color: var(--green-text);
+	text-shadow: 0 0 16px var(--green-glow);
+}
+@media (max-width: 640px) {
+	.ldg-flip-counter {
+		border-left: 0;
+		padding: 6px 0 0;
+	}
+}

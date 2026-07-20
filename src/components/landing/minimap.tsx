@@ -19,7 +19,8 @@ const SECTIONS = [
 	{ id: "wp-founder", index: "04", label: "FOUNDER" },
 	{ id: "wp-payoff", index: "05", label: "THE PAYOFF" },
 	{ id: "wp-questions", index: "06", label: "QUESTIONS" },
-	{ id: "wp-get-in", index: "07", label: "GET IN" },
+	{ id: "wp-terms", index: "07", label: "TERMS" },
+	{ id: "wp-get-in", index: "08", label: "GET IN" },
 ];
 
 const ACTIVE = ink.ledRgb.split(",").map(Number);

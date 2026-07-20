@@ -1,0 +1,81 @@
+/* LIVE meter strip (wayfinder #50, variant C) inside the #32 nameplate
+   footer. Consumes the shared console tokens (var(--…) set on the .lp root);
+   the lp-dotblink keyframe lives in landing.css. Where the showcase etches
+   SIMULATED FEED and dims, this lights — same etch family, opposite energy. */
+
+.lp-meter {
+	/* seated in the nameplate: wordmark above, hairline row below */
+	margin: 56px 0 8px;
+	box-sizing: border-box;
+	padding: 22px 28px;
+	border: 1px solid var(--seam);
+	border-radius: 14px;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--surface) 100%);
+	display: flex;
+	align-items: center;
+	gap: 28px 44px;
+	flex-wrap: wrap;
+}
+.lp-meter-live {
+	color: var(--green-text);
+	text-shadow: 0 0 10px var(--green-glow);
+	font-variant-numeric: tabular-nums;
+}
+.lp-meter-led {
+	flex: none;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--led);
+	box-shadow: 0 0 9px var(--led-glow);
+	animation: lp-dotblink 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+	.lp-meter-led {
+		animation: none;
+	}
+}
+.lp-meter-cap {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	padding-right: 28px;
+	border-right: 1px solid var(--seam);
+}
+.lp-meter-cap .lp-meter-live {
+	font-size: 11px;
+}
+.lp-meter-cell {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 7px;
+}
+.lp-meter-label {
+	font-size: 9px;
+	opacity: 0.75;
+}
+.lp-meter-value {
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 19px;
+	line-height: 1;
+	color: var(--green-text);
+	text-shadow: 0 0 14px var(--green-glow);
+	font-variant-numeric: tabular-nums;
+}
+.lp-meter-word {
+	color: var(--paper);
+	text-shadow: none;
+}
+@media (max-width: 640px) {
+	.lp-meter {
+		margin: 44px 0 4px;
+		padding: 18px 20px;
+		gap: 18px 28px;
+	}
+	.lp-meter-cap {
+		padding-right: 18px;
+	}
+	.lp-meter-value {
+		font-size: 16px;
+	}
+}
