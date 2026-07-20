@@ -11,6 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CompareAlfredoVsVercelRouteImport } from './routes/compare/alfredo-vs-vercel'
+import { Route as CompareAlfredoVsSupabaseRouteImport } from './routes/compare/alfredo-vs-supabase'
+import { Route as CompareAlfredoVsRailwayRouteImport } from './routes/compare/alfredo-vs-railway'
+import { Route as CompareAlfredoVsGrafanaRouteImport } from './routes/compare/alfredo-vs-grafana'
+import { Route as CompareAlfredoVsDokployRouteImport } from './routes/compare/alfredo-vs-dokploy'
+import { Route as CompareAlfredoVsDatadogRouteImport } from './routes/compare/alfredo-vs-datadog'
+import { Route as CompareAlfredoVsCoolifyRouteImport } from './routes/compare/alfredo-vs-coolify'
+import { Route as CompareAlfredoVsCloudflareRouteImport } from './routes/compare/alfredo-vs-cloudflare'
+import { Route as CompareAlfredoVsBetterTStackRouteImport } from './routes/compare/alfredo-vs-better-t-stack'
 import { Route as ApiWaitlistRouteImport } from './routes/api/waitlist'
 import { Route as ApiLiveRouteImport } from './routes/api/live'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -25,6 +34,54 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompareAlfredoVsVercelRoute = CompareAlfredoVsVercelRouteImport.update({
+  id: '/compare/alfredo-vs-vercel',
+  path: '/compare/alfredo-vs-vercel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareAlfredoVsSupabaseRoute =
+  CompareAlfredoVsSupabaseRouteImport.update({
+    id: '/compare/alfredo-vs-supabase',
+    path: '/compare/alfredo-vs-supabase',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CompareAlfredoVsRailwayRoute = CompareAlfredoVsRailwayRouteImport.update({
+  id: '/compare/alfredo-vs-railway',
+  path: '/compare/alfredo-vs-railway',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareAlfredoVsGrafanaRoute = CompareAlfredoVsGrafanaRouteImport.update({
+  id: '/compare/alfredo-vs-grafana',
+  path: '/compare/alfredo-vs-grafana',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareAlfredoVsDokployRoute = CompareAlfredoVsDokployRouteImport.update({
+  id: '/compare/alfredo-vs-dokploy',
+  path: '/compare/alfredo-vs-dokploy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareAlfredoVsDatadogRoute = CompareAlfredoVsDatadogRouteImport.update({
+  id: '/compare/alfredo-vs-datadog',
+  path: '/compare/alfredo-vs-datadog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareAlfredoVsCoolifyRoute = CompareAlfredoVsCoolifyRouteImport.update({
+  id: '/compare/alfredo-vs-coolify',
+  path: '/compare/alfredo-vs-coolify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareAlfredoVsCloudflareRoute =
+  CompareAlfredoVsCloudflareRouteImport.update({
+    id: '/compare/alfredo-vs-cloudflare',
+    path: '/compare/alfredo-vs-cloudflare',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CompareAlfredoVsBetterTStackRoute =
+  CompareAlfredoVsBetterTStackRouteImport.update({
+    id: '/compare/alfredo-vs-better-t-stack',
+    path: '/compare/alfredo-vs-better-t-stack',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWaitlistRoute = ApiWaitlistRouteImport.update({
   id: '/api/waitlist',
   path: '/api/waitlist',
@@ -46,6 +103,15 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/api/live': typeof ApiLiveRoute
   '/api/waitlist': typeof ApiWaitlistRoute
+  '/compare/alfredo-vs-better-t-stack': typeof CompareAlfredoVsBetterTStackRoute
+  '/compare/alfredo-vs-cloudflare': typeof CompareAlfredoVsCloudflareRoute
+  '/compare/alfredo-vs-coolify': typeof CompareAlfredoVsCoolifyRoute
+  '/compare/alfredo-vs-datadog': typeof CompareAlfredoVsDatadogRoute
+  '/compare/alfredo-vs-dokploy': typeof CompareAlfredoVsDokployRoute
+  '/compare/alfredo-vs-grafana': typeof CompareAlfredoVsGrafanaRoute
+  '/compare/alfredo-vs-railway': typeof CompareAlfredoVsRailwayRoute
+  '/compare/alfredo-vs-supabase': typeof CompareAlfredoVsSupabaseRoute
+  '/compare/alfredo-vs-vercel': typeof CompareAlfredoVsVercelRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +119,15 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/api/live': typeof ApiLiveRoute
   '/api/waitlist': typeof ApiWaitlistRoute
+  '/compare/alfredo-vs-better-t-stack': typeof CompareAlfredoVsBetterTStackRoute
+  '/compare/alfredo-vs-cloudflare': typeof CompareAlfredoVsCloudflareRoute
+  '/compare/alfredo-vs-coolify': typeof CompareAlfredoVsCoolifyRoute
+  '/compare/alfredo-vs-datadog': typeof CompareAlfredoVsDatadogRoute
+  '/compare/alfredo-vs-dokploy': typeof CompareAlfredoVsDokployRoute
+  '/compare/alfredo-vs-grafana': typeof CompareAlfredoVsGrafanaRoute
+  '/compare/alfredo-vs-railway': typeof CompareAlfredoVsRailwayRoute
+  '/compare/alfredo-vs-supabase': typeof CompareAlfredoVsSupabaseRoute
+  '/compare/alfredo-vs-vercel': typeof CompareAlfredoVsVercelRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -61,19 +136,65 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/api/live': typeof ApiLiveRoute
   '/api/waitlist': typeof ApiWaitlistRoute
+  '/compare/alfredo-vs-better-t-stack': typeof CompareAlfredoVsBetterTStackRoute
+  '/compare/alfredo-vs-cloudflare': typeof CompareAlfredoVsCloudflareRoute
+  '/compare/alfredo-vs-coolify': typeof CompareAlfredoVsCoolifyRoute
+  '/compare/alfredo-vs-datadog': typeof CompareAlfredoVsDatadogRoute
+  '/compare/alfredo-vs-dokploy': typeof CompareAlfredoVsDokployRoute
+  '/compare/alfredo-vs-grafana': typeof CompareAlfredoVsGrafanaRoute
+  '/compare/alfredo-vs-railway': typeof CompareAlfredoVsRailwayRoute
+  '/compare/alfredo-vs-supabase': typeof CompareAlfredoVsSupabaseRoute
+  '/compare/alfredo-vs-vercel': typeof CompareAlfredoVsVercelRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/privacy' | '/api/live' | '/api/waitlist' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/privacy'
+    | '/api/live'
+    | '/api/waitlist'
+    | '/compare/alfredo-vs-better-t-stack'
+    | '/compare/alfredo-vs-cloudflare'
+    | '/compare/alfredo-vs-coolify'
+    | '/compare/alfredo-vs-datadog'
+    | '/compare/alfredo-vs-dokploy'
+    | '/compare/alfredo-vs-grafana'
+    | '/compare/alfredo-vs-railway'
+    | '/compare/alfredo-vs-supabase'
+    | '/compare/alfredo-vs-vercel'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/privacy' | '/api/live' | '/api/waitlist' | '/api/auth/$'
+  to:
+    | '/'
+    | '/privacy'
+    | '/api/live'
+    | '/api/waitlist'
+    | '/compare/alfredo-vs-better-t-stack'
+    | '/compare/alfredo-vs-cloudflare'
+    | '/compare/alfredo-vs-coolify'
+    | '/compare/alfredo-vs-datadog'
+    | '/compare/alfredo-vs-dokploy'
+    | '/compare/alfredo-vs-grafana'
+    | '/compare/alfredo-vs-railway'
+    | '/compare/alfredo-vs-supabase'
+    | '/compare/alfredo-vs-vercel'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/privacy'
     | '/api/live'
     | '/api/waitlist'
+    | '/compare/alfredo-vs-better-t-stack'
+    | '/compare/alfredo-vs-cloudflare'
+    | '/compare/alfredo-vs-coolify'
+    | '/compare/alfredo-vs-datadog'
+    | '/compare/alfredo-vs-dokploy'
+    | '/compare/alfredo-vs-grafana'
+    | '/compare/alfredo-vs-railway'
+    | '/compare/alfredo-vs-supabase'
+    | '/compare/alfredo-vs-vercel'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +203,15 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ApiLiveRoute: typeof ApiLiveRoute
   ApiWaitlistRoute: typeof ApiWaitlistRoute
+  CompareAlfredoVsBetterTStackRoute: typeof CompareAlfredoVsBetterTStackRoute
+  CompareAlfredoVsCloudflareRoute: typeof CompareAlfredoVsCloudflareRoute
+  CompareAlfredoVsCoolifyRoute: typeof CompareAlfredoVsCoolifyRoute
+  CompareAlfredoVsDatadogRoute: typeof CompareAlfredoVsDatadogRoute
+  CompareAlfredoVsDokployRoute: typeof CompareAlfredoVsDokployRoute
+  CompareAlfredoVsGrafanaRoute: typeof CompareAlfredoVsGrafanaRoute
+  CompareAlfredoVsRailwayRoute: typeof CompareAlfredoVsRailwayRoute
+  CompareAlfredoVsSupabaseRoute: typeof CompareAlfredoVsSupabaseRoute
+  CompareAlfredoVsVercelRoute: typeof CompareAlfredoVsVercelRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -99,6 +229,69 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-vercel': {
+      id: '/compare/alfredo-vs-vercel'
+      path: '/compare/alfredo-vs-vercel'
+      fullPath: '/compare/alfredo-vs-vercel'
+      preLoaderRoute: typeof CompareAlfredoVsVercelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-supabase': {
+      id: '/compare/alfredo-vs-supabase'
+      path: '/compare/alfredo-vs-supabase'
+      fullPath: '/compare/alfredo-vs-supabase'
+      preLoaderRoute: typeof CompareAlfredoVsSupabaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-railway': {
+      id: '/compare/alfredo-vs-railway'
+      path: '/compare/alfredo-vs-railway'
+      fullPath: '/compare/alfredo-vs-railway'
+      preLoaderRoute: typeof CompareAlfredoVsRailwayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-grafana': {
+      id: '/compare/alfredo-vs-grafana'
+      path: '/compare/alfredo-vs-grafana'
+      fullPath: '/compare/alfredo-vs-grafana'
+      preLoaderRoute: typeof CompareAlfredoVsGrafanaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-dokploy': {
+      id: '/compare/alfredo-vs-dokploy'
+      path: '/compare/alfredo-vs-dokploy'
+      fullPath: '/compare/alfredo-vs-dokploy'
+      preLoaderRoute: typeof CompareAlfredoVsDokployRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-datadog': {
+      id: '/compare/alfredo-vs-datadog'
+      path: '/compare/alfredo-vs-datadog'
+      fullPath: '/compare/alfredo-vs-datadog'
+      preLoaderRoute: typeof CompareAlfredoVsDatadogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-coolify': {
+      id: '/compare/alfredo-vs-coolify'
+      path: '/compare/alfredo-vs-coolify'
+      fullPath: '/compare/alfredo-vs-coolify'
+      preLoaderRoute: typeof CompareAlfredoVsCoolifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-cloudflare': {
+      id: '/compare/alfredo-vs-cloudflare'
+      path: '/compare/alfredo-vs-cloudflare'
+      fullPath: '/compare/alfredo-vs-cloudflare'
+      preLoaderRoute: typeof CompareAlfredoVsCloudflareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/alfredo-vs-better-t-stack': {
+      id: '/compare/alfredo-vs-better-t-stack'
+      path: '/compare/alfredo-vs-better-t-stack'
+      fullPath: '/compare/alfredo-vs-better-t-stack'
+      preLoaderRoute: typeof CompareAlfredoVsBetterTStackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/waitlist': {
@@ -130,6 +323,15 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ApiLiveRoute: ApiLiveRoute,
   ApiWaitlistRoute: ApiWaitlistRoute,
+  CompareAlfredoVsBetterTStackRoute: CompareAlfredoVsBetterTStackRoute,
+  CompareAlfredoVsCloudflareRoute: CompareAlfredoVsCloudflareRoute,
+  CompareAlfredoVsCoolifyRoute: CompareAlfredoVsCoolifyRoute,
+  CompareAlfredoVsDatadogRoute: CompareAlfredoVsDatadogRoute,
+  CompareAlfredoVsDokployRoute: CompareAlfredoVsDokployRoute,
+  CompareAlfredoVsGrafanaRoute: CompareAlfredoVsGrafanaRoute,
+  CompareAlfredoVsRailwayRoute: CompareAlfredoVsRailwayRoute,
+  CompareAlfredoVsSupabaseRoute: CompareAlfredoVsSupabaseRoute,
+  CompareAlfredoVsVercelRoute: CompareAlfredoVsVercelRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

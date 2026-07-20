@@ -12,3 +12,17 @@ Integrations Alfredo starts with: Umami for analytics, Postmark for email, Conve
 
 - [Alfredo](https://getalfredo.com/): the landing page, with the interactive HQ demo and the waitlist
 - [Privacy](https://getalfredo.com/privacy): what happens with waitlist emails and analytics data
+
+## Comparisons
+
+Honest, non-adversarial deep dives: what you keep, what Alfredo adds, and when to stay put. Each compares Alfredo and one tool across seven capabilities (runs on your servers, deploys, wires each project at birth, one dashboard across projects, sees your business, works without assembly, flat cost for many projects).
+
+- [Alfredo vs Coolify](https://getalfredo.com/compare/alfredo-vs-coolify): same deploy problem on your servers, plus wiring and one HQ
+- [Alfredo vs Dokploy](https://getalfredo.com/compare/alfredo-vs-dokploy): deploys your VPS projects, plus the layer above it
+- [Alfredo vs Vercel](https://getalfredo.com/compare/alfredo-vs-vercel): self-host both halves instead of renting one
+- [Alfredo vs Railway](https://getalfredo.com/compare/alfredo-vs-railway): own your hardware and the cross-project view
+- [Alfredo vs Supabase](https://getalfredo.com/compare/alfredo-vs-supabase): wire and watch all your projects, not one backend
+- [Alfredo vs Better-T-Stack](https://getalfredo.com/compare/alfredo-vs-better-t-stack): use both — it writes code, Alfredo runs it
+- [Alfredo vs Grafana](https://getalfredo.com/compare/alfredo-vs-grafana): the assembled view, instead of building it
+- [Alfredo vs Datadog](https://getalfredo.com/compare/alfredo-vs-datadog): one view for many small projects, instead of renting it
+- [Alfredo vs Cloudflare](https://getalfredo.com/compare/alfredo-vs-cloudflare): self-host both halves instead of renting the edge

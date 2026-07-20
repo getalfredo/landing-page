@@ -179,11 +179,22 @@ const HEAD = {
 		"Fair question. Most of these are tools we like and use ourselves. Here is the honest version: what you keep, what Alfredo adds, and when you should stay exactly where you are.",
 };
 
-/** The one place the /compare slug scheme lives, so a change is one edit. */
-const subpageHref = (slug: string) => `/compare/alfredo-${slug}`;
+/** The one place the /compare slug scheme lives, so a change is one edit.
+    Canonical scheme is `/compare/alfredo-vs-<name>` (#65, map destination);
+    the #75 subpage routes live there. */
+const subpageHref = (slug: string) => `/compare/alfredo-vs-${slug}`;
 
 const ALFREDO = COLUMNS[0];
 const COMPETITORS = COLUMNS.slice(1);
+
+// Railway and Better-T-Stack are subpage-only cast (#65): not table columns
+// (Railway demotes below the on-page 15+ cut; Better-T-Stack is the protected
+// "use both" piece), but they have full /compare deep-dives (#75), so they get
+// links here — otherwise those two pages are orphaned from the page.
+const SUBPAGE_ONLY: { name: string; slug: string }[] = [
+	{ name: "Railway", slug: "railway" },
+	{ name: "Better-T-Stack", slug: "better-t-stack" },
+];
 
 function Pip({ status }: { status: CellStatus }) {
 	return (
@@ -286,6 +297,15 @@ function CompareTable() {
 						key={c.slug}
 						className="lp-etch cmp-link"
 						href={subpageHref(c.slug as string)}
+					>
+						vs {c.name} →
+					</a>
+				))}
+				{SUBPAGE_ONLY.map((c) => (
+					<a
+						key={c.slug}
+						className="lp-etch cmp-link"
+						href={subpageHref(c.slug)}
 					>
 						vs {c.name} →
 					</a>
