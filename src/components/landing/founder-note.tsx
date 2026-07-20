@@ -6,7 +6,7 @@ import { Waypoint } from "#/components/landing/waypoint";
 export function FounderNote() {
 	return (
 		<section className="lp-section" id="wp-founder">
-			<Waypoint index="04" label="FOUNDER" />
+			<Waypoint index="05" label="FOUNDER" />
 			<h2 className="lp-etch lp-visually-hidden">FROM THE FOUNDER</h2>
 			<p className="lp-body">
 				I've shipped a lot of side projects. Every one made me set up the same

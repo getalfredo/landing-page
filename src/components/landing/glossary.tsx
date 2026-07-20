@@ -1,11 +1,12 @@
 // Glossary section (wayfinder #49): the three coined terms — HQ / Porter /
-// Tray — as variant D "Vocabulary tree". Collapsed by default (a `07 TERMS`
+// Tray — as variant D "Vocabulary tree". Collapsed by default (a `08 TERMS`
 // pill the reader opts into — earned insider lore); opening it reveals a
 // topology where every node IS a button that reads its term. Copy is locked
 // by #34 / CONTEXT.md — wording is not an axis. The #34 ripple rule holds:
 // the coined nouns appear only inside this section, never leaking upward.
-// Placed BEFORE "Get in" (#49 round 2): this is waypoint `07 TERMS`, which
-// renumbers the final CTA to `08 GET IN` (minimap + final-cta match).
+// Placed BEFORE "Get in" (#49 round 2): this is waypoint `08 TERMS` (the
+// #74 comparison section took 04 KEEP, pushing the tail +1), which renumbers
+// the final CTA to `09 GET IN` (minimap + final-cta match).
 import { useState } from "react";
 import { Waypoint } from "#/components/landing/waypoint";
 import "#/components/landing/glossary.css";
@@ -66,7 +67,7 @@ export function Glossary() {
 			id="wp-terms"
 			aria-label="The vocabulary"
 		>
-			<Waypoint index="07" label="TERMS" />
+			<Waypoint index="08" label="TERMS" />
 
 			{!expanded ? (
 				<button

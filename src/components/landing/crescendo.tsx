@@ -10,7 +10,7 @@ import { Waypoint } from "#/components/landing/waypoint";
 export function Crescendo() {
 	return (
 		<section className="lp-section lp-band lp-band-amber" id="wp-payoff">
-			<Waypoint index="05" label="THE PAYOFF" amber />
+			<Waypoint index="06" label="THE PAYOFF" amber />
 			<h2 className="lp-h2">
 				Every project runs on your servers and reports to one HQ.
 			</h2>

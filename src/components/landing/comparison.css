@@ -1,0 +1,252 @@
+/* Comparison section styles (wayfinder #74, variant E "Comparison table").
+   Consumes the shared console custom properties set on .lp (console-vars.ts);
+   defines no palette literals of its own. */
+
+.cmp-section {
+	max-width: 1080px;
+}
+.cmp-kicker {
+	display: block;
+	margin: 0 auto 14px;
+	color: var(--paper-soft);
+	letter-spacing: 0.3em;
+}
+
+.cmp-link {
+	color: var(--green-text);
+	text-decoration: none;
+	white-space: nowrap;
+	transition: text-shadow 0.15s ease;
+}
+.cmp-link:hover {
+	text-shadow: 0 0 8px var(--green-glow);
+}
+
+/* ---------- section-level "not for you" (#63 §5.4) ---------- */
+.cmp-notfor {
+	margin: 44px auto 0;
+	max-width: 720px;
+	padding: 22px 24px;
+	text-align: left;
+	background: var(--surface);
+	border: 1px solid var(--seam);
+	border-radius: 12px;
+	font-size: 15.5px;
+	line-height: 1.65;
+	color: var(--paper-soft);
+}
+.cmp-notfor-label {
+	display: block;
+	margin-bottom: 8px;
+	color: var(--paper);
+	letter-spacing: 0.24em;
+}
+
+/* ==================== the comparison table ==================== */
+.cmp-tbl {
+	margin: 44px auto 0;
+	max-width: 980px;
+}
+
+/* competitor picker */
+.cmp-tbl-picker {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 10px 14px;
+	margin-bottom: 24px;
+}
+.cmp-tbl-picker-label {
+	color: var(--paper-soft);
+	letter-spacing: 0.24em;
+}
+.cmp-tbl-picker-opts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.cmp-tbl-opt {
+	padding: 9px 13px;
+	border: 1px solid var(--seam);
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 11px;
+	letter-spacing: 0.14em;
+	background: var(--panel-2);
+	color: var(--paper-soft);
+	transition:
+		color 0.15s ease,
+		border-color 0.15s ease,
+		background 0.15s ease;
+}
+.cmp-tbl-opt:hover {
+	color: var(--paper);
+	border-color: rgba(var(--paper-rgb), 0.4);
+}
+.cmp-tbl-opt-on {
+	background: linear-gradient(
+		180deg,
+		var(--keycap-amber-top) 0%,
+		var(--keycap-amber-bottom) 100%
+	);
+	border-color: transparent;
+	color: var(--keycap-ink);
+	box-shadow: 0 2px 0 var(--keycap-amber-shadow);
+}
+
+.cmp-tbl-scroll {
+	overflow-x: auto;
+	border: 1px solid var(--seam);
+	border-radius: 14px;
+	background: var(--panel);
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+.cmp-tbl-table {
+	border-collapse: collapse;
+	width: 100%;
+	min-width: 760px;
+	text-align: left;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+}
+.cmp-tbl-table th,
+.cmp-tbl-table td {
+	padding: 14px 14px;
+	border-bottom: 1px solid var(--seam);
+	vertical-align: top;
+}
+.cmp-tbl-table tbody tr:last-child th,
+.cmp-tbl-table tbody tr:last-child td {
+	border-bottom: none;
+}
+/* hide unselected competitor rows — but keep them in the DOM for AEO */
+.cmp-tbl-row-off {
+	display: none;
+}
+/* sticky product column so the name stays put while capabilities scroll */
+.cmp-tbl-corner,
+.cmp-tbl-rowhead {
+	position: sticky;
+	left: 0;
+	z-index: 2;
+	background: var(--panel);
+	min-width: 132px;
+	max-width: 132px;
+	border-right: 1px solid var(--seam);
+}
+.cmp-tbl-rowhead {
+	font-family: "Space Grotesk", "Space Grotesk Fallback", sans-serif;
+	font-size: 17px;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	color: var(--paper);
+}
+.cmp-tbl-corner .lp-etch {
+	color: var(--paper-soft);
+}
+.cmp-tbl-colhead {
+	font-family: "Space Grotesk", "Space Grotesk Fallback", sans-serif;
+	font-size: 12.5px;
+	font-weight: 700;
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+	color: var(--paper);
+	background: var(--panel-2);
+	min-width: 104px;
+	max-width: 124px;
+}
+/* Alfredo row: highlighted end to end */
+.cmp-tbl-row-alf td,
+.cmp-tbl-row-alf .cmp-tbl-rowhead {
+	background: rgba(var(--green-rgb), 0.08);
+}
+.cmp-tbl-row-alf .cmp-tbl-rowhead {
+	color: var(--green-text);
+	/* layered over an opaque base so scrolled cells never bleed through the
+	   sticky Alfredo name */
+	background:
+		linear-gradient(rgba(var(--green-rgb), 0.12), rgba(var(--green-rgb), 0.12)),
+		var(--panel);
+	box-shadow: inset 3px 0 0 var(--green-text);
+}
+.cmp-tbl-q {
+	display: block;
+	margin-top: 7px;
+	font-size: 11px;
+	line-height: 1.35;
+	letter-spacing: 0.02em;
+	color: var(--paper-soft);
+}
+.cmp-tbl-cell-auto .cmp-tbl-q {
+	color: var(--paper);
+}
+
+/* status pips: auto (green), manual (half amber), none (grey ring) */
+.cmp-tbl-pip {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	vertical-align: middle;
+}
+.cmp-tbl-pip-auto {
+	background: var(--led);
+	box-shadow: 0 0 7px var(--led-glow);
+}
+/* half-filled so it differs from "auto" by SHAPE, not just hue (colorblind) */
+.cmp-tbl-pip-manual {
+	background: linear-gradient(90deg, var(--amber) 0 50%, transparent 50% 100%);
+	border: 1.5px solid var(--amber);
+	box-shadow: 0 0 6px var(--amber-glow);
+}
+.cmp-tbl-pip-none {
+	background: transparent;
+	border: 1.5px solid rgba(var(--paper-rgb), 0.3);
+}
+
+/* legend + provenance stamp */
+.cmp-tbl-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 16px;
+	padding: 0 4px;
+}
+.cmp-tbl-legend {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-family: "IBM Plex Mono", "IBM Plex Mono Fallback", monospace;
+	font-size: 11px;
+	color: var(--paper-soft);
+}
+.cmp-tbl-legend .cmp-tbl-pip {
+	margin-left: 8px;
+}
+.cmp-tbl-legend .cmp-tbl-pip:first-child {
+	margin-left: 0;
+}
+.cmp-tbl-stamp {
+	color: var(--paper-soft);
+	letter-spacing: 0.24em;
+}
+.cmp-tbl-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 18px;
+	margin-top: 22px;
+	justify-content: center;
+}
+
+@media (max-width: 640px) {
+	.cmp-tbl-corner,
+	.cmp-tbl-rowhead {
+		min-width: 104px;
+		max-width: 104px;
+	}
+	.cmp-tbl-rowhead {
+		font-size: 15px;
+	}
+}

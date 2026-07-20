@@ -16,11 +16,12 @@ const SECTIONS = [
 	{ id: "wp-deploy", index: "01", label: "DEPLOY" },
 	{ id: "wp-hq", index: "02", label: "THE HQ" },
 	{ id: "wp-operate", index: "03", label: "OPERATE" },
-	{ id: "wp-founder", index: "04", label: "FOUNDER" },
-	{ id: "wp-payoff", index: "05", label: "THE PAYOFF" },
-	{ id: "wp-questions", index: "06", label: "QUESTIONS" },
-	{ id: "wp-terms", index: "07", label: "TERMS" },
-	{ id: "wp-get-in", index: "08", label: "GET IN" },
+	{ id: "wp-compare", index: "04", label: "KEEP" },
+	{ id: "wp-founder", index: "05", label: "FOUNDER" },
+	{ id: "wp-payoff", index: "06", label: "THE PAYOFF" },
+	{ id: "wp-questions", index: "07", label: "QUESTIONS" },
+	{ id: "wp-terms", index: "08", label: "TERMS" },
+	{ id: "wp-get-in", index: "09", label: "GET IN" },
 ];
 
 const ACTIVE = ink.ledRgb.split(",").map(Number);

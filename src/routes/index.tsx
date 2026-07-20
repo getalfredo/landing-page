@@ -5,6 +5,7 @@
 // minimap) per issue-29; palette arrives as CSS custom properties set
 // inline from console-tokens (console-vars.ts).
 import { createFileRoute } from "@tanstack/react-router";
+import { Comparison } from "#/components/landing/comparison";
 import { consoleCssVars } from "#/components/landing/console-vars";
 import { Crescendo } from "#/components/landing/crescendo";
 import { DayOne } from "#/components/landing/day-one";
@@ -20,15 +21,6 @@ import { Hero } from "#/components/landing/hero";
 import { KeycapCoupling } from "#/components/landing/keycap-coupling";
 import { Minimap } from "#/components/landing/minimap";
 import { Showcase } from "#/components/landing/showcase";
-// PROTOTYPE (wayfinder #43): ?compare=a|b|c mounts the comparison section
-// between Every day after and the founder note (situation switcher / honest
-// prose / bring-your-stack), dev builds only. Remove with
-// src/components/prototype/comparison-pass.tsx.
-import {
-	CompareSection,
-	CompareSwitcher,
-	useComparePass,
-} from "#/components/prototype/comparison-pass";
 // PROTOTYPE (wayfinder #42): ?sim=spectacle|pain swaps Every day after's
 // anchor for the sim attract loop + fullscreen playable sim, dev builds
 // only. Remove with src/components/prototype/sim-pass.tsx.
@@ -55,8 +47,6 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-	// PROTOTYPE (wayfinder #43): comparison section variant state.
-	const [compare, setCompare] = useComparePass();
 	// PROTOTYPE (wayfinder #42): gamified sim variant state.
 	const [sim, setSim] = useSimPass();
 	return (
@@ -68,14 +58,15 @@ function LandingPage() {
 				<DayOne />
 				<Showcase />
 				{sim === null ? <EveryDayAfter /> : <SimActTwo variant={sim} />}
-				{/* #43: the comparison section sits between Every day after and
-				    the founder note (#41 decision 3); absent unless ?compare= set. */}
-				{compare !== null && <CompareSection variant={compare} />}
+				{/* #74 (variant E): the comparison section sits between Every day
+				    after and the founder note (#41 decision 3) — waypoint 04 KEEP,
+				    everything after renumbers +1. */}
+				<Comparison />
 				<FounderNote />
 				<Crescendo />
 				<Faq />
 				{/* #49 round 2: glossary sits BEFORE "Get in" (the final CTA),
-				    not at the page tail — waypoint 07 TERMS, Get in → 08. */}
+				    not at the page tail — waypoint 08 TERMS, Get in → 09. */}
 				<Glossary />
 				<FinalCta />
 			</main>
@@ -83,12 +74,8 @@ function LandingPage() {
 			{/* #35 (variant C "Monitor wall"): a right-edge pull-tab opens a
 			    full-screen wall of every set-piece; mounts outside <main>. */}
 			<Gallery />
-			{/* Live prototypes still being worked keep their bars, hidden unless
-			    the variant param is explicitly in the URL (#42 sim → map #72,
-			    #43 comparison → #74). */}
-			{compare !== null && (
-				<CompareSwitcher current={compare} onChange={setCompare} />
-			)}
+			{/* The sim prototype keeps its bar, hidden unless ?sim= is explicitly
+			    in the URL (#42 sim → map #72). */}
 			{sim !== null && <SimSwitcher current={sim} onChange={setSim} />}
 			{/* #52 (variant c "Hold"): waitlist submit keycap mirrors Enter. */}
 			<KeycapCoupling />

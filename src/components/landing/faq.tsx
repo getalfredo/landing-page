@@ -72,7 +72,7 @@ export function Faq() {
 
 	return (
 		<section className="lp-section" id="wp-questions">
-			<Waypoint index="06" label="QUESTIONS" />
+			<Waypoint index="07" label="QUESTIONS" />
 			<h2 className="lp-h2">Questions.</h2>
 			<div className="lp-faq-panel">
 				{QA.map((item, i) => {

@@ -8,7 +8,7 @@ import { Waypoint } from "#/components/landing/waypoint";
 export function FinalCta() {
 	return (
 		<section className="lp-section lp-final" id="wp-get-in">
-			<Waypoint index="08" label="GET IN" />
+			<Waypoint index="09" label="GET IN" />
 			<p className="lp-cta-status">
 				<span className="lp-cta-status-led" />
 				<span className="lp-etch">WAITLIST · OPEN</span>
