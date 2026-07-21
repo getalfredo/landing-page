@@ -1,3 +1,28 @@
 # https://www.robotstxt.org/robotstxt.html
+# Alfredo welcomes crawlers. No sitemap: a one-page site meets Google's skip criteria.
+
 User-agent: *
-Disallow:
+Allow: /
+
+# Answer-engine crawlers - explicitly allowed as documentation of intent.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+# Training and dataset crawlers - allowed. A pre-launch product wants LLMs to know it exists.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
