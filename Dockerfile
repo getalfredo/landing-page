@@ -17,5 +17,9 @@ ENV PORT=3000
 ENV DATABASE_URL=/data/alfredo.db
 RUN mkdir /data
 COPY --from=build /app/.output ./.output
+# Boot-time migrations (wayfinder #24): the drizzle-orm migrator reads these
+# generated SQL files from ./drizzle at startup (see src/db/index.ts). drizzle-kit
+# is a dev-only dependency and never runs in this image.
+COPY --from=build /app/drizzle ./drizzle
 EXPOSE 3000
 CMD ["node", ".output/server/index.mjs"]
