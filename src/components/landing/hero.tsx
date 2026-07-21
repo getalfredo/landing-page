@@ -23,7 +23,7 @@ export function Hero() {
 			{/* #68: the sprawl contrast as an inert caption scoring the demo,
 			    page-level typography outside the bezel */}
 			<p className="lp-etch lp-hero-tabs">
-				COUNTLESS TABS <span aria-hidden="true">→</span>{" "}
+				<s>COUNTLESS TABS</s> <span aria-hidden="true">→</span>{" "}
 				<span className="lp-green">ONE HQ</span>
 			</p>
 			<div className="lp-hero-cta" id="waitlist">
