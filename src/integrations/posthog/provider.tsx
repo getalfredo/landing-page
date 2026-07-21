@@ -11,13 +11,13 @@ if (
 	import.meta.env.VITE_POSTHOG_KEY !== "phc_xxx"
 ) {
 	posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-		api_host: import.meta.env.VITE_POSTHOG_HOST || "https://eu.i.posthog.com",
+		api_host: import.meta.env.VITE_POSTHOG_HOST || "https://a.aistack.to",
 		person_profiles: "identified_only",
 		persistence: "memory",
 		autocapture: false,
 		capture_pageview: false,
 		disable_session_recording: true,
-		defaults: "2025-11-30",
+		defaults: "2026-05-30",
 	});
 }
 
