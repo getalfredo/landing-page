@@ -528,7 +528,10 @@
 	color: var(--paper-soft);
 	opacity: 0.6;
 }
-.wf-input:focus {
+/* The slot owns the focus ring (.wf-slot:focus-within below). Keep the .lp
+   prefix: it lifts specificity to (0,3,0) so this beats the global
+   .lp *:focus-visible ring, which would otherwise double up on the input. */
+.lp .wf-input:focus {
 	outline: none;
 }
 .wf-slot:focus-within {
