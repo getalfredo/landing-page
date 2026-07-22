@@ -14,8 +14,16 @@ export function capturePageview(pathname: string) {
 	posthog.capture("$pageview", { $current_url: window.location.href });
 }
 
-export function trackWaitlistSignup(source: string) {
+// `email` is absent on the native-submit restore path (the redirect params
+// deliberately never carry the address), so identify + the email property
+// only apply on the JS submit path where the entered value is in scope.
+export function trackWaitlistSignup(source: string, email?: string) {
 	if (typeof window === "undefined") return;
+	if (email) {
+		posthog.identify(email);
+		posthog.capture("waitlist_signup", { source, email });
+		return;
+	}
 	posthog.capture("waitlist_signup", { source });
 }
 

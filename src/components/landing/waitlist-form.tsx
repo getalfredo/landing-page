@@ -171,7 +171,7 @@ export function WaitlistForm({
 			const already = confirmedEmails.has(normalized);
 			confirmedEmails.add(normalized);
 			// Detected resubmits don't count as signups — the event stays honest.
-			if (!already) trackWaitlistSignup(source);
+			if (!already) trackWaitlistSignup(source, normalized);
 			setState(
 				already
 					? { phase: "already", position: data.queuePosition }
