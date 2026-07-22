@@ -16,7 +16,7 @@ if (
 		persistence: "memory",
 		autocapture: false,
 		capture_pageview: false,
-		disable_session_recording: true,
+		disable_session_recording: false,
 		defaults: "2026-05-30",
 	});
 }
