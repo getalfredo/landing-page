@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>#79 nav active-state: monochrome vs amber</title>
+<style>
+  /* Tokens copied verbatim from console-tokens.ts / landing.css */
+  :root {
+    --bg: #14150e;
+    --panel: #1e1f16;
+    --seam: rgba(236, 231, 218, 0.1);
+    --paper: #ece7da;
+    --paper-rgb: 236, 231, 218;
+    --paper-soft: #97927f;
+    --led-off: #3a3b30;
+    --amber: #ffd23c;
+    --amber-rgb: 255, 210, 60;
+    --amber-glow: rgba(255, 210, 60, 0.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--paper);
+    font-family: system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+  }
+
+  /* ---- chrome (prototype furniture, not part of the spec) ---- */
+  header {
+    padding: 28px 32px 0;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  header h1 { font-size: 18px; margin: 0 0 6px; }
+  header p { margin: 0; color: var(--paper-soft); font-size: 13.5px; max-width: 68ch; line-height: 1.6; }
+  .controls {
+    max-width: 1240px;
+    margin: 20px auto 0;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .seg { display: flex; border: 1px solid var(--seam); border-radius: 8px; overflow: hidden; }
+  .seg button {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: var(--paper-soft);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .seg button.on { background: rgba(var(--paper-rgb), 0.1); color: var(--paper); }
+  .scrollctl { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px; }
+  .scrollctl label { font-size: 11px; color: var(--paper-soft); }
+  .scrollctl input { flex: 1; accent-color: var(--paper-soft); max-width: 340px; }
+
+  .compare {
+    max-width: 1240px;
+    margin: 28px auto 60px;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  body[data-view="A"] .col-B, body[data-view="B"] .col-A { display: none; }
+  body[data-view="A"] .compare, body[data-view="B"] .compare { grid-template-columns: 1fr; max-width: 800px; }
+
+  .col {
+    border: 1px solid var(--seam);
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.18);
+    padding: 24px 28px 28px;
+  }
+  .col h2 { font-size: 13px; margin: 0 0 2px; }
+  .col .sub { font-size: 12px; color: var(--paper-soft); margin: 0 0 22px; line-height: 1.5; }
+  .stage { display: flex; gap: 40px; align-items: flex-start; }
+
+  /* ---- minimap excerpt: markup and base styles from landing.css ---- */
+  .mm-wrap { flex: none; width: 140px; padding: 12px 0 12px 12px; }
+  .lp-mm-rail { position: relative; width: 1px; height: 440px; background: var(--seam); }
+  .lp-mm-fill { position: absolute; top: 0; left: 0; width: 1px; background: var(--paper-soft); }
+  .lp-mm-bleed {
+    position: absolute; top: 0; left: -1px; width: 3px;
+    filter: blur(2px); opacity: 0.5;
+  }
+  .lp-mm-tick {
+    position: absolute; top: -1px; left: -3px; width: 86px; height: 2px;
+  }
+  .lp-mm-node {
+    position: absolute; left: 0.5px; transform: translate(-50%, -50%);
+    display: flex; align-items: center; padding: 8px;
+    border: none; background: none; cursor: pointer;
+  }
+  .lp-mm-dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid rgba(var(--paper-rgb), 0.25); }
+  .lp-mm-index, .lp-mm-label {
+    position: absolute; white-space: nowrap; font-size: 9px; pointer-events: none;
+  }
+  .lp-mm-index { left: 24px; color: var(--paper); opacity: 0.55; }
+  .lp-mm-label { left: 52px; color: var(--paper-soft); opacity: 0; }
+  .lp-mm-node:hover .lp-mm-label { opacity: 1 !important; }
+
+  /* ---- FAQ excerpt: markup and base styles from landing.css ---- */
+  .lp-faq-panel {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--seam);
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+  }
+  .lp-faq-row + .lp-faq-row { border-top: 1px solid var(--seam); }
+  .lp-faq-row-btn {
+    display: flex; align-items: baseline; gap: 14px; width: 100%;
+    padding: 16px 18px; border: none; background: transparent;
+    color: var(--paper); font-family: inherit; text-align: left; cursor: pointer;
+  }
+  .lp-faq-row-btn:hover { background: rgba(var(--paper-rgb), 0.03); }
+  .lp-faq-index { font-size: 11px; color: var(--paper-soft); opacity: 0.75; }
+  .lp-faq-q { flex: 1; font-size: 15.5px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.3; }
+  .lp-faq-led {
+    align-self: center; flex: none; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--led-off);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .lp-faq-fold { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.28s ease; }
+  .lp-faq-row-open .lp-faq-fold { grid-template-rows: 1fr; }
+  .lp-faq-fold-inner { overflow: hidden; min-height: 0; }
+  .lp-faq-a { margin: 0; padding: 0 40px 18px 44px; font-size: 13.5px; line-height: 1.7; color: var(--paper-soft); }
+
+  /* ---- treatment A: monochrome. Active = bright filled paper, no signal color. ---- */
+  .col-A .lp-faq-row-open .lp-faq-led {
+    background: var(--paper);
+    box-shadow: 0 0 8px rgba(var(--paper-rgb), 0.45);
+  }
+  /* ---- treatment B: active borrows brand amber. ---- */
+  .col-B .lp-faq-row-open .lp-faq-led {
+    background: var(--amber);
+    box-shadow: 0 0 9px var(--amber-glow);
+  }
+
+  .spec {
+    margin: 24px 0 0;
+    padding: 14px 16px;
+    border: 1px dashed var(--seam);
+    border-radius: 10px;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--paper-soft);
+    white-space: pre-wrap;
+  }
+  .copy {
+    margin-top: 10px;
+    padding: 7px 14px;
+    border: 1px solid var(--seam);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--paper);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .copy:hover { background: rgba(var(--paper-rgb), 0.06); }
+</style>
+</head>
+<body data-view="both">
+
+<header>
+  <h1>#79 · nav active-state signal: A monochrome vs B amber</h1>
+  <p>These indicators mean navigation, not live status, so they lose green. Drag the scroll
+  slider to sweep the minimap through its real entering, active, and passed ramps. Click FAQ
+  rows and minimap nodes to move the active state. Both columns share the same state.</p>
+</header>
+
+<div class="controls">
+  <div class="seg" role="group" aria-label="View">
+    <button data-view="A">A only</button>
+    <button data-view="both" class="on">Side by side</button>
+    <button data-view="B">B only</button>
+  </div>
+  <div class="scrollctl">
+    <label for="scroll" class="mono">scroll</label>
+    <input id="scroll" type="range" min="0" max="1000" value="330" />
+  </div>
+</div>
+
+<div class="compare">
+  <section class="col col-A" data-t="A">
+    <h2>A · Monochrome</h2>
+    <p class="sub">Active = bright filled paper. Done, current, upcoming differ by fill and
+    size only. No signal color anywhere on the rail or the FAQ list.</p>
+    <div class="stage">
+      <div class="mm-wrap"><div class="lp-mm-rail"></div></div>
+      <div class="lp-faq-panel"></div>
+    </div>
+    <pre class="spec">A spec
+- minimap active dot: fill var(--paper), glow 0 0 12px rgba(paper, .5), scale 1.35
+- minimap passed dot: fill var(--paper-soft), scale 1, no glow
+- minimap upcoming dot: outline only (unchanged)
+- tick + fill + bleed: paper tones, no green
+- faq open LED: fill var(--paper), glow 0 0 8px rgba(paper, .45)</pre>
+    <button class="copy" data-pick="A">Copy decision: A</button>
+  </section>
+
+  <section class="col col-B" data-t="B">
+    <h2>B · Amber</h2>
+    <p class="sub">The active node borrows brand amber. Done and upcoming stay monochrome.
+    Known risk: dilutes the CTA meaning of amber.</p>
+    <div class="stage">
+      <div class="mm-wrap"><div class="lp-mm-rail"></div></div>
+      <div class="lp-faq-panel"></div>
+    </div>
+    <pre class="spec">B spec
+- minimap active dot: fill var(--amber), glow 0 0 12px var(--amber-glow), scale 1.35
+- minimap passed dot: fill var(--paper-soft), scale 1, no glow
+- minimap upcoming dot: outline only (unchanged)
+- tick + bleed: amber; fill stays paper-soft
+- faq open LED: fill var(--amber), glow 0 0 9px var(--amber-glow)</pre>
+    <button class="copy" data-pick="B">Copy decision: B</button>
+  </section>
+</div>
+
+<script>
+  // Real section list and the real intensity/doneness math from minimap.tsx,
+  // driven by a simulated viewport instead of window scroll.
+  const SECTIONS = [
+    ["00", "HQ"], ["01", "DEPLOY"], ["02", "THE HQ"], ["03", "OPERATE"],
+    ["04", "KEEP"], ["05", "FOUNDER"], ["06", "THE PAYOFF"], ["07", "QUESTIONS"],
+    ["08", "TERMS"], ["09", "GET IN"],
+  ];
+  const QA = [
+    ["What exactly does Alfredo wire?", "That's a journey you steer. Alfredo starts with Umami, Postmark, Convex, Better-Auth, Creem, Sentry, GitHub and Uptime Kuma. The lineup grows from what you ask for."],
+    ["How does it work?", "When you deploy a project, Alfredo creates the keys and config each integration needs and wires them in automatically."],
+    ["Where does it run?", "On your own server. Any VPS you can SSH into works."],
+    ["Is Alfredo open source?", "Yes. Self-hosting only counts if you can read what you're hosting."],
+  ];
+
+  const PAPER = [236, 231, 218];
+  const PAPER_SOFT = [151, 146, 127];
+  const AMBER = [255, 210, 60];
+  const clamp01 = (x) => Math.min(1, Math.max(0, x));
+  const lerp = (a, b, t) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(",")})`;
+
+  // Treatment palettes. ACTIVE is what an entering dot ramps toward; a passed
+  // dot lerps to PASSED, exactly as in minimap.tsx.
+  const T = {
+    A: { ACTIVE: PAPER, PASSED: PAPER_SOFT, glowRgb: "236, 231, 218", glowA: 0.5,
+         tick: (led) => `linear-gradient(90deg, rgb(${PAPER.join(",")}) 0, rgba(${led}, .35) 55%, transparent 100%)` },
+    B: { ACTIVE: AMBER, PASSED: PAPER_SOFT, glowRgb: "255, 210, 60", glowA: 0.7,
+         tick: (led) => `linear-gradient(90deg, rgb(${AMBER.join(",")}) 0, rgba(${led}, .35) 55%, transparent 100%)` },
+  };
+
+  // Simulated page: N sections of one viewport height each.
+  const VH = 900;
+  const DOCH = SECTIONS.length * VH;
+  const state = { frac: 0.33, open: 0 };
+
+  const cols = [...document.querySelectorAll(".col")].map((col) => {
+    const t = T[col.dataset.t];
+    const rail = col.querySelector(".lp-mm-rail");
+    rail.innerHTML = `
+      <div class="lp-mm-fill"></div>
+      <div class="lp-mm-bleed"></div>
+      <div class="lp-mm-tick"></div>` +
+      SECTIONS.map(([ix, label], i) => `
+      <button type="button" class="lp-mm-node" data-i="${i}"
+        style="top:${(i / (SECTIONS.length - 1)) * 100}%">
+        <span class="lp-mm-dot"></span>
+        <span class="lp-mm-index mono">${ix}</span>
+        <span class="lp-mm-label mono">${label}</span>
+      </button>`).join("");
+
+    const faq = col.querySelector(".lp-faq-panel");
+    faq.innerHTML = QA.map(([q, a], i) => `
+      <div class="lp-faq-row" data-i="${i}">
+        <button type="button" class="lp-faq-row-btn">
+          <span class="lp-faq-index mono">0${i + 1}</span>
+          <span class="lp-faq-q">${q}</span>
+          <span class="lp-faq-led"></span>
+        </button>
+        <div class="lp-faq-fold"><div class="lp-faq-fold-inner">
+          <p class="lp-faq-a">${a}</p>
+        </div></div>
+      </div>`).join("");
+
+    return { col, t, rail, faq };
+  });
+
+  function render() {
+    const scrollY = state.frac * (DOCH - VH);
+    const ramp = VH * 0.3;
+    for (const { t, rail, faq } of cols) {
+      const railH = rail.clientHeight;
+      const tickY = state.frac * railH;
+      rail.querySelector(".lp-mm-fill").style.height = tickY + "px";
+      rail.querySelector(".lp-mm-fill").style.background = `rgba(${t.glowRgb}, .55)`;
+      const tick = rail.querySelector(".lp-mm-tick");
+      tick.style.transform = `translateY(${tickY}px)`;
+      tick.style.background = t.tick(t.glowRgb);
+      tick.style.filter = `drop-shadow(0 0 4px rgba(${t.glowRgb}, ${t.glowA}))`;
+      const bleed = rail.querySelector(".lp-mm-bleed");
+      bleed.style.transform = `translateY(${clamp01(scrollY / DOCH) * railH}px)`;
+      bleed.style.height = Math.max(24, (VH / DOCH) * railH) + "px";
+      bleed.style.background = `linear-gradient(180deg, transparent, rgba(${t.glowRgb}, 1), transparent)`;
+
+      rail.querySelectorAll(".lp-mm-node").forEach((node, i) => {
+        const top = i * VH - scrollY;
+        const bottom = top + VH;
+        const I = clamp01(Math.min((VH - top) / ramp, bottom / ramp));
+        const D = clamp01(1 - bottom / ramp);
+        const solid = Math.max(I, D);
+        const dot = node.querySelector(".lp-mm-dot");
+        dot.style.background = solid > 0.02 ? lerp(t.ACTIVE, t.PASSED, D) : "transparent";
+        dot.style.opacity = String(0.35 + 0.65 * solid);
+        dot.style.boxShadow = `0 0 ${12 * I + 5 * D}px rgba(${t.glowRgb}, ${t.glowA * I})`;
+        dot.style.transform = `scale(${1 + 0.35 * I})`;
+        node.querySelector(".lp-mm-label").style.opacity = String(I);
+      });
+
+      faq.querySelectorAll(".lp-faq-row").forEach((row, i) => {
+        row.classList.toggle("lp-faq-row-open", i === state.open);
+      });
+    }
+  }
+
+  document.getElementById("scroll").addEventListener("input", (e) => {
+    state.frac = e.target.value / 1000;
+    render();
+  });
+  document.querySelectorAll(".lp-mm-node").forEach((node) => {
+    node.addEventListener("click", () => {
+      state.frac = node.dataset.i / (SECTIONS.length - 1);
+      document.getElementById("scroll").value = state.frac * 1000;
+      render();
+    });
+  });
+  document.querySelectorAll(".lp-faq-row-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.open = Number(btn.closest(".lp-faq-row").dataset.i);
+      render();
+    });
+  });
+  document.querySelectorAll(".seg button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.body.dataset.view = btn.dataset.view;
+      document.querySelectorAll(".seg button").forEach((b) => b.classList.toggle("on", b === btn));
+      render();
+    });
+  });
+  document.querySelectorAll(".copy").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const spec = btn.previousElementSibling.textContent.trim();
+      navigator.clipboard.writeText(`#79 decision: treatment ${btn.dataset.pick}\n\n${spec}`);
+      btn.textContent = "Copied";
+      setTimeout(() => { btn.textContent = `Copy decision: ${btn.dataset.pick}`; }, 1200);
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
