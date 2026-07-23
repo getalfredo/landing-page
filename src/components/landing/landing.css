@@ -216,8 +216,8 @@
    Instrument readout, not a heartbeat: the round glowing dot is reserved
    for live pulses (wordmark, waitlist-open, footer LIVE meter). Any other
    indicator carrying a status color is this crisp inset square. Vocab:
-   green = up/on, amber = partial/provisioning, red = down, off = idle,
-   none = neutral outline. The red variant expects a --red in scope (red
+   up = green, partial/provisioning = amber, down = red, off = idle/unlit,
+   none = neutral outline. The down variant expects a --red in scope (red
    is deliberately not in the shared ink palette; the hero demo sets its
    own on .hd-bezel). */
 .lp-sq {
@@ -232,13 +232,13 @@
 		inset 0 0 0 1px rgba(0, 0, 0, 0.35),
 		0 1px 0 rgba(var(--paper-rgb), 0.07);
 }
-.lp-sq-green {
+.lp-sq-up {
 	background: var(--led);
 }
-.lp-sq-amber {
+.lp-sq-partial {
 	background: var(--amber);
 }
-.lp-sq-red {
+.lp-sq-down {
 	background: var(--red);
 }
 .lp-sq-off {

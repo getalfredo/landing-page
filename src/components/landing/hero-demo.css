@@ -323,10 +323,10 @@
 }
 /* statuses are shared square chips (.lp-sq, #76) — no glow bloom; the
    amber/red chips keep the demo's instrument blink */
-.hd-bezel .lp-sq-amber {
+.hd-bezel .lp-sq-partial {
 	animation: hd-blink 0.8s steps(1) infinite;
 }
-.hd-bezel .lp-sq-red {
+.hd-bezel .lp-sq-down {
 	animation: hd-blink 0.5s steps(1) infinite;
 }
 .hd-proj-chips {

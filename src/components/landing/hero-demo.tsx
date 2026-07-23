@@ -278,11 +278,11 @@ type ProjStatus = "prov" | "live" | "down" | "off" | "out";
 // status → shared square-chip variant (#76); "out" keeps green while the
 // teardown animation plays, matching the LED behavior it replaced
 const STATUS_SQ: Record<ProjStatus, string> = {
-	prov: "lp-sq-amber",
-	live: "lp-sq-green",
-	down: "lp-sq-red",
+	prov: "lp-sq-partial",
+	live: "lp-sq-up",
+	down: "lp-sq-down",
 	off: "lp-sq-off",
-	out: "lp-sq-green",
+	out: "lp-sq-up",
 };
 
 type Spot =
@@ -634,7 +634,7 @@ function DeployForm({ form }: { form: NonNullable<World["form"]> }) {
 			<div className="hd-form-head">
 				<span className="hd-etch">NEW PROJECT</span>
 				<span
-					className={`lp-sq ${form.phase === "sent" ? "lp-sq-amber" : "lp-sq-green"}`}
+					className={`lp-sq ${form.phase === "sent" ? "lp-sq-partial" : "lp-sq-up"}`}
 				/>
 			</div>
 
