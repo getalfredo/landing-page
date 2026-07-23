@@ -204,19 +204,9 @@
 	white-space: nowrap;
 }
 .lp-waypoint-index {
-	color: var(--paper);
-}
-.lp-waypoint-led {
-	flex: none;
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--led);
-	box-shadow: 0 0 8px var(--led-glow);
-}
-.lp-waypoint-led-amber {
-	background: var(--amber);
-	box-shadow: 0 0 8px var(--amber-glow);
+	/* amber index on every section (signal pass, #78): amber is brand,
+	   green is reserved for live status */
+	color: var(--amber);
 }
 
 /* ---------- Square-chip status indicator (signal pass, #76) ----------
@@ -293,7 +283,8 @@
 	text-wrap: pretty;
 }
 /* Bullet form of the body copy (day-one setup-tax list): left-aligned block
-   centered by its own width, LED-dot markers echoing the waypoint dots. */
+   centered by its own width. Markers are neutral paper-soft dashes (signal
+   pass, #78) — structure carries no status color and no glow. */
 .lp-body-list {
 	margin: 24px auto 0;
 	padding: 0;
@@ -316,12 +307,10 @@
 	content: "";
 	position: absolute;
 	left: 0;
-	top: 0.62em;
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--led);
-	box-shadow: 0 0 8px var(--led-glow);
+	top: 0.85em;
+	width: 10px;
+	height: 1px;
+	background: var(--paper-soft);
 }
 .lp-payoff {
 	margin: 40px auto 0;

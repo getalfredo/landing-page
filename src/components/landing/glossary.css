@@ -18,21 +18,19 @@
 		box-shadow 0.2s ease;
 }
 .glp-collapsed:hover {
-	border-color: rgba(var(--led-rgb), 0.4);
-	box-shadow: 0 0 24px rgba(var(--led-rgb), 0.12);
+	border-color: rgba(var(--amber-rgb), 0.4);
+	box-shadow: 0 0 24px rgba(var(--amber-rgb), 0.12);
 }
-.glp-collapsed-led {
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--led);
-	box-shadow: 0 0 8px var(--led-glow);
+/* expand/collapse caret (signal pass, #78): amber action glyph replacing
+   the round LED — ▸ collapsed, ▾ expanded */
+.glp-caret {
+	color: var(--amber);
 }
 .glp-collapsed-label {
 	color: var(--paper);
 }
 .glp-collapsed-cue {
-	color: var(--green-text);
+	color: var(--amber);
 }
 
 /* ---------- expanded: hint + close ---------- */
@@ -52,7 +50,7 @@
 	transition: color 0.15s ease;
 }
 .glp-collapse-close:hover {
-	color: var(--green-text);
+	color: var(--paper);
 }
 
 /* ---------- the tree ---------- */
@@ -162,14 +160,14 @@
 		transform 0.12s ease;
 }
 .glp-tnode:hover {
-	border-color: rgba(var(--led-rgb), 0.45);
+	border-color: rgba(var(--amber-rgb), 0.45);
 }
-.glp-tnode-led {
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--led);
-	box-shadow: 0 0 8px var(--led-glow);
+/* neutral paper-soft dash (signal pass, #78): structural tree marker,
+   no status color, no glow */
+.glp-tnode-dash {
+	width: 8px;
+	height: 1px;
+	background: var(--paper-soft);
 }
 .glp-tnode-face {
 	font-size: 15px;

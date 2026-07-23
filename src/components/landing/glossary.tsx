@@ -76,11 +76,13 @@ export function Glossary() {
 					onClick={() => setExpanded(true)}
 					aria-expanded={false}
 				>
-					<span className="glp-collapsed-led" aria-hidden="true" />
+					<span className="glp-caret" aria-hidden="true">
+						▸
+					</span>
 					<span className="lp-etch glp-collapsed-label">
 						THREE WORDS ALFREDO USES
 					</span>
-					<span className="lp-etch glp-collapsed-cue">＋ OPEN</span>
+					<span className="lp-etch glp-collapsed-cue">OPEN</span>
 				</button>
 			) : (
 				<>
@@ -96,7 +98,7 @@ export function Glossary() {
 							className={nodeCls("hq", "glp-tnode glp-tnode-hq")}
 							onClick={() => setActive(HQ_NODE)}
 						>
-							<span className="glp-tnode-led" aria-hidden="true" />
+							<span className="glp-tnode-dash" aria-hidden="true" />
 							<span className="glp-tnode-face">HQ</span>
 						</button>
 						<div className="glp-trunk" aria-hidden="true" />
@@ -110,7 +112,7 @@ export function Glossary() {
 										className={nodeCls(p.key, "glp-tnode glp-tnode-porter")}
 										onClick={() => setActive({ key: p.key, term: 1 })}
 									>
-										<span className="glp-tnode-led" aria-hidden="true" />
+										<span className="glp-tnode-dash" aria-hidden="true" />
 										<span className="glp-tnode-face">PORTER</span>
 										<span className="lp-etch glp-tnode-sub">{p.sub}</span>
 									</button>
@@ -150,7 +152,10 @@ export function Glossary() {
 						className="lp-etch glp-collapse-close"
 						onClick={() => setExpanded(false)}
 					>
-						－ CLOSE
+						<span className="glp-caret" aria-hidden="true">
+							▾
+						</span>{" "}
+						CLOSE
 					</button>
 				</>
 			)}
