@@ -125,11 +125,11 @@ export function DayOne() {
 			</h2>
 			<p className="lp-body">You have an idea. Then the setup starts.</p>
 			<ul className="lp-body-list">
-				<li>Email, because the waitlist needs it.</li>
-				<li>Auth, because sign-ups need it.</li>
-				<li>A database, because auth needs one.</li>
-				<li>Analytics, because you want to know if anyone shows up.</li>
-				<li>Payments, because eventually you want to get paid.</li>
+				<li>Email, because the waitlist needs it</li>
+				<li>Auth for sign-ups</li>
+				<li>A database, because auth needs one</li>
+				<li>Analytics - you need visitor stats</li>
+				<li>Payments, because eventually you want to get paid</li>
 			</ul>
 			<p className="lp-body">
 				You have built all of this before, and you will build it again. Or you
