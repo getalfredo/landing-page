@@ -9,8 +9,9 @@
 // amber = manual, neutral outline = not possible; never a bare ✓/✗, every
 // cell keeps a short qualifier (#41 anti-strawman) and every competitor
 // keeps its real green (automatic) wins so no row is all-grey. Statuses
-// render as the shared square chip (.lp-sq, #76/#77); "none" differs from
-// the filled states by shape (outline), and every cell carries qualifier
+// render as the shared square chip (.lp-sq, #76/#77); manual is half-filled
+// here (comparison-scoped rule in comparison.css) and "none" is an outline,
+// so all three states differ by shape, and every cell carries qualifier
 // text plus an aria-label, so meaning never rides on hue alone. Cast =
 // Alfredo + the seven on-page products; Railway / Better-T-Stack stay
 // subpage-only links.
@@ -200,7 +201,8 @@ const SUBPAGE_ONLY: { name: string; slug: string }[] = [
 ];
 
 // cell status → shared square-chip variant (#76): effort vocabulary maps
-// onto the status vocabulary as auto=up, manual=partial, none=none
+// onto the status vocabulary as auto=up, manual=partial (half-filled in
+// this table via comparison.css), none=none
 const STATUS_SQ: Record<CellStatus, string> = {
 	auto: "lp-sq-up",
 	manual: "lp-sq-partial",

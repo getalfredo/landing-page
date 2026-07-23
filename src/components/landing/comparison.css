@@ -182,9 +182,20 @@
 }
 
 /* status pips are shared square chips (.lp-sq, #76/#77): auto=up,
-   manual=partial, none=none — this class only handles table alignment */
+   manual=partial, none=none - this class handles table alignment */
 .cmp-tbl-pip {
 	vertical-align: middle;
+}
+/* comparison-scoped partial: half-filled square (pre-#77 look restored).
+   Left half amber, right half empty like the none-outline, amber inset
+   ring all round; keeps the recessed chip geometry from .lp-sq. Shape now
+   distinguishes auto (solid) from manual (half) without relying on hue.
+   The hero demo's solid blinking .lp-sq-partial is untouched. */
+.cmp-tbl-pip.lp-sq-partial {
+	background: linear-gradient(90deg, var(--amber) 0 50%, transparent 50% 100%);
+	box-shadow:
+		inset 0 0 0 1px var(--amber),
+		inset 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 
 /* legend + provenance stamp */

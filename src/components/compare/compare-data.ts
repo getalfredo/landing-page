@@ -25,8 +25,8 @@ export const STATUS_LABEL: Record<CellStatus, string> = {
 };
 
 // cell status → shared square-chip variant (.lp-sq, #76/#77): effort
-// vocabulary maps onto the status vocabulary as auto=up, manual=partial,
-// none=none
+// vocabulary maps onto the status vocabulary as auto=up, manual=partial
+// (half-filled in the tables via comparison.css), none=none
 export const STATUS_SQ: Record<CellStatus, string> = {
 	auto: "lp-sq-up",
 	manual: "lp-sq-partial",
