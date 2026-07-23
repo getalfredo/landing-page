@@ -1,6 +1,6 @@
 // FAQ per issue-31 (approved variant A, exclusive accordion panel): one
-// console glass panel, six seam-divided rows with etched indexes and an LED
-// that lights on the open row. Exactly one answer is visible at all times —
+// console glass panel, six seam-divided rows with etched indexes and an
+// amber LED that lights on the open row (navigation signal, #80). Exactly one answer is visible at all times —
 // first open on load, clicking the open row is a no-op. Copy verbatim from
 // issue-14; the last answer links the privacy page (issue-8).
 import { Link } from "@tanstack/react-router";

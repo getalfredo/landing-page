@@ -403,9 +403,11 @@
 		background 0.2s ease,
 		box-shadow 0.2s ease;
 }
+/* amber, not green: the LED marks the open row (navigation), not live
+   status (#80) */
 .lp-faq-row-open .lp-faq-led {
-	background: var(--led);
-	box-shadow: 0 0 9px var(--led-glow);
+	background: var(--amber);
+	box-shadow: 0 0 9px var(--amber-glow);
 }
 .lp-faq-fold {
 	display: grid;
@@ -898,7 +900,7 @@
 	background: linear-gradient(
 		180deg,
 		transparent,
-		rgba(var(--led-rgb), 1),
+		rgba(var(--amber-rgb), 1),
 		transparent
 	);
 	filter: blur(2px);
@@ -916,11 +918,11 @@
 	height: 2px;
 	background: linear-gradient(
 		90deg,
-		var(--led) 0,
-		rgba(var(--led-rgb), 0.35) 55%,
+		var(--amber) 0,
+		rgba(var(--amber-rgb), 0.35) 55%,
 		transparent 100%
 	);
-	filter: drop-shadow(0 0 4px var(--led-glow));
+	filter: drop-shadow(0 0 4px var(--amber-glow));
 	pointer-events: none;
 }
 .lp-mm-node {

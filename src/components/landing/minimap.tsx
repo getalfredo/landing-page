@@ -2,8 +2,10 @@
 // that doubles as a scrollbar. One evenly spaced node per section (hero
 // included); states are continuous, never binary — intensity I ramps with
 // the section's viewport overlap (ramp = 30% of viewport height, so several
-// dots can be active at once), doneness D lerps a dot from live green to
-// passed paper-soft as the section exits above. A 2px tick marks the exact
+// dots can be active at once), doneness D lerps a dot from active amber to
+// passed paper-soft as the section exits above. Amber, not green: these
+// dots mean "you are here", not live status (#79/#80) — round glowing
+// green stays reserved for the wordmark, waitlist-open, and LIVE meter. A 2px tick marks the exact
 // scroll fraction, a fill runs to it, and the viewport bleed maps the
 // screen 1:1 onto the rail. Click the rail to jump, drag to scrub, click a
 // node to land at its section; node styling is written imperatively from
@@ -24,7 +26,7 @@ const SECTIONS = [
 	{ id: "wp-get-in", index: "09", label: "GET IN" },
 ];
 
-const ACTIVE = ink.ledRgb.split(",").map(Number);
+const ACTIVE = ink.amberRgb.split(",").map(Number);
 const PASSED = [
 	Number.parseInt(ink.paperSoft.slice(1, 3), 16),
 	Number.parseInt(ink.paperSoft.slice(3, 5), 16),
@@ -89,7 +91,7 @@ export function Minimap() {
 					dot.style.background =
 						solid > 0.02 ? lerp(ACTIVE, PASSED, D) : "transparent";
 					dot.style.opacity = String(0.35 + 0.65 * solid);
-					dot.style.boxShadow = `0 0 ${12 * I + 5 * D}px rgba(${ink.ledRgb}, ${0.7 * I})`;
+					dot.style.boxShadow = `0 0 ${12 * I + 5 * D}px rgba(${ink.amberRgb}, ${0.7 * I})`;
 					dot.style.transform = `scale(${1 + 0.35 * I})`;
 				}
 				if (label) label.style.opacity = String(I);

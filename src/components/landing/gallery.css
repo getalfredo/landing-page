@@ -29,12 +29,14 @@
 .gxp-tab:hover .gxp-tab-label {
 	color: var(--green-text);
 }
+/* amber, not green: the tab is a navigation affordance, not live status
+   (#80) */
 .gxp-tab-led {
 	width: 5px;
 	height: 5px;
 	border-radius: 50%;
-	background: var(--led);
-	box-shadow: 0 0 6px var(--led-glow);
+	background: var(--amber);
+	box-shadow: 0 0 6px var(--amber-glow);
 	animation: gxp-breathe 2.6s ease-in-out infinite;
 }
 @keyframes gxp-breathe {
