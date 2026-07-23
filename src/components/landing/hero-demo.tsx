@@ -275,6 +275,16 @@ function milestoneAt(t: number): Milestone | null {
 
 type ProjStatus = "prov" | "live" | "down" | "off" | "out";
 
+// status → shared square-chip variant (#76); "out" keeps green while the
+// teardown animation plays, matching the LED behavior it replaced
+const STATUS_SQ: Record<ProjStatus, string> = {
+	prov: "lp-sq-amber",
+	live: "lp-sq-green",
+	down: "lp-sq-red",
+	off: "lp-sq-off",
+	out: "lp-sq-green",
+};
+
 type Spot =
 	| { kind: "empty" }
 	| { kind: "quiet" }
@@ -694,17 +704,7 @@ function Dash({ w }: { w: World }) {
 							/>
 						)}
 						<span className="hd-proj-head">
-							<span
-								className={`lp-sq ${
-									p.status === "down"
-										? "lp-sq-red"
-										: p.status === "prov"
-											? "lp-sq-amber"
-											: p.status === "off"
-												? "lp-sq-off"
-												: "lp-sq-green"
-								}`}
-							/>
+							<span className={`lp-sq ${STATUS_SQ[p.status]}`} />
 							<span className="hd-proj-name">{p.name}</span>
 						</span>
 						<span className="hd-proj-chips">
@@ -841,9 +841,7 @@ function QuietAmbient({ w }: { w: World }) {
 					.filter((p) => p.status !== "out")
 					.map((p) => (
 						<div className="hd-qrow" key={p.name}>
-							<span
-								className={`lp-sq ${p.status === "off" ? "lp-sq-off" : "lp-sq-green"}`}
-							/>
+							<span className={`lp-sq ${STATUS_SQ[p.status]}`} />
 							<span className="hd-qrow-name">{p.name}</span>
 							<span className="hd-qrow-val hd-num">
 								{fmt(integ(VIEW_RATES[p.name] ?? [], w.t))} views
