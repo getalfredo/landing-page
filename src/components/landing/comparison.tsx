@@ -6,11 +6,14 @@
 // columns, the two products are the rows, Alfredo the highlighted row.
 //
 // Status is EFFORT, not presence (operator round 5): green = automatic,
-// half-amber = manual, grey ring = not possible; never a bare ✓/✗, every
+// amber = manual, neutral outline = not possible; never a bare ✓/✗, every
 // cell keeps a short qualifier (#41 anti-strawman) and every competitor
-// keeps its real green (automatic) wins so no row is all-grey. Pip shapes
-// differ by more than hue (colour-blind-safe). Cast = Alfredo + the seven
-// on-page products; Railway / Better-T-Stack stay subpage-only links.
+// keeps its real green (automatic) wins so no row is all-grey. Statuses
+// render as the shared square chip (.lp-sq, #76/#77); "none" differs from
+// the filled states by shape (outline), and every cell carries qualifier
+// text plus an aria-label, so meaning never rides on hue alone. Cast =
+// Alfredo + the seven on-page products; Railway / Better-T-Stack stay
+// subpage-only links.
 //
 // AEO (#39 §4): every competitor's row is rendered in the DOM; CSS hides the
 // unselected ones, so all 56 cells stay in the server HTML. `VERIFIED JULY
@@ -196,10 +199,18 @@ const SUBPAGE_ONLY: { name: string; slug: string }[] = [
 	{ name: "Better-T-Stack", slug: "better-t-stack" },
 ];
 
+// cell status → shared square-chip variant (#76): effort vocabulary maps
+// onto the status vocabulary as auto=up, manual=partial, none=none
+const STATUS_SQ: Record<CellStatus, string> = {
+	auto: "lp-sq-up",
+	manual: "lp-sq-partial",
+	none: "lp-sq-none",
+};
+
 function Pip({ status }: { status: CellStatus }) {
 	return (
 		<span
-			className={`cmp-tbl-pip cmp-tbl-pip-${status}`}
+			className={`lp-sq ${STATUS_SQ[status]} cmp-tbl-pip`}
 			role="img"
 			aria-label={STATUS_LABEL[status]}
 		/>
@@ -284,9 +295,9 @@ function CompareTable() {
 
 			<div className="cmp-tbl-foot">
 				<span className="cmp-tbl-legend">
-					<span className="cmp-tbl-pip cmp-tbl-pip-auto" /> automatic
-					<span className="cmp-tbl-pip cmp-tbl-pip-manual" /> manual
-					<span className="cmp-tbl-pip cmp-tbl-pip-none" /> not possible
+					<span className="lp-sq lp-sq-up cmp-tbl-pip" /> automatic
+					<span className="lp-sq lp-sq-partial cmp-tbl-pip" /> manual
+					<span className="lp-sq lp-sq-none cmp-tbl-pip" /> not possible
 				</span>
 				<span className="lp-etch cmp-tbl-stamp">VERIFIED JULY 2026</span>
 			</div>

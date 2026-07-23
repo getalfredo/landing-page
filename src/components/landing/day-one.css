@@ -115,18 +115,10 @@
 .ldg-flip-slot-wired {
 	border-color: rgba(var(--led-rgb), 0.4);
 }
-.ldg-flip-dot {
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--led-off);
-	transition:
-		background 0.35s ease,
-		box-shadow 0.35s ease;
-}
-.ldg-flip-dot-on {
-	background: var(--led);
-	box-shadow: 0 0 8px var(--led-glow);
+/* slot state is the shared square chip (.lp-sq, #76/#77): up when wired,
+   off otherwise — this class only eases the flip between the two */
+.ldg-flip-sq {
+	transition: background 0.35s ease;
 }
 .ldg-flip-name {
 	font-size: 9px;

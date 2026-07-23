@@ -19,6 +19,7 @@ import {
 	type CellStatus,
 	PRODUCTS,
 	STATUS_LABEL,
+	STATUS_SQ,
 } from "#/components/compare/compare-data";
 import { consoleCssVars } from "#/components/landing/console-vars";
 import { Footer } from "#/components/landing/footer";
@@ -48,7 +49,7 @@ export function compareHead(slug: string) {
 function Pip({ status }: { status: CellStatus }) {
 	return (
 		<span
-			className={`cmp-tbl-pip cmp-tbl-pip-${status}`}
+			className={`lp-sq ${STATUS_SQ[status]} cmp-tbl-pip`}
 			role="img"
 			aria-label={STATUS_LABEL[status]}
 		/>
@@ -101,9 +102,9 @@ function BackingTable({ name, cells }: { name: string; cells: Cell[] }) {
 			</div>
 			<div className="cmp-tbl-foot">
 				<span className="cmp-tbl-legend">
-					<span className="cmp-tbl-pip cmp-tbl-pip-auto" /> automatic
-					<span className="cmp-tbl-pip cmp-tbl-pip-manual" /> manual
-					<span className="cmp-tbl-pip cmp-tbl-pip-none" /> not possible
+					<span className="lp-sq lp-sq-up cmp-tbl-pip" /> automatic
+					<span className="lp-sq lp-sq-partial cmp-tbl-pip" /> manual
+					<span className="lp-sq lp-sq-none cmp-tbl-pip" /> not possible
 				</span>
 				<span className="lp-etch cmp-tbl-stamp">VERIFIED JULY 2026</span>
 			</div>

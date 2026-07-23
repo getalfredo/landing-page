@@ -24,6 +24,15 @@ export const STATUS_LABEL: Record<CellStatus, string> = {
 	none: "not possible",
 };
 
+// cell status → shared square-chip variant (.lp-sq, #76/#77): effort
+// vocabulary maps onto the status vocabulary as auto=up, manual=partial,
+// none=none
+export const STATUS_SQ: Record<CellStatus, string> = {
+	auto: "lp-sq-up",
+	manual: "lp-sq-partial",
+	none: "lp-sq-none",
+};
+
 // The seven #63 capability axes, in the order every cells[] array follows.
 // Same labels as the on-page comparison table (#74) so the two never drift.
 export const AXES = [

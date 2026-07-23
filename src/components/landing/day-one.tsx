@@ -4,6 +4,7 @@
 // Setup-tax ledger strip (wayfinder #54, variant c "Flip strip"): between the
 // pain paragraph and the payoff, a two-cap toggle re-lights five slots and a
 // SETUPS DUE counter (5 → 0), auto-switching every 3s with a progress bar.
+// Slot state renders as the shared square chip (.lp-sq up/off, #76/#77).
 // The five slots mirror the hero deploy checklist (Auth/Email/Database/
 // Analytics/Payments); at this fold-in the pain paragraph's Secrets sentence
 // was swapped for Payments so the prose five match the strip five (#14
@@ -91,7 +92,7 @@ function SetupTaxStrip() {
 							className={`ldg-flip-slot${wired ? " ldg-flip-slot-wired" : ""}`}
 						>
 							<span
-								className={`ldg-flip-dot${wired ? " ldg-flip-dot-on" : ""}`}
+								className={`lp-sq ${wired ? "lp-sq-up" : "lp-sq-off"} ldg-flip-sq`}
 								aria-hidden="true"
 							/>
 							<span className="lp-etch ldg-flip-name">{r}</span>

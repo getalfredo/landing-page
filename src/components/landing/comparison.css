@@ -181,27 +181,10 @@
 	color: var(--paper);
 }
 
-/* status pips: auto (green), manual (half amber), none (grey ring) */
+/* status pips are shared square chips (.lp-sq, #76/#77): auto=up,
+   manual=partial, none=none — this class only handles table alignment */
 .cmp-tbl-pip {
-	display: inline-block;
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
 	vertical-align: middle;
-}
-.cmp-tbl-pip-auto {
-	background: var(--led);
-	box-shadow: 0 0 7px var(--led-glow);
-}
-/* half-filled so it differs from "auto" by SHAPE, not just hue (colorblind) */
-.cmp-tbl-pip-manual {
-	background: linear-gradient(90deg, var(--amber) 0 50%, transparent 50% 100%);
-	border: 1.5px solid var(--amber);
-	box-shadow: 0 0 6px var(--amber-glow);
-}
-.cmp-tbl-pip-none {
-	background: transparent;
-	border: 1.5px solid rgba(var(--paper-rgb), 0.3);
 }
 
 /* legend + provenance stamp */
