@@ -212,6 +212,43 @@
 	box-shadow: 0 0 8px var(--amber-glow);
 }
 
+/* ---------- Square-chip status indicator (signal pass, #76) ----------
+   Instrument readout, not a heartbeat: the round glowing dot is reserved
+   for live pulses (wordmark, waitlist-open, footer LIVE meter). Any other
+   indicator carrying a status color is this crisp inset square. Vocab:
+   green = up/on, amber = partial/provisioning, red = down, off = idle,
+   none = neutral outline. The red variant expects a --red in scope (red
+   is deliberately not in the shared ink palette; the hero demo sets its
+   own on .hd-bezel). */
+.lp-sq {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 1.5px;
+	flex-shrink: 0;
+	/* recessed readout: dark inner lip, faint lit bottom edge, no bloom */
+	box-shadow:
+		inset 0 1px 1px rgba(0, 0, 0, 0.55),
+		inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+		0 1px 0 rgba(var(--paper-rgb), 0.07);
+}
+.lp-sq-green {
+	background: var(--led);
+}
+.lp-sq-amber {
+	background: var(--amber);
+}
+.lp-sq-red {
+	background: var(--red);
+}
+.lp-sq-off {
+	background: var(--led-off);
+}
+.lp-sq-none {
+	background: transparent;
+	box-shadow: inset 0 0 0 1px rgba(var(--paper-rgb), 0.3);
+}
+
 /* ---------- Contained bands (issue-29): showcase + amber crescendo ---------- */
 .lp-section.lp-band {
 	max-width: 1080px;

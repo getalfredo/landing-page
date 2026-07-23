@@ -231,11 +231,9 @@
 .hd-spot-idle .hd-spot-sub {
 	margin-top: 0;
 }
-.hd-empty-led {
+.hd-empty-sq {
 	width: 10px;
 	height: 10px;
-	border-radius: 50%;
-	background: var(--led-off);
 	animation: hd-idle 2.4s ease-in-out infinite;
 }
 
@@ -323,29 +321,13 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-/* #53: --tod-glow (1 / 1.25 / 1.5) brightens the LEDs after dark */
-.hd-led {
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: var(--led);
-	box-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--led-glow);
-	flex-shrink: 0;
-}
-.hd-led-amber {
-	background: var(--amber);
-	box-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--amber-glow);
+/* statuses are shared square chips (.lp-sq, #76) — no glow bloom; the
+   amber/red chips keep the demo's instrument blink */
+.hd-bezel .lp-sq-amber {
 	animation: hd-blink 0.8s steps(1) infinite;
 }
-.hd-led-red {
-	background: var(--red);
-	box-shadow: 0 0 calc(7px * var(--tod-glow, 1)) var(--red-glow);
+.hd-bezel .lp-sq-red {
 	animation: hd-blink 0.5s steps(1) infinite;
-}
-/* after .hd-led so the grey actually wins the cascade */
-.hd-led-off {
-	background: var(--led-off);
-	box-shadow: none;
 }
 .hd-proj-chips {
 	display: flex;
@@ -769,10 +751,10 @@
 	font-size: 8px;
 	color: var(--green-text);
 }
-.hd-qrow .hd-led-off + .hd-qrow-name {
+.hd-qrow .lp-sq-off + .hd-qrow-name {
 	opacity: 0.5;
 }
-.hd-qrow:has(.hd-led-off) .hd-qrow-state {
+.hd-qrow:has(.lp-sq-off) .hd-qrow-state {
 	color: var(--paper-soft);
 }
 

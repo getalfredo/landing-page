@@ -624,7 +624,7 @@ function DeployForm({ form }: { form: NonNullable<World["form"]> }) {
 			<div className="hd-form-head">
 				<span className="hd-etch">NEW PROJECT</span>
 				<span
-					className={`hd-led${form.phase === "sent" ? " hd-led-amber" : ""}`}
+					className={`lp-sq ${form.phase === "sent" ? "lp-sq-amber" : "lp-sq-green"}`}
 				/>
 			</div>
 
@@ -695,14 +695,14 @@ function Dash({ w }: { w: World }) {
 						)}
 						<span className="hd-proj-head">
 							<span
-								className={`hd-led${
+								className={`lp-sq ${
 									p.status === "down"
-										? " hd-led-red"
+										? "lp-sq-red"
 										: p.status === "prov"
-											? " hd-led-amber"
+											? "lp-sq-amber"
 											: p.status === "off"
-												? " hd-led-off"
-												: ""
+												? "lp-sq-off"
+												: "lp-sq-green"
 								}`}
 							/>
 							<span className="hd-proj-name">{p.name}</span>
@@ -842,7 +842,7 @@ function QuietAmbient({ w }: { w: World }) {
 					.map((p) => (
 						<div className="hd-qrow" key={p.name}>
 							<span
-								className={`hd-led${p.status === "off" ? " hd-led-off" : ""}`}
+								className={`lp-sq ${p.status === "off" ? "lp-sq-off" : "lp-sq-green"}`}
 							/>
 							<span className="hd-qrow-name">{p.name}</span>
 							<span className="hd-qrow-val hd-num">
@@ -866,7 +866,7 @@ function Spotlight({ w }: { w: World }) {
 	if (s.kind === "empty") {
 		return (
 			<div className="hd-spot hd-spot-idle">
-				<span className="hd-empty-led" />
+				<span className="lp-sq lp-sq-off hd-empty-sq" />
 				<span className="hd-spot-big">No projects yet</span>
 				<span className="hd-spot-sub">
 					one deploy wires everything — analytics, email, database, auth
